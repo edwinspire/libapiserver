@@ -1,45 +1,43 @@
 import 'dotenv/config';
-import express from 'express'
-import { createServer } from 'http'
-import { WebSocketServer } from 'ws'
-import { handler } from '../build/handler.js'
+import express from 'express';
+import { createServer } from 'http';
+//import { WebSocketServer } from 'ws'
+import { WebSocketExpress } from '@edwinspire/websocket_express/src/index.js';
+import { handler } from '../build/handler.js';
+import { ApiModel } from './lib/apirest/db/models.js';
+import dbRestAPI from './lib/apirest/db/sequelize.js';
 
-const { PORT, EXPRESSJS_SERVER_TIMEOUT } =
-    process.env;
+const { PORT, EXPRESSJS_SERVER_TIMEOUT, BUILD_DB_ON_START } = process.env;
 
-const app = express()
-const httpServer = createServer(app)
+if (BUILD_DB_ON_START == 'true') {
+	dbRestAPI.sync({ alter: true }).then(
+		() => {
+			console.log('Crea la base de datos');
+		},
+		(e) => {
+			console.log('no se pudo crear / modificar la base de datos', e);
+		}
+	);
+}
 
-let WebSocket = new WebSocketServer({ noServer: true });
-WebSocket.on("connection", (socket) => {
+const app = express();
+const httpServer = createServer(app);
 
-    socket.on("message", (message) => {
+const webSocketServer = new WebSocketExpress(httpServer, undefined, undefined);
 
-        console.log(message);
-    });
+webSocketServer.on('client_connection', (/** @type {any} */ data) => {
+	console.log('client_connection', data);
 });
 
-httpServer.on("upgrade", (request, socket, head) => {
-
-    if (request.url === "/websocket") {
-        WebSocket.handleUpgrade(request, socket, head, (socket) => {
-            console.log("conecatado ws");
-            WebSocket.emit("connection", socket, request);
-        });
-    } else {
-        socket.destroy();
-    }
-});
-
-app.use(handler)
+app.use(handler);
 
 let rto = 1000 * 60 * 5;
 if (EXPRESSJS_SERVER_TIMEOUT && Number(EXPRESSJS_SERVER_TIMEOUT) > 1000) {
-    rto = Number(EXPRESSJS_SERVER_TIMEOUT);
+	rto = Number(EXPRESSJS_SERVER_TIMEOUT);
 }
-console.log("EXPRESSJS_SERVER_TIMEOUT: " + EXPRESSJS_SERVER_TIMEOUT);
+console.log('EXPRESSJS_SERVER_TIMEOUT: ' + EXPRESSJS_SERVER_TIMEOUT);
 httpServer.setTimeout(rto); // Para 5 minutos
 
 httpServer.listen(PORT, () => {
-    console.log("App listening on port " + PORT);
+	console.log('App listening on port ' + PORT);
 });

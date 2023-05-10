@@ -36,12 +36,18 @@
 	"type": "module",
 	"dependencies": {
 		"@edwinspire/universal-fetch": "git+https://github.com/edwinspire/universal-fetch.git",
+		"@edwinspire/websocket_express": "github:edwinspire/websocket_express",
 		"@fontsource/fira-mono": "^4.5.0",
 		"@sveltejs/adapter-node": "^1.0.0-next.86",
+		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"cookie": "^0.4.1",
 		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
+		"jsonwebtoken": "^9.0.0",
 		"lowdb": "^3.0.0",
+		"pg": "^8.10.0",
+		"sequelize": "^6.31.1",
+		"sqlite3": "^5.1.6",
 		"ws": "^8.8.1"
 	}
 }
