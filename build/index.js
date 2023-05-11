@@ -1,38 +1,9 @@
-import { p as parse$1, e as env, h as handler } from './handler-aee37ee5.js';
+import { handler } from './handler.js';
+import { env } from './env.js';
 import http from 'http';
-import './shims-7fd472a1.js';
-import 'assert';
-import 'net';
-import 'stream';
-import 'buffer';
-import 'util';
-import 'stream/web';
-import 'perf_hooks';
-import 'util/types';
-import 'events';
-import 'tls';
-import 'async_hooks';
-import 'console';
-import 'zlib';
-import 'node:http';
-import 'node:https';
-import 'node:zlib';
-import 'node:stream';
-import 'node:buffer';
-import 'node:util';
-import 'node:url';
-import 'node:net';
-import 'node:fs';
-import 'node:path';
-import 'crypto';
-import 'fs';
-import 'path';
-import 'querystring';
-import 'url';
-import './server/index.js';
-import './manifest.js';
+import * as qs from 'querystring';
 
-function parse (str, loose) {
+function parse$1 (str, loose) {
 	if (str instanceof RegExp) return { keys:false, pattern:str };
 	var c, o, tmp, ext, keys=[], pattern='', arr = str.split('/');
 	arr[0] || arr.shift();
@@ -77,13 +48,13 @@ class Trouter {
 
 	use(route, ...fns) {
 		let handlers = [].concat.apply([], fns);
-		let { keys, pattern } = parse(route, true);
+		let { keys, pattern } = parse$1(route, true);
 		this.routes.push({ keys, pattern, method:'', handlers });
 		return this;
 	}
 
 	add(method, route, ...fns) {
-		let { keys, pattern } = parse(route);
+		let { keys, pattern } = parse$1(route);
 		let handlers = [].concat.apply([], fns);
 		this.routes.push({ keys, pattern, method, handlers });
 		return this;
@@ -116,6 +87,45 @@ class Trouter {
 	}
 }
 
+/**
+ * @typedef ParsedURL
+ * @type {import('.').ParsedURL}
+ */
+
+/**
+ * @typedef Request
+ * @property {string} url
+ * @property {ParsedURL} _parsedUrl
+ */
+
+/**
+ * @param {Request} req
+ * @returns {ParsedURL|void}
+ */
+function parse(req) {
+	let raw = req.url;
+	if (raw == null) return;
+
+	let prev = req._parsedUrl;
+	if (prev && prev.raw === raw) return prev;
+
+	let pathname=raw, search='', query;
+
+	if (raw.length > 1) {
+		let idx = raw.indexOf('?', 1);
+
+		if (idx !== -1) {
+			search = raw.substring(idx);
+			pathname = raw.substring(0, idx);
+			if (search.length > 1) {
+				query = qs.parse(search.substring(1));
+			}
+		}
+	}
+
+	return req._parsedUrl = { pathname, search, query, raw };
+}
+
 function onError(err, req, res) {
 	let code = typeof err.status === 'number' && err.status;
 	code = res.statusCode = (code && code >= 100 ? code : 500);
@@ -128,7 +138,7 @@ const mount = fn => fn instanceof Polka ? fn.attach : fn;
 class Polka extends Trouter {
 	constructor(opts={}) {
 		super();
-		this.parse = parse$1;
+		this.parse = parse;
 		this.server = opts.server;
 		this.handler = this.handler.bind(this);
 		this.onError = opts.onError || onError; // catch-all handler

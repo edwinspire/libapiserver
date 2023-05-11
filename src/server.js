@@ -4,15 +4,17 @@ import { createServer } from 'http';
 //import { WebSocketServer } from 'ws'
 import { WebSocketExpress } from '@edwinspire/websocket_express/src/index.js';
 import { handler } from '../build/handler.js';
-import { ApiModel } from './lib/apirest/db/models.js';
+import { User, App, Route, Method } from './lib/apirest/db/models.js';
+import { defaultValues } from './lib/apirest/db/user.js';
 import dbRestAPI from './lib/apirest/db/sequelize.js';
 
 const { PORT, EXPRESSJS_SERVER_TIMEOUT, BUILD_DB_ON_START } = process.env;
 
 if (BUILD_DB_ON_START == 'true') {
 	dbRestAPI.sync({ alter: true }).then(
-		() => {
+		async() => {
 			console.log('Crea la base de datos');
+			await defaultValues();
 		},
 		(e) => {
 			console.log('no se pudo crear / modificar la base de datos', e);
