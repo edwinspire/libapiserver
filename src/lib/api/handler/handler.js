@@ -4,9 +4,10 @@
 //import { App } from '../db/models.js'
 //import { fileURLToPath } from 'url';
 
-import { jsFunction } from './jsFunction.js'
-import { fetchFunction } from './fetchFunction.js'
-import { soapFunction } from './soapFunction.js'
+import { jsFunction } from "./jsFunction.js";
+import { fetchFunction } from "./fetchFunction.js";
+import { soapFunction } from "./soapFunction.js";
+import { sqlFunction } from "./sqlFunction.js";
 
 /*
 enum HttpMethod {
@@ -54,26 +55,28 @@ type Api = {
 };
 */
 
-
 /**
  * @param {{ headers: any; body: any; query: any; }} request
  * @param {any} response
  * @param {{ handler: string; code: string; }} method
  */
-export  function runHandler(request, response, method) {
+export function runHandler(request, response, method) {
   switch (method.handler) {
-    case 'jsFunction':
-      jsFunction(request, response, method)
-      break
-    case 'fetchFunction':
+    case "jsFunction":
+      jsFunction(request, response, method);
+      break;
+    case "fetchFunction":
       // @ts-ignore
-      fetchFunction(request, response, method)
-      break
-    case 'soapFunction':
-    //  soapFunction(request, response, method)
-      break
+      fetchFunction(request, response, method);
+      break;
+    case "soapFunction":
+      //  soapFunction(request, response, method)
+      break;
+    case "sqlFunction":
+      sqlFunction(request, response, method);
+      break;
     default:
-      response.status(404).json(`handler ${method.handler} not valid`)
-      break
+      response.status(404).json(`handler ${method.handler} not valid`);
+      break;
   }
 }

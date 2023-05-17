@@ -133,12 +133,13 @@ const Route = dbsequelize.define(
     },
     idapp: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: false,
+      unique: false
     },
     route: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: false
     },
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -148,6 +149,12 @@ const Route = dbsequelize.define(
   {
     freezeTableName: true,
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["idapp", "route"]
+      }
+    ],
     hooks: {
       beforeUpdate: (route, options) => {
         route.ts = /* @__PURE__ */ new Date();
@@ -176,17 +183,19 @@ const Method = dbsequelize.define(
     },
     idroute: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: false,
+      unique: false
     },
     env: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "dev"
+      defaultValue: "dev",
+      unique: false
     },
     method: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: false
     },
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -195,7 +204,8 @@ const Method = dbsequelize.define(
     version: {
       type: DataTypes.DECIMAL,
       allowNull: false,
-      defaultValue: 0.1
+      defaultValue: 0.1,
+      unique: false
     },
     is_public: {
       type: DataTypes.BOOLEAN,
@@ -316,21 +326,30 @@ const deleteRoute = async (routeId) => {
     throw error;
   }
 };
+const getRouteByidAppRoute = async (idapp, name_route) => {
+  let d1 = await Route.findAll({ where: { idapp, route: name_route } });
+  let data;
+  if (d1 && Array.isArray(d1) && d1.length > 0) {
+    data = d1[0].dataValues;
+  }
+  return data;
+};
 const upsertRoute = async (idapp, routeData, transaction) => {
   try {
+    let data;
     routeData.idapp = routeData.idapp || idapp;
-    console.log("routeData >>>>> ", routeData);
-    let result = await Route.upsert(routeData, transaction);
-    console.log("UPSERT ROUTE", result);
-    if (result && Array.isArray(result) && result.length > 0 && result[0].idroute < 1) {
-      result = await Route.findAll({
-        // @ts-ignore
-        where: { route: routeData.route, idapp: routeData.idapp }
-      }).map((r) => {
-        return m.dataValues;
-      });
+    let [app, create] = await Route.upsert(routeData, transaction);
+    if (app && app.dataValues) {
+      data = app.dataValues;
+      if (data.idroute <= 0) {
+        let r1 = await getRouteByidAppRoute(routeData.idapp, routeData.route);
+        if (r1) {
+          data.idroute = r1.idroute;
+        }
+      }
     }
-    return result;
+    console.log("******* UPSERT ROUTE ********", data);
+    return [data, create];
   } catch (error) {
     console.error("Error performing UPSERT on route:", error);
     throw error;
@@ -468,9 +487,24 @@ const getAppById = async (appId) => {
     throw error;
   }
 };
+const getAppByName = async (app_name) => {
+  let d1 = await App.findAll({ where: { app: app_name } });
+  let data;
+  if (d1 && Array.isArray(d1) && d1.length > 0) {
+    data = d1[0].dataValues;
+  }
+  console.log(" >>>>> getAppByName ZZZZZ ", data);
+  return data;
+};
 const upsertApp = async (appData, transaction) => {
   try {
-    return await App.upsert(appData, transaction);
+    let [app, create] = await App.upsert(appData, transaction);
+    let data = app.dataValues;
+    if (data.idapp <= 0) {
+      let d2 = await getAppByName(data.app);
+      data.idapp = d2.idapp;
+    }
+    return [data, create];
   } catch (error) {
     console.error("Error performing UPSERT on app:", error);
     throw error;
@@ -482,31 +516,23 @@ async function saveApp(appData) {
     let user = await getUserById(appData.iduser);
     if (user && user.enabled) {
       let [app, create] = await upsertApp(appData, { transaction });
-      appData.idapp = appData.idapp || app.idapp;
-      if (appData.idapp < 1) {
-        let app1 = await App.findAll({ where: { app: appData.app } });
-        if (app1 && Array.isArray(app1) && app1.length > 0 && app1[0].idapp > 0) {
-          appData.idapp = app1[0].idapp;
-        } else {
-          console.log("No se pudo obtener el idapp");
-        }
-      }
+      appData.idapp = app.idapp;
       if (appData.idapp > 0) {
         if (appData.route && Array.isArray(appData.route) && appData.route.length > 0) {
-          console.log("Ingresamos las rutas para la idapp " + appData.idapp);
           for (let index = 0; index < appData.route.length; index++) {
             let route = { ...appData.route[index] };
-            let route_result = await upsertRoute(appData.idapp, route, {
+            let [route_result] = await upsertRoute(appData.idapp, route, {
               transaction
             });
-            if (route_result && Array.isArray(route_result) && route_result.length > 0 && route_result[0].idroute > 0) {
-              route.idroute = route_result[0].idroute;
-              if (route && route.method && Array.isArray(route.method)) {
+            if (route_result && route_result.idroute > 0) {
+              route.idroute = route_result.idroute;
+              if (route && route.method && Array.isArray(route.method) && route.method.length > 0) {
                 for (let indexm = 0; indexm < route.method.length; indexm++) {
                   let method = {
                     ...route.method[indexm],
                     idroute: route.idroute
                   };
+                  console.log("XXXXXXXXXXXXXXXXXXXX> ", method);
                   await upsertMethod(method, { transaction });
                 }
               }
@@ -546,8 +572,8 @@ async function getFullApp(idapp) {
             // @ts-ignore
             where: { idroute: routes[index].idroute }
           });
-          routes[index].method = methods.map((m2) => {
-            return m2.dataValues;
+          routes[index].method = methods.map((m) => {
+            return m.dataValues;
           });
         }
       }
@@ -569,4 +595,4 @@ async function POST({ request, params }) {
 }
 
 export { GET, POST };
-//# sourceMappingURL=_server-4d39d843.js.map
+//# sourceMappingURL=_server-ad9db0a8.js.map

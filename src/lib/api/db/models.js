@@ -47,7 +47,9 @@ export const User = dbsequelize.define(
     timestamps: false,
     hooks: {
       beforeUpdate: (user, options) => {
+        // @ts-ignore
         user.ts = new Date()
+        // @ts-ignore
         user.rowkey = Math.floor(Math.random() * 1000)
       },
     },
@@ -95,7 +97,9 @@ export  const App = dbsequelize.define('app', {
   timestamps: false,
   hooks: {
     beforeUpdate: (app, options) => {
+      // @ts-ignore
       app.ts = new Date()
+      // @ts-ignore
       app.rowkey = Math.floor(Math.random() * 1000)
     },
   },
@@ -123,11 +127,12 @@ export  const Route = dbsequelize.define(
     idapp: {
       type: DataTypes.BIGINT,
       allowNull: false,
+      unique: false
     },
     route: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: false
     },
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -137,9 +142,17 @@ export  const Route = dbsequelize.define(
   {
     freezeTableName: true,
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['idapp', 'route'],
+      },
+    ],
     hooks: {
       beforeUpdate: (route, options) => {
+        // @ts-ignore
         route.ts = new Date()
+        // @ts-ignore
         route.rowkey = Math.floor(Math.random() * 1000)
       },
     },
@@ -168,16 +181,18 @@ export  const Method = dbsequelize.define(
     idroute: {
       type: DataTypes.BIGINT,
       allowNull: false,
+      unique: false
     },
     env: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'dev',
+      unique: false
     },
     method: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: false,
     },
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -187,6 +202,7 @@ export  const Method = dbsequelize.define(
       type: DataTypes.DECIMAL,
       allowNull: false,
       defaultValue: 0.1,
+      unique: false
     },
     is_public: {
       type: DataTypes.BOOLEAN,
@@ -218,7 +234,9 @@ export  const Method = dbsequelize.define(
     ],
     hooks: {
       beforeUpdate: (method, options) => {
+        // @ts-ignore
         method.ts = new Date()
+        // @ts-ignore
         method.rowkey = Math.floor(Math.random() * 1000)
       },
     },

@@ -1,7 +1,7 @@
 import { Method } from './models.js'
 
 // CREATE
-const createMethod = async (methodData) => {
+const createMethod = async (/** @type {import("sequelize").Optional<any, string> | undefined} */ methodData) => {
   try {
     const newMethod = await Method.create(methodData)
     return newMethod
@@ -12,7 +12,7 @@ const createMethod = async (methodData) => {
 }
 
 // READ
-const getMethodById = async (methodId) => {
+const getMethodById = async (/** @type {import("sequelize").Identifier | undefined} */ methodId) => {
   try {
     const method = await Method.findByPk(methodId)
     return method
@@ -33,7 +33,7 @@ const getAllMethods = async () => {
 }
 
 // UPDATE
-const updateMethod = async (methodId, methodData) => {
+const updateMethod = async (/** @type {import("sequelize").Identifier | undefined} */ methodId, /** @type {{ [x: string]: any; }} */ methodData) => {
   try {
     const method = await Method.findByPk(methodId)
     if (method) {
@@ -48,7 +48,7 @@ const updateMethod = async (methodId, methodData) => {
 }
 
 // DELETE
-const deleteMethod = async (methodId) => {
+const deleteMethod = async (/** @type {import("sequelize").Identifier | undefined} */ methodId) => {
   try {
     const method = await Method.findByPk(methodId)
     if (method) {
@@ -86,6 +86,7 @@ const runExample = async () => {
     console.log('New method created:', newMethod)
 
     // Get a method by ID
+    // @ts-ignore
     const methodById = await getMethodById(newMethod.idmethod)
     console.log('Method by ID:', methodById)
 
@@ -94,12 +95,14 @@ const runExample = async () => {
     console.log('All methods:', allMethods)
 
     // Update a method
+    // @ts-ignore
     const updatedMethod = await updateMethod(newMethod.idmethod, {
       handler: 'updatedHandler',
     })
     console.log('Updated method:', updatedMethod)
 
     // Delete a method
+    // @ts-ignore
     const deleted = await deleteMethod(newMethod.idmethod)
     console.log('Method deleted:', deleted)
 
