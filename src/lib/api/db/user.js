@@ -100,8 +100,8 @@ export const defaultUser = async () => {
   //  console.log('User by ID:', userById)
 
     // Get all users
-    const allUsers = await getAllUsers()
-    console.log('All users:', allUsers)
+ //   const allUsers = await getAllUsers()
+ //   console.log('All users:', allUsers)
 /*
     // Update a user
     // @ts-ignore

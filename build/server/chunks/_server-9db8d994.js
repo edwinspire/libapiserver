@@ -60,6 +60,12 @@ const User = dbsequelize.define(
   {
     freezeTableName: true,
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["username"]
+      }
+    ],
     hooks: {
       beforeUpdate: (user, options) => {
         user.ts = /* @__PURE__ */ new Date();
@@ -68,51 +74,61 @@ const User = dbsequelize.define(
     }
   }
 );
-const App = dbsequelize.define("app", {
-  idapp: {
-    type: DataTypes.BIGINT,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false,
-    unique: true
+const App = dbsequelize.define(
+  "app",
+  {
+    idapp: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true
+    },
+    ts: {
+      type: DataTypes.DATE,
+      defaultValue: NOW
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0
+    },
+    description: {
+      type: DataTypes.STRING
+    },
+    icon: {
+      type: DataTypes.STRING
+    },
+    app: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
+    iduser: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    }
   },
-  ts: {
-    type: DataTypes.DATE,
-    defaultValue: NOW
-  },
-  rowkey: {
-    type: DataTypes.SMALLINT,
-    defaultValue: 0
-  },
-  description: {
-    type: DataTypes.STRING
-  },
-  icon: {
-    type: DataTypes.STRING
-  },
-  app: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false
-  },
-  enabled: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
-  iduser: {
-    type: DataTypes.BIGINT,
-    allowNull: false
-  }
-}, {
-  freezeTableName: true,
-  timestamps: false,
-  hooks: {
-    beforeUpdate: (app, options) => {
-      app.ts = /* @__PURE__ */ new Date();
-      app.rowkey = Math.floor(Math.random() * 1e3);
+  {
+    freezeTableName: true,
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["app"]
+      }
+    ],
+    hooks: {
+      beforeUpdate: (app, options) => {
+        app.ts = /* @__PURE__ */ new Date();
+        app.rowkey = Math.floor(Math.random() * 1e3);
+      }
     }
   }
-});
+);
 const Route = dbsequelize.define(
   "route",
   {
@@ -273,59 +289,6 @@ const getUserById = async (userId) => {
     throw error;
   }
 };
-const createRoute = async (routeData) => {
-  try {
-    const newRoute = await Route.create(routeData);
-    return newRoute;
-  } catch (error) {
-    console.error("Error creating route:", error);
-    throw error;
-  }
-};
-const getRouteById = async (routeId) => {
-  try {
-    const route = await Route.findByPk(routeId);
-    return route;
-  } catch (error) {
-    console.error("Error retrieving route:", error);
-    throw error;
-  }
-};
-const getAllRoutes = async () => {
-  try {
-    const routes = await Route.findAll();
-    return routes;
-  } catch (error) {
-    console.error("Error retrieving routes:", error);
-    throw error;
-  }
-};
-const updateRoute = async (routeId, routeData) => {
-  try {
-    const route = await Route.findByPk(routeId);
-    if (route) {
-      await route.update(routeData);
-      return route;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error updating route:", error);
-    throw error;
-  }
-};
-const deleteRoute = async (routeId) => {
-  try {
-    const route = await Route.findByPk(routeId);
-    if (route) {
-      await route.destroy();
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error deleting route:", error);
-    throw error;
-  }
-};
 const getRouteByidAppRoute = async (idapp, name_route) => {
   let d1 = await Route.findAll({ where: { idapp, route: name_route } });
   let data;
@@ -355,88 +318,6 @@ const upsertRoute = async (idapp, routeData, transaction) => {
     throw error;
   }
 };
-const runExample$1 = async () => {
-  try {
-    const newRoute = await createRoute({
-      path: "/users",
-      method: "GET",
-      handler: "getUserList"
-    });
-    console.log("New route created:", newRoute);
-    const routeById = await getRouteById(newRoute.id);
-    console.log("Route by ID:", routeById);
-    const allRoutes = await getAllRoutes();
-    console.log("All routes:", allRoutes);
-    const updatedRoute = await updateRoute(newRoute.id, {
-      handler: "updatedHandler"
-    });
-    console.log("Updated route:", updatedRoute);
-    const deleted = await deleteRoute(newRoute.id);
-    console.log("Route deleted:", deleted);
-    const upsertedRoute = await upsertRoute({
-      path: "/users",
-      method: "POST",
-      handler: "createUser"
-    });
-    console.log("Upserted route:", upsertedRoute);
-  } catch (error) {
-    console.error("Example error:", error);
-  }
-};
-runExample$1();
-const createMethod = async (methodData) => {
-  try {
-    const newMethod = await Method.create(methodData);
-    return newMethod;
-  } catch (error) {
-    console.error("Error creating method:", error);
-    throw error;
-  }
-};
-const getMethodById = async (methodId) => {
-  try {
-    const method = await Method.findByPk(methodId);
-    return method;
-  } catch (error) {
-    console.error("Error retrieving method:", error);
-    throw error;
-  }
-};
-const getAllMethods = async () => {
-  try {
-    const methods = await Method.findAll();
-    return methods;
-  } catch (error) {
-    console.error("Error retrieving methods:", error);
-    throw error;
-  }
-};
-const updateMethod = async (methodId, methodData) => {
-  try {
-    const method = await Method.findByPk(methodId);
-    if (method) {
-      await method.update(methodData);
-      return method;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error updating method:", error);
-    throw error;
-  }
-};
-const deleteMethod = async (methodId) => {
-  try {
-    const method = await Method.findByPk(methodId);
-    if (method) {
-      await method.destroy();
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error deleting method:", error);
-    throw error;
-  }
-};
 const upsertMethod = async (methodData, transaction) => {
   try {
     return await Method.upsert(methodData, transaction);
@@ -445,39 +326,6 @@ const upsertMethod = async (methodData, transaction) => {
     throw error;
   }
 };
-const runExample = async () => {
-  try {
-    const newMethod = await createMethod({
-      idroute: 1,
-      env: "dev",
-      method: "GET",
-      version: 1,
-      handler: "getUserList"
-    });
-    console.log("New method created:", newMethod);
-    const methodById = await getMethodById(newMethod.idmethod);
-    console.log("Method by ID:", methodById);
-    const allMethods = await getAllMethods();
-    console.log("All methods:", allMethods);
-    const updatedMethod = await updateMethod(newMethod.idmethod, {
-      handler: "updatedHandler"
-    });
-    console.log("Updated method:", updatedMethod);
-    const deleted = await deleteMethod(newMethod.idmethod);
-    console.log("Method deleted:", deleted);
-    const upsertedMethod = await upsertMethod({
-      idroute: 2,
-      env: "prod",
-      method: "POST",
-      version: 2,
-      handler: "createUser"
-    });
-    console.log("Upserted method:", upsertedMethod);
-  } catch (error) {
-    console.error("Example error:", error);
-  }
-};
-runExample();
 const getAppById = async (appId) => {
   try {
     const app = await App.findByPk(appId);
@@ -595,4 +443,4 @@ async function POST({ request, params }) {
 }
 
 export { GET, POST };
-//# sourceMappingURL=_server-ad9db0a8.js.map
+//# sourceMappingURL=_server-9db8d994.js.map

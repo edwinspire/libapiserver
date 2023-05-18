@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, QueryTypes } from "sequelize";
 
 export const sqlFunction = async (
   /** @type {{ method?: any; headers: any; body: any; query: any; }} */ request,
@@ -6,29 +6,61 @@ export const sqlFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
-    var sequelize = new Sequelize({
-      dialect: "mssql",
-      dialectModulePath: "sequelize-msnodesqlv8",
-      dialectOptions: {
-        connectionString:
-          "Server=localhostMSSQLSERVER01;Database=master; Trusted_Connection=yes;",
-      },
-    });
+    let config = JSON.parse(method.code);
 
-    let data;
-    let query = "SELECT GETDATE();";
+    console.log("Config sqlFunction", config, request.method);
 
-    try {
-      let data = await sequelize.query(query, {
-        bind: [1], // Valor del parámetro de búsqueda
-        type: Sequelize.QueryTypes.SELECT,
+    // Verificar las configuraciones minimas
+    if (config && config.options && config.query) {
+      const sequelize = new Sequelize(
+        config.database,
+        config.username,
+        config.password,
+        config.options
+      );
+
+      let data_bind = {};
+
+      if (request.method == "GET") {
+        // Obtiene los datos del query
+        for (let param in request.query) {
+          if (request.query.hasOwnProperty(param)) {
+            const valor = request.query[param];
+            console.log(`Clave: ${param}, Valor: ${valor}`);
+            // @ts-ignore
+            data_bind[param] = valor;
+          }
+        }
+      } else if (request.method == "POST") {
+        // Obtiene los datos del body
+        for (let param in request.body) {
+            if (request.body.hasOwnProperty(param)) {
+              const valor = request.body[param];
+              console.log(`Clave: ${param}, Valor: ${valor}`);
+              // @ts-ignore
+              data_bind[param] = valor;
+            }
+          }
+      }
+
+      let result_query = await sequelize.query(config.query, {
+        // @ts-ignore
+        bind: data_bind,
+        // @ts-ignore
+        type: QueryTypes.SELECT,
       });
-    } catch (error) {
-      // @ts-ignore
-      console.log({ error: error.message });
-    }
 
-    response.status(200).json(data);
+      let data;
+
+      data = result_query;
+
+      // @ts-ignore
+      response.status(200).json(data);
+    } else {
+      response
+        .status(500)
+        .json({ error: "Params configuration is not complete" });
+    }
   } catch (error) {
     // @ts-ignore
     response.status(500).json({ error: error.message });

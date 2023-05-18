@@ -82,7 +82,7 @@ const getAppByName = async (/** @type {string} */ app_name) => {
   if (d1 && Array.isArray(d1) && d1.length > 0) {
     data = d1[0].dataValues;
   }
-console.log(' >>>>> getAppByName ZZZZZ ', data);
+  console.log(" >>>>> getAppByName ZZZZZ ", data);
   return data;
 };
 
@@ -157,6 +157,19 @@ runExample()
 */
 
 export async function defaultExamples() {
+  let sqlConfig = {
+    database: "database",
+    username: "username",
+    password: "password",
+    options: {
+      dialect: "sqlite",
+      storage: ":memory:",
+      dialectOptions: {},
+    },
+    query: "SELECT $par1 as param1, $par2 as param2, strftime('%Y-%m-%d %H:%M:%S', datetime('now')) as fecha;",
+    params: { par1: "par1", par2: "par2" },
+  };
+
   let ExampleJs = {
     description: "Test 01 Handlers",
     app: "test001",
@@ -193,6 +206,21 @@ export async function defaultExamples() {
           },
         ],
       },
+      {
+        route: "sql",
+        enabled: true,
+        method: [
+          {
+            env: "dev",
+            method: "GET",
+            enabled: true,
+            version: 0.01,
+            description: "Test SQL",
+            handler: "sqlFunction",
+            code: JSON.stringify(sqlConfig),
+          },
+        ],
+      },
     ],
   };
 
@@ -216,7 +244,7 @@ export async function saveApp(appData) {
       // @ts-ignore
       let [app, create] = await upsertApp(appData, { transaction });
 
-     // console.warn(">>>>>>>>>> UPSERT APP", app, create);
+      // console.warn(">>>>>>>>>> UPSERT APP", app, create);
 
       // @ts-ignore
       appData.idapp = app.idapp;
@@ -228,7 +256,7 @@ export async function saveApp(appData) {
           appData.route.length > 0
         ) {
           // Ingresamos las rutas
-       //   console.log("Ingresamos las rutas para la idapp " + appData.idapp);
+          //   console.log("Ingresamos las rutas para la idapp " + appData.idapp);
           for (let index = 0; index < appData.route.length; index++) {
             let route = { ...appData.route[index] };
             let [route_result] = await upsertRoute(appData.idapp, route, {
@@ -240,7 +268,7 @@ export async function saveApp(appData) {
               route.idroute = route_result.idroute;
 
               // Ingresamos los métodos
-         //     console.log("Insertamos los métodos >>>>>>>>> ", route);
+              //     console.log("Insertamos los métodos >>>>>>>>> ", route);
               if (
                 route &&
                 route.method &&
@@ -253,7 +281,7 @@ export async function saveApp(appData) {
                     idroute: route.idroute,
                   };
                   console.log("XXXXXXXXXXXXXXXXXXXX> ", method);
-                    await upsertMethod(method, { transaction });
+                  await upsertMethod(method, { transaction });
                 }
               }
             } else {

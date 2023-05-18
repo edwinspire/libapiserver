@@ -1,9 +1,9 @@
-import { NOW, DataTypes } from 'sequelize'
-import dbsequelize from './sequelize.js'
+import { NOW, DataTypes } from "sequelize";
+import dbsequelize from "./sequelize.js";
 
 // Definir el modelo de la tabla 'User'
 export const User = dbsequelize.define(
-  'user',
+  "user",
   {
     iduser: {
       type: DataTypes.BIGINT,
@@ -45,69 +45,85 @@ export const User = dbsequelize.define(
   {
     freezeTableName: true,
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["username"],
+      },
+    ],
     hooks: {
       beforeUpdate: (user, options) => {
         // @ts-ignore
-        user.ts = new Date()
+        user.ts = new Date();
         // @ts-ignore
-        user.rowkey = Math.floor(Math.random() * 1000)
+        user.rowkey = Math.floor(Math.random() * 1000);
       },
     },
-  },
-)
+  }
+);
 
 // Definir el modelo de la tabla 'App'
-export  const App = dbsequelize.define('app', {
-  idapp: {
-    type: DataTypes.BIGINT,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false,
-    unique: true,
-  },
-  ts: {
-    type: DataTypes.DATE,
-    defaultValue: NOW,
-  },
-  rowkey: {
-    type: DataTypes.SMALLINT,
-    defaultValue: 0,
-  },
-  description: {
-    type: DataTypes.STRING,
-  },
-  icon: {
-    type: DataTypes.STRING,
-  },
-  app: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  enabled: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
-  iduser: {
-    type: DataTypes.BIGINT,
-    allowNull: false,
-  },
-},  {
-  freezeTableName: true,
-  timestamps: false,
-  hooks: {
-    beforeUpdate: (app, options) => {
-      // @ts-ignore
-      app.ts = new Date()
-      // @ts-ignore
-      app.rowkey = Math.floor(Math.random() * 1000)
+export const App = dbsequelize.define(
+  "app",
+  {
+    idapp: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    ts: {
+      type: DataTypes.DATE,
+      defaultValue: NOW,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    description: {
+      type: DataTypes.STRING,
+    },
+    icon: {
+      type: DataTypes.STRING,
+    },
+    app: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    iduser: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
     },
   },
-})
+  {
+    freezeTableName: true,
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["app"],
+      },
+    ],
+    hooks: {
+      beforeUpdate: (app, options) => {
+        // @ts-ignore
+        app.ts = new Date();
+        // @ts-ignore
+        app.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
 
 // Definir el modelo de la tabla 'Route'
-export  const Route = dbsequelize.define(
-  'route',
+export const Route = dbsequelize.define(
+  "route",
   {
     idroute: {
       type: DataTypes.BIGINT,
@@ -127,12 +143,12 @@ export  const Route = dbsequelize.define(
     idapp: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      unique: false
+      unique: false,
     },
     route: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: false
+      unique: false,
     },
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -145,23 +161,23 @@ export  const Route = dbsequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['idapp', 'route'],
+        fields: ["idapp", "route"],
       },
     ],
     hooks: {
       beforeUpdate: (route, options) => {
         // @ts-ignore
-        route.ts = new Date()
+        route.ts = new Date();
         // @ts-ignore
-        route.rowkey = Math.floor(Math.random() * 1000)
+        route.rowkey = Math.floor(Math.random() * 1000);
       },
     },
-  },
-)
+  }
+);
 
 // Definir el modelo de la tabla 'Method'
-export  const Method = dbsequelize.define(
-  'method',
+export const Method = dbsequelize.define(
+  "method",
   {
     idmethod: {
       type: DataTypes.BIGINT,
@@ -181,13 +197,13 @@ export  const Method = dbsequelize.define(
     idroute: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      unique: false
+      unique: false,
     },
     env: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'dev',
-      unique: false
+      defaultValue: "dev",
+      unique: false,
     },
     method: {
       type: DataTypes.STRING,
@@ -202,7 +218,7 @@ export  const Method = dbsequelize.define(
       type: DataTypes.DECIMAL,
       allowNull: false,
       defaultValue: 0.1,
-      unique: false
+      unique: false,
     },
     is_public: {
       type: DataTypes.BOOLEAN,
@@ -229,44 +245,44 @@ export  const Method = dbsequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['idroute', 'env', 'method', 'version'],
+        fields: ["idroute", "env", "method", "version"],
       },
     ],
     hooks: {
       beforeUpdate: (method, options) => {
         // @ts-ignore
-        method.ts = new Date()
+        method.ts = new Date();
         // @ts-ignore
-        method.rowkey = Math.floor(Math.random() * 1000)
+        method.rowkey = Math.floor(Math.random() * 1000);
       },
     },
-  },
-)
+  }
+);
 
 // Definir relaciones entre las tablas
 User.hasMany(App, {
-  foreignKey: 'iduser',
-  onDelete: 'CASCADE',
-})
+  foreignKey: "iduser",
+  onDelete: "CASCADE",
+});
 App.belongsTo(User, {
-  foreignKey: 'iduser',
-})
+  foreignKey: "iduser",
+});
 
 App.hasMany(Route, {
-  foreignKey: 'idapp',
-  onDelete: 'CASCADE',
-})
+  foreignKey: "idapp",
+  onDelete: "CASCADE",
+});
 Route.belongsTo(App, {
-  foreignKey: 'idapp',
-})
+  foreignKey: "idapp",
+});
 
 Route.hasMany(Method, {
-  foreignKey: 'idroute',
-  onDelete: 'CASCADE',
-})
+  foreignKey: "idroute",
+  onDelete: "CASCADE",
+});
 Method.belongsTo(Route, {
-  foreignKey: 'idroute',
-})
+  foreignKey: "idroute",
+});
 
 /*
 // Crear una vista que contenga los campos solicitados
