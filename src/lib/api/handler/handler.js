@@ -70,7 +70,7 @@ export function runHandler(request, response, method) {
       fetchFunction(request, response, method);
       break;
     case "soapFunction":
-      //  soapFunction(request, response, method)
+      soapFunction(request, response, method);
       break;
     case "sqlFunction":
       sqlFunction(request, response, method);
