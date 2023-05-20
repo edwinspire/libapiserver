@@ -1,15 +1,18 @@
 import "dotenv/config";
-import express from "express";
+import express, { response } from "express";
 import { createServer } from "http";
 //import { WebSocketServer } from 'ws'
 // @ts-ignore
 import { WebSocketExpress } from "@edwinspire/websocket_express/src/index.js";
 //import { User, App, Route, Method } from './db/models.js'
 import { defaultUser } from "./db/user.js";
+
 import dbRestAPI from "./db/sequelize.js";
 import { App } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getFullApp, defaultExamples, saveApp } from "./db/app.js";
+import login from "./server/login.js";
+import user from "./server/user.js";
 
 const { PORT, EXPRESSJS_SERVER_TIMEOUT, BUILD_DB_ON_START } = process.env;
 
@@ -35,6 +38,9 @@ export class ServerAPI {
     });
 
     this.app.use(express.json()); // Agrega esta línea
+
+    this.app.use(login);
+    this.app.use(user);
 
     this.app.get("/api/full/:idapp", async (req, res) => {
       console.log(req.params);

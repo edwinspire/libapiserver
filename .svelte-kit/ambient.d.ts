@@ -29,6 +29,7 @@ declare module '$env/static/private' {
 	export const PORT: string;
 	export const BUILD_DB_ON_START: string;
 	export const DATABASE_URL_APIREST: string;
+	export const SECRET_KEY: string;
 	export const ACLOCAL_PATH: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
@@ -163,6 +164,7 @@ declare module '$env/dynamic/private' {
 		PORT: string;
 		BUILD_DB_ON_START: string;
 		DATABASE_URL_APIREST: string;
+		SECRET_KEY: string;
 		ACLOCAL_PATH: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;

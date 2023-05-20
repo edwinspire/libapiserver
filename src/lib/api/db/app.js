@@ -364,6 +364,7 @@ export async function getFullApp(idapp) {
 
     return outApp;
   } catch (error) {
+    // @ts-ignore
     return { error: error.message };
   }
 }

@@ -9,6 +9,16 @@ export const soapFunction = async (
   try {
     let SOAPParameters = JSON.parse(method.code);
 
+    if (!SOAPParameters.RequestArgs) {
+      if (request.method == "GET") {
+        // Obtiene los datos del query
+        SOAPParameters.RequestArgs = request.query;
+      } else if (request.method == "POST") {
+        // Obtiene los datos del body
+        SOAPParameters.RequestArgs = request.body;
+      }
+    }
+
     let soap_response = await SOAPGenericClient(SOAPParameters);
 
     response.status(200).json(soap_response);

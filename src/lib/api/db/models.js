@@ -41,6 +41,17 @@ export const User = dbsequelize.define(
     email: {
       type: DataTypes.STRING,
     },
+    idrole: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    token: {
+      type: DataTypes.STRING,
+    },
+    last_login: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
   },
   {
     freezeTableName: true,

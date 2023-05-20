@@ -1,6 +1,8 @@
 <script>
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import "bulma/css/bulma.min.css";
+	import Login from '../lib/api/gui/login/index.svelte'
 </script>
 
 <svelte:head>
@@ -8,16 +10,19 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
+<Login></Login>
+
+
 <section>
 	<h1>
 		<span class="welcome">
 			<picture>
 				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
+				<img src={welcome_fallback} alt="Welcomexxxx" />
 			</picture>
 		</span>
 
-		to your new<br />SvelteKit app
+		to your new<br />SvelteKit app 000000
 	</h1>
 
 	<h2>
