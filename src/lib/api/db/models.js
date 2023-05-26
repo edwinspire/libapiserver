@@ -1,5 +1,21 @@
 import { NOW, DataTypes } from "sequelize";
 import dbsequelize from "./sequelize.js";
+// @ts-ignore
+import uFetch from "@edwinspire/universal-fetch";
+
+const { PORT } = process.env;
+
+const urlHooks = "http://localhost:" + PORT + "/api/hooks";
+const uF = new uFetch(urlHooks);
+
+/**
+ * @param {string} modelName
+ */
+async function hookUpsert(modelName) {
+  //  console.log("---------------------> Options", options, typeof options.model);
+  await uF.post("", { model: modelName, date: new Date() });
+  //  console.log(await data.json());
+}
 
 // Definir el modelo de la tabla 'User'
 export const User = dbsequelize.define(
@@ -43,14 +59,14 @@ export const User = dbsequelize.define(
     },
     idrole: {
       type: DataTypes.BIGINT,
-      allowNull: true
+      allowNull: true,
     },
     token: {
       type: DataTypes.STRING,
     },
     last_login: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
     },
   },
   {
@@ -63,6 +79,10 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert("user");
+      },
       beforeUpdate: (user, options) => {
         // @ts-ignore
         user.ts = new Date();
@@ -122,6 +142,11 @@ export const App = dbsequelize.define(
       },
     ],
     hooks: {
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        console.log(instance);
+        await hookUpsert("app");
+      },
       beforeUpdate: (app, options) => {
         // @ts-ignore
         app.ts = new Date();
@@ -176,6 +201,10 @@ export const Route = dbsequelize.define(
       },
     ],
     hooks: {
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert("route");
+      },
       beforeUpdate: (route, options) => {
         // @ts-ignore
         route.ts = new Date();
@@ -260,6 +289,10 @@ export const Method = dbsequelize.define(
       },
     ],
     hooks: {
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert("method");
+      },
       beforeUpdate: (method, options) => {
         // @ts-ignore
         method.ts = new Date();

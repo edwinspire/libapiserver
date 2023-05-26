@@ -42,6 +42,21 @@ export class ServerAPI {
     this.app.use(login);
     this.app.use(user);
 
+    // Controlar para que este path sea solo accesible de forma local
+    this.app.post("/api/hooks", async (req, res) => {
+       console.log('hhhhhhhhhhhhhhh> req.body',req.body);
+
+      if (req.body && req.body.model) {
+        res.status(200).json(req.body);
+
+        let path = "/ws/api/hooks/" + req.body.model;
+      //  console.log('SSSSSSSSSSSSSSSSSSSSSS> ', path, req.body);
+        webSocketServer.broadcastByPath(path, req.body);
+      } else {
+        res.status(404).json(req.body);
+      }
+    });
+
     this.app.get("/api/full/:idapp", async (req, res) => {
       console.log(req.params);
       try {

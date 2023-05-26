@@ -1,5 +1,5 @@
 {
-	"name": "my-app",
+	"name": "libapiserver",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev --host",
@@ -10,8 +10,9 @@
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint .",
 		"format": "prettier --write --plugin-search-dir=. .",
-		"start": "vite build && node src/server.js",
-		"start2": "node build/index.js"
+		"test": "vite build && node src/server.js",
+		"test2": "node build/index.js",
+		"main": "index.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
@@ -37,7 +38,7 @@
 	"type": "module",
 	"dependencies": {
 		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
-		"@edwinspire/universal-fetch": "git+https://github.com/edwinspire/universal-fetch.git",
+		"@edwinspire/universal-fetch": "github:edwinspire/universal-fetch",
 		"@edwinspire/websocket_express": "github:edwinspire/websocket_express",
 		"@fontsource/fira-mono": "^4.5.0",
 		"@sveltejs/adapter-node": "^1.0.0-next.86",
