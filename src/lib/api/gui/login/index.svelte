@@ -2,24 +2,41 @@
   // @ts-ignore
   import uFetch from "@edwinspire/universal-fetch";
   import { onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
+  import { tokenStore } from "../utils.js";
+
+  const dispatch = createEventDispatcher();
 
   let username = "";
   let password = "";
   let uf = new uFetch();
 
+  /**
+   * @param {boolean} login
+   */
+  function emitSuccess(login) {
+    dispatch("login", {
+      login: login,
+    });
+  }
+
   async function handleSubmit() {
     // Lógica de autenticación aquí
+
     try {
       let user = await uf.post("/api/login", { username, password });
       let data = await user.json();
       console.log(data);
 
       if (data.login) {
-        alert("Inicio de sesión exitoso. Bienvenid@ " + data.first_name);
+        tokenStore.set(data.token);
       } else {
         alert("Credenciales inválidas");
       }
+
+      emitSuccess(data.login);
     } catch (error) {
+      console.trace(error);
       // @ts-ignore
       alert(error.message);
     }

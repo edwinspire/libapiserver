@@ -1,5 +1,6 @@
 import { NOW, DataTypes } from "sequelize";
 import dbsequelize from "./sequelize.js";
+import {EncryptPwd} from "../server/utils.js";
 // @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
 
@@ -87,7 +88,10 @@ export const User = dbsequelize.define(
         // @ts-ignore
         user.ts = new Date();
         // @ts-ignore
+        //user.password = EncryptPwd(user.password);
+        // @ts-ignore
         user.rowkey = Math.floor(Math.random() * 1000);
+
       },
     },
   }

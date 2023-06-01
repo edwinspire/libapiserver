@@ -29,7 +29,7 @@ declare module '$env/static/private' {
 	export const PORT: string;
 	export const BUILD_DB_ON_START: string;
 	export const DATABASE_URL_APIREST: string;
-	export const SECRET_KEY: string;
+	export const JWT_KEY: string;
 	export const ACLOCAL_PATH: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
@@ -46,6 +46,8 @@ declare module '$env/static/private' {
 	export const DriverData: string;
 	export const EDITOR: string;
 	export const EXEPATH: string;
+	export const FPS_BROWSER_APP_PROFILE_STRING: string;
+	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const GIT_ASKPASS: string;
 	export const HOME: string;
 	export const HOMEDRIVE: string;
@@ -108,7 +110,6 @@ declare module '$env/static/private' {
 	export const PSModulePath: string;
 	export const PUBLIC: string;
 	export const PWD: string;
-	export const SESSIONNAME: string;
 	export const SHELL: string;
 	export const SHLVL: string;
 	export const SNC_LIB: string;
@@ -166,7 +167,7 @@ declare module '$env/dynamic/private' {
 		PORT: string;
 		BUILD_DB_ON_START: string;
 		DATABASE_URL_APIREST: string;
-		SECRET_KEY: string;
+		JWT_KEY: string;
 		ACLOCAL_PATH: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
@@ -183,6 +184,8 @@ declare module '$env/dynamic/private' {
 		DriverData: string;
 		EDITOR: string;
 		EXEPATH: string;
+		FPS_BROWSER_APP_PROFILE_STRING: string;
+		FPS_BROWSER_USER_PROFILE_STRING: string;
 		GIT_ASKPASS: string;
 		HOME: string;
 		HOMEDRIVE: string;
@@ -245,7 +248,6 @@ declare module '$env/dynamic/private' {
 		PSModulePath: string;
 		PUBLIC: string;
 		PWD: string;
-		SESSIONNAME: string;
 		SHELL: string;
 		SHLVL: string;
 		SNC_LIB: string;

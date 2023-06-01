@@ -1,18 +1,17 @@
 import express from "express";
 import { getUserByCredentials } from "../db/user.js";
-import { tokenVerify, customError, EncryptPwd } from "./utils.js";
+import { customError, EncryptPwd, validateToken } from "./utils.js";
 
 const router = express.Router();
 
-router.post("/api/user/password", async (req, res) => {
+router.post("/api/user/password", validateToken, async (req, res) => {
   try {
     if (req.body.new_password1 == req.body.new_password2) {
       // Check Token
-      const token = req.headers["api-token"];
-      const dataToken = tokenVerify(token);
-
+      // @ts-ignore
+      const dataToken = req.dataUser;
       let user = await getUserByCredentials(
-        req.body.username,
+        dataToken.username,
         EncryptPwd(req.body.password)
       );
 
@@ -24,6 +23,7 @@ router.post("/api/user/password", async (req, res) => {
 
         req.headers["api-token"] = "";
 
+        // @ts-ignore
         res.status(200).json({ change: true, message: "Login again" });
       } else {
         res.status(401).json(customError(2));

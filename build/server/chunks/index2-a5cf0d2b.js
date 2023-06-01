@@ -19,6 +19,11 @@ function subscribe(store, ...callbacks) {
   const unsub = store.subscribe(...callbacks);
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
 }
+function custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
+  const e = document.createEvent("CustomEvent");
+  e.initCustomEvent(type, bubbles, cancelable, detail);
+  return e;
+}
 let current_component;
 function set_current_component(component) {
   current_component = component;
@@ -27,6 +32,20 @@ function get_current_component() {
   if (!current_component)
     throw new Error("Function called outside component initialization");
   return current_component;
+}
+function createEventDispatcher() {
+  const component = get_current_component();
+  return (type, detail, { cancelable = false } = {}) => {
+    const callbacks = component.$$.callbacks[type];
+    if (callbacks) {
+      const event = custom_event(type, detail, { cancelable });
+      callbacks.slice().forEach((fn) => {
+        fn.call(component, event);
+      });
+      return !event.defaultPrevented;
+    }
+    return true;
+  };
 }
 function setContext(key, context) {
   get_current_component().$$.context.set(key, context);
@@ -106,5 +125,5 @@ function add_attribute(name, value, boolean) {
   return ` ${name}${assignment}`;
 }
 
-export { safe_not_equal as a, subscribe as b, create_ssr_component as c, add_attribute as d, escape as e, getContext as g, missing_component as m, noop as n, setContext as s, validate_component as v };
-//# sourceMappingURL=index2-41dea004.js.map
+export { safe_not_equal as a, subscribe as b, create_ssr_component as c, createEventDispatcher as d, escape as e, add_attribute as f, getContext as g, missing_component as m, noop as n, setContext as s, validate_component as v };
+//# sourceMappingURL=index2-a5cf0d2b.js.map

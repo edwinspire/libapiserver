@@ -1,4 +1,4 @@
-import { c as create_ssr_component } from './index2-41dea004.js';
+import { c as create_ssr_component } from './index2-a5cf0d2b.js';
 
 const css = {
   code: ".app.svelte-8o1gnw.svelte-8o1gnw{display:flex;flex-direction:column;min-height:100vh}main.svelte-8o1gnw.svelte-8o1gnw{flex:1;display:flex;flex-direction:column;padding:1rem;width:100%;max-width:64rem;margin:0 auto;box-sizing:border-box}footer.svelte-8o1gnw.svelte-8o1gnw{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px}footer.svelte-8o1gnw a.svelte-8o1gnw{font-weight:bold}@media(min-width: 480px){footer.svelte-8o1gnw.svelte-8o1gnw{padding:12px 0}}",
@@ -13,4 +13,4 @@ const Layout = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Layout as default };
-//# sourceMappingURL=_layout.svelte-24ac6f96.js.map
+//# sourceMappingURL=_layout.svelte-110318d9.js.map

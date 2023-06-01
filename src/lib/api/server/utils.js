@@ -1,11 +1,42 @@
 const { createHmac } = await import("node:crypto");
 import jwt from "jsonwebtoken";
-const { SECRET_KEY } = process.env;
+const { JWT_KEY } = process.env;
 
 const errors = {
   1: { code: 1, message: "You must enter the same password twice" },
   2: { code: 2, message: "Invalid credentials" },
 };
+
+// Middleware para validar el token
+/**
+ * @param {any} req
+ * @param { any } res
+ * @param {() => void} next
+ */
+export function validateToken(req, res, next) {
+  // Obtener el token del encabezado de autorización
+  // @ts-ignore
+  const token = req.headers["api-token"];
+
+  // Verificar si se proporcionó un token
+  if (!token) {
+    return res.status(401).json({ error: "Token not found" });
+  }
+
+  try {
+    // Verificar y decodificar el token
+    const decodedToken = tokenVerify(token);
+
+    // Agregar el token decodificado al objeto de solicitud
+    // @ts-ignore
+    req.dataUser = decodedToken;
+
+    // Continuar con la ejecución del siguiente middleware o ruta
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Token invalid" });
+  }
+}
 
 /**
  * @param {number} code
@@ -27,7 +58,7 @@ export function customError(code, message) {
  * @param {import("crypto").BinaryLike} pwd
  */
 export function EncryptPwd(pwd) {
-  return createHmac("sha256", SECRET_KEY || "9999999999")
+  return createHmac("sha256", JWT_KEY || "9999999999")
     .update(pwd)
     .digest("hex");
 }
@@ -39,7 +70,7 @@ export function GenToken(data) {
   // Genera un Token
   return jwt.sign(
     { data: data, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
-    SECRET_KEY || "9999999999"
+    JWT_KEY || "9999999999"
   );
 }
 
@@ -47,5 +78,5 @@ export function GenToken(data) {
  * @param {any} token
  */
 export function tokenVerify(token) {
-  return jwt.verify(token, SECRET_KEY || "9999999999");
+  return jwt.verify(token, JWT_KEY || "9999999999");
 }

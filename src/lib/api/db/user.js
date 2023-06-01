@@ -102,7 +102,7 @@ export const defaultUser = async () => {
       last_name: "admin",
       email: "admin@example.com",
       password:
-        "b1f998c51c6b15af2feb0bb39af61fa6af5f02644b7b493afd616b69a50ef732",
+        "f6fdffe48c908deb0f4c3bd36c032e72",
     });
     console.log("New user created:", newUser);
 

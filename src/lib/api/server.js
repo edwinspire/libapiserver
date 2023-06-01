@@ -13,8 +13,11 @@ import { runHandler } from "./handler/handler.js";
 import { getFullApp, defaultExamples, saveApp } from "./db/app.js";
 import login from "./server/login.js";
 import user from "./server/user.js";
+import app from "./server/app.js";
 
-const { PORT, EXPRESSJS_SERVER_TIMEOUT, BUILD_DB_ON_START } = process.env;
+import { validateToken } from "../api/server/utils.js";
+
+const { PORT, EXPRESSJS_SERVER_TIMEOUT } = process.env;
 
 export class ServerAPI {
   /**
@@ -26,6 +29,7 @@ export class ServerAPI {
 
     this.app = express();
     this._httpServer = createServer(this.app);
+
 
     const webSocketServer = new WebSocketExpress(
       this._httpServer,
@@ -41,23 +45,20 @@ export class ServerAPI {
 
     this.app.use(login);
     this.app.use(user);
+    this.app.use(app);
 
     // Controlar para que este path sea solo accesible de forma local
-    this.app.post("/api/hooks", async (req, res) => {
-       console.log('hhhhhhhhhhhhhhh> req.body',req.body);
-
+    this.app.post("/api/hooks", validateToken, async (req, res) => {
       if (req.body && req.body.model) {
         res.status(200).json(req.body);
-
         let path = "/ws/api/hooks/" + req.body.model;
-      //  console.log('SSSSSSSSSSSSSSSSSSSSSS> ', path, req.body);
         webSocketServer.broadcastByPath(path, req.body);
       } else {
         res.status(404).json(req.body);
       }
     });
 
-    this.app.get("/api/full/:idapp", async (req, res) => {
+    this.app.get("/api/full/:idapp", validateToken, async (req, res) => {
       console.log(req.params);
       try {
         let data = await getFullApp(req.params.idapp);
@@ -68,11 +69,12 @@ export class ServerAPI {
           res.status(404).json({});
         }
       } catch (error) {
+        // @ts-ignore
         res.status(500).json({ error });
       }
     });
 
-    this.app.post("/api/full", async (req, res) => {
+    this.app.post("/api/full", validateToken, async (req, res) => {
       try {
         let data = await saveApp(req.body);
 
@@ -86,86 +88,94 @@ export class ServerAPI {
       }
     });
 
-    this.app.all("/api/:app/:route/:environment/:version", async (req, res) => {
-      // http://localhost:3000/api/test001/javascript/1
-      let { app, route, version, environment } = req.params;
-      try {
-        let v = Number(version.replace(/[^0-9.]/g, ""));
-        //console.log(v)
-        if (v > 0) {
-          // Obtener el idapp por el nombre
-          let appData = await App.findAll({ where: { app: app } });
+    this.app.all(
+      "/api/:app/:route/:environment/:version",
+      validateToken,
+      async (req, res) => {
+        // http://localhost:3000/api/test001/javascript/1
+        let { app, route, version, environment } = req.params;
+        try {
+          let v = Number(version.replace(/[^0-9.]/g, ""));
+          //console.log(v)
+          if (v > 0) {
+            // Obtener el idapp por el nombre
+            let appData = await App.findAll({ where: { app: app } });
 
-          if (appData && Array.isArray(appData) && appData.length > 0) {
-            // Obtener todos los datos de la app por el idapp
-            // @ts-ignore
-            let idapp = appData[0].idapp;
-            let appFull = await getFullApp(idapp);
+            if (appData && Array.isArray(appData) && appData.length > 0) {
+              // Obtener todos los datos de la app por el idapp
+              // @ts-ignore
+              let idapp = appData[0].idapp;
+              let appFull = await getFullApp(idapp);
 
-            //console.log('appFull >>>> ', appFull);
+              //console.log('appFull >>>> ', appFull);
 
-            if (appFull && appFull.enabled) {
-              let routes = appFull.route.filter(
-                (/** @type {{ route: string; enabled: boolean; }} */ r) => {
-                  return r.route == route && r.enabled == true;
-                }
-              );
+              if (appFull && appFull.enabled) {
+                let routes = appFull.route.filter(
+                  (/** @type {{ route: string; enabled: boolean; }} */ r) => {
+                    return r.route == route && r.enabled == true;
+                  }
+                );
 
-              //console.log('routes >>>> ', routes);
+                //console.log('routes >>>> ', routes);
 
-              if (routes && Array.isArray(routes) && routes.length > 0) {
-                // Verificamos si el método y ambiente existen y están habilitados
+                if (routes && Array.isArray(routes) && routes.length > 0) {
+                  // Verificamos si el método y ambiente existen y están habilitados
 
-                if (routes.length == 1) {
-                  let methods = routes[0].method.filter(
-                    (
-                      /** @type {{ enabled: boolean; method: string; env: string; version: number; handler: string}} */ m
-                    ) => {
-                      //  console.log(m);
-                      return (
-                        m.enabled == true &&
-                        m.method == req.method &&
-                        m.env == environment &&
-                        m.version == v
-                      );
+                  if (routes.length == 1) {
+                    let methods = routes[0].method.filter(
+                      (
+                        /** @type {{ enabled: boolean; method: string; env: string; version: number; handler: string}} */ m
+                      ) => {
+                        //  console.log(m);
+                        return (
+                          m.enabled == true &&
+                          m.method == req.method &&
+                          m.env == environment &&
+                          m.version == v
+                        );
+                      }
+                    );
+
+                    // console.log(methods);
+
+                    if (
+                      methods &&
+                      Array.isArray(methods) &&
+                      methods.length > 0
+                    ) {
+                      let method = methods[0];
+
+                      runHandler(req, res, method);
+                    } else {
+                      res.status(404).json({
+                        error: `Route ${route} has no data for the environment ${environment}`,
+                      });
                     }
-                  );
-
-                  // console.log(methods);
-
-                  if (methods && Array.isArray(methods) && methods.length > 0) {
-                    let method = methods[0];
-
-                    runHandler(req, res, method);
                   } else {
-                    res.status(404).json({
-                      error: `Route ${route} has no data for the environment ${environment}`,
+                    res.status(500).json({
+                      error: "Hay más de dos rutas con el mismo nombre",
                     });
                   }
                 } else {
-                  res.status(500).json({
-                    error: "Hay más de dos rutas con el mismo nombre",
-                  });
+                  res
+                    .status(404)
+                    .json({ error: `Route ${route} not found`, data: routes });
                 }
               } else {
-                res
-                  .status(404)
-                  .json({ error: `Route ${route} not found`, data: routes });
+                res.status(404).json({ error: `App ${app} not found` });
               }
             } else {
               res.status(404).json({ error: `App ${app} not found` });
             }
           } else {
-            res.status(404).json({ error: `App ${app} not found` });
+            res.status(400).json({ error: "Invalid API version" });
           }
-        } else {
-          res.status(400).json({ error: "Invalid API version" });
+        } catch (error) {
+          // @ts-ignore
+          res.status(500).json({ error: error.message });
         }
-      } catch (error) {
-        // @ts-ignore
-        res.status(500).json({ error: error.message });
       }
-    });
+    );
 
     this.app.use(handlerExternal);
 

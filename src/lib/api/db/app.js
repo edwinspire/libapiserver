@@ -31,7 +31,7 @@ const getAppById = async (
   }
 };
 
-const getAllApps = async () => {
+export const getAllApps = async () => {
   try {
     const apps = await App.findAll();
     return apps;

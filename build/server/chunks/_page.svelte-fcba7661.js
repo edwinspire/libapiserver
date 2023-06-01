@@ -1,11 +1,13 @@
-import { c as create_ssr_component, d as add_attribute, v as validate_component } from './index2-41dea004.js';
+import { c as create_ssr_component, d as createEventDispatcher, f as add_attribute, v as validate_component } from './index2-a5cf0d2b.js';
 import uFetch from '@edwinspire/universal-fetch';
+import 'events';
 
 const css = {
   code: '@import "bulma/css/bulma.min.css";.container.svelte-osrx57{max-width:400px;margin:0 auto;padding:2rem;margin-top:10vh;border:1px solid #ccc;border-radius:4px}.form.svelte-osrx57{margin-bottom:1rem}',
   map: null
 };
 const Login = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  createEventDispatcher();
   let username = "";
   let password = "";
   new uFetch();
@@ -20,11 +22,11 @@ const Login = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 const Gui = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  return `${validate_component(Login, "Login").$$render($$result, {}, {}, {})}`;
+  return `${`${validate_component(Login, "Login").$$render($$result, {}, {}, {})}`}`;
 });
 const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   return `${validate_component(Gui, "APIServerGUI").$$render($$result, {}, {}, {})}`;
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-6b49bfa4.js.map
+//# sourceMappingURL=_page.svelte-fcba7661.js.map

@@ -2,7 +2,7 @@
 	"name": "libapiserver",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev --host",
+		"dev_vite": "vite dev --host",
 		"build": "vite build",
 		"package": "svelte-kit package",
 		"preview": "vite preview",
@@ -12,6 +12,7 @@
 		"format": "prettier --write --plugin-search-dir=. .",
 		"test": "vite build && node src/server.js",
 		"test2": "node build/index.js",
+		"dev": "vite build && node src/server.js",
 		"main": "index.js"
 	},
 	"devDependencies": {
@@ -27,6 +28,7 @@
 		"eslint": "^8.16.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^4.0.0",
+		"nodemon": "^2.0.22",
 		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "next",
 		"svelte": "^3.54.0",
