@@ -166,7 +166,8 @@ export async function defaultExamples() {
       storage: ":memory:",
       dialectOptions: {},
     },
-    query: "SELECT $par1 as param1, $par2 as param2, strftime('%Y-%m-%d %H:%M:%S', datetime('now')) as fecha;",
+    query:
+      "SELECT $par1 as param1, $par2 as param2, strftime('%Y-%m-%d %H:%M:%S', datetime('now')) as fecha;",
     params: { par1: "par1", par2: "par2" },
   };
 
@@ -311,6 +312,60 @@ export async function saveApp(appData) {
     await transaction.rollback();
 
     console.error("Error en la transacción:", error);
+    // @ts-ignore
+    return { error: error.message };
+  }
+}
+
+/**
+ * @param {import("sequelize").Identifier | Number} idapp
+ * @param {boolean} raw
+ */
+export async function getAppRoutes(idapp, raw) {
+
+  console.log('raw', raw);
+
+  try {
+    return await App.findAll({
+      attributes: ["idapp", "enabled", "app", "description", "icon"],
+      include: [
+        {
+          model: Route,
+          required: true,
+          attributes: ["idroute", "route", "enabled"],
+          include: [
+            {
+              model: Method,
+              required: true,
+              attributes: [
+                "idmethod",
+                "env",
+                "method",
+                "enabled",
+                "version",
+                "is_public",
+                "description",
+                "handler",
+                "code",
+                "examples",
+              ],
+            },
+          ],
+        },
+      ],
+      where: {
+        idapp: idapp,
+      },
+      raw: raw,
+      order: [
+        ["app", "ASC"],
+        [Route, "route", "ASC"],
+        [Route, Method, "env", "ASC"],
+        [Route, Method, "version", "ASC"],
+        [Route, Method, "method", "ASC"],
+      ],
+    });
+  } catch (error) {
     // @ts-ignore
     return { error: error.message };
   }

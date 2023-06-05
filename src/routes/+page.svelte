@@ -1,7 +1,6 @@
 <script>
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
-	import "bulma/css/bulma.min.css";
 	import Login from '../lib/api/gui/login/index.svelte'
 </script>
 

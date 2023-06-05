@@ -10,7 +10,12 @@ import { defaultUser } from "./db/user.js";
 import dbRestAPI from "./db/sequelize.js";
 import { App } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
-import { getFullApp, defaultExamples, saveApp } from "./db/app.js";
+import {
+  getFullApp,
+  defaultExamples,
+  saveApp,
+  getAppRoutes,
+} from "./db/app.js";
 import login from "./server/login.js";
 import user from "./server/user.js";
 import app from "./server/app.js";
@@ -29,7 +34,6 @@ export class ServerAPI {
 
     this.app = express();
     this._httpServer = createServer(this.app);
-
 
     const webSocketServer = new WebSocketExpress(
       this._httpServer,
@@ -85,6 +89,44 @@ export class ServerAPI {
         }
       } catch (error) {
         res.status(500).json({ error });
+      }
+    });
+
+    this.app.get("/api/app/routes/:idapp", validateToken, async (req, res) => {
+      console.log(req.params, req.query);
+
+
+      try {
+
+        let raw = !req.query.raw || req.query.raw == "false" ? false : true;
+        // @ts-ignore
+        let data = await getAppRoutes(
+          req.params.idapp,
+          raw
+        );
+
+//console.log(data);
+
+        if (data) {
+          if (Array.isArray(data) && raw && data.length > 0) {
+            // @ts-ignore
+            data = data.map((d) => {
+              return {
+                // @ts-ignore
+                path: `/api/${d.app}/${d["routes.route"]}/${d["routes.methods.env"]}/v${d["routes.methods.version"]}`,
+                ...d,
+              };
+            });
+          }
+
+          res.status(200).json(data);
+        } else {
+          res.status(404).json({});
+        }
+      } catch (error) {
+        console.log(error);
+        // @ts-ignore
+        res.status(500).json({ error: error.message });
       }
     });
 
