@@ -4,11 +4,11 @@ const manifest = {
 	assets: new Set(["css/bulma/bulma-rtl.css","css/bulma/bulma-rtl.css.map","css/bulma/bulma-rtl.min.css","css/bulma/bulma.css","css/bulma/bulma.css.map","css/bulma/bulma.min.css","css/fontawesome/css/all.css","css/fontawesome/css/all.min.css","css/fontawesome/css/brands.css","css/fontawesome/css/brands.min.css","css/fontawesome/css/fontawesome.css","css/fontawesome/css/fontawesome.min.css","css/fontawesome/css/regular.css","css/fontawesome/css/regular.min.css","css/fontawesome/css/solid.css","css/fontawesome/css/solid.min.css","css/fontawesome/css/svg-with-js.css","css/fontawesome/css/svg-with-js.min.css","css/fontawesome/css/v4-font-face.css","css/fontawesome/css/v4-font-face.min.css","css/fontawesome/css/v4-shims.css","css/fontawesome/css/v4-shims.min.css","css/fontawesome/css/v5-font-face.css","css/fontawesome/css/v5-font-face.min.css","css/fontawesome/webfonts/fa-brands-400.ttf","css/fontawesome/webfonts/fa-brands-400.woff2","css/fontawesome/webfonts/fa-regular-400.ttf","css/fontawesome/webfonts/fa-regular-400.woff2","css/fontawesome/webfonts/fa-solid-900.ttf","css/fontawesome/webfonts/fa-solid-900.woff2","css/fontawesome/webfonts/fa-v4compatibility.ttf","css/fontawesome/webfonts/fa-v4compatibility.woff2","favicon.png","robots.txt","svelte-welcome.png","svelte-welcome.webp"]),
 	mimeTypes: {".css":"text/css",".map":"application/json",".ttf":"font/ttf",".woff2":"font/woff2",".png":"image/png",".txt":"text/plain",".webp":"image/webp"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.ebc44cfa.js","app":"_app/immutable/entry/app.31e29bdc.js","imports":["_app/immutable/entry/start.ebc44cfa.js","_app/immutable/chunks/index.e850bebc.js","_app/immutable/chunks/singletons.a2cf7556.js","_app/immutable/chunks/index.577c9eb2.js","_app/immutable/entry/app.31e29bdc.js","_app/immutable/chunks/index.e850bebc.js"],"stylesheets":[],"fonts":[]},
+		client: {"start":"_app/immutable/entry/start.a6e3ab3e.js","app":"_app/immutable/entry/app.5b841330.js","imports":["_app/immutable/entry/start.a6e3ab3e.js","_app/immutable/chunks/index.30d49847.js","_app/immutable/chunks/singletons.0b2a0753.js","_app/immutable/chunks/index.cef1fea2.js","_app/immutable/entry/app.5b841330.js","_app/immutable/chunks/index.30d49847.js"],"stylesheets":[],"fonts":[]},
 		nodes: [
-			() => import('./chunks/0-715cb4d3.js'),
-			() => import('./chunks/1-502a852d.js'),
-			() => import('./chunks/3-3ff0a262.js')
+			() => import('./chunks/0-dd4cd490.js'),
+			() => import('./chunks/1-ba83e7a0.js'),
+			() => import('./chunks/3-bf97cd07.js')
 		],
 		routes: [
 			{

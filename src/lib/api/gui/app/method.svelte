@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
   import { tokenStore } from "../utils.js";
+  import BtnCode from "./code.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -69,7 +70,7 @@
       ><input
         class="input is-small"
         type="checkbox"
-        placeholder="Is public"
+        placeholder="Public"
         bind:checked={method.version}
       /></td
     >
@@ -81,7 +82,7 @@
         bind:value={method.handler}
       /></td
     >
-    <td><button class="button is-small">Code</button></td>
+    <td><BtnCode bind:method /></td>
   </tr>
 </table>
 
