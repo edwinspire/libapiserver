@@ -7,8 +7,8 @@
   export let code;
   let fnEditorCode;
 
-  export function apply() {
-    fnEditorCode.apply();
+  export function getCode() {
+    fnEditorCode.getCode();
   }
 
   onMount(() => {});

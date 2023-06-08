@@ -43,14 +43,16 @@
   bind:Show={showCode}
   on:ok={() => {
     if (method.handler == "jsFunction") {
-      fnJsCode.apply();
+      method.code = fnJsCode.getCode();
     } else if (method.handler == "soapFunction") {
-      fnSoapCode.apply();
+      method.code = fnSoapCode.getCode();
     } else if (method.handler == "sqlFunction") {
-      fnSqlCode.apply();
+      method.code = fnSqlCode.getCode();
     } else if (method.handler == "fetchFunction") {
-      fnFetchCode.apply();
+      method.code = fnFetchCode.getCode();
     }
+    console.log(method.code);
+    showCode = false;
   }}
 >
   <span slot="title">{method.handler}</span>

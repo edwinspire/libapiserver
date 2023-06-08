@@ -4,11 +4,12 @@
   import { onMount } from "svelte";
   import { EditorView, basicSetup } from "codemirror";
   import { Compartment } from "@codemirror/state";
-  import { javascript, esLint } from "@codemirror/lang-javascript";
+  import { javascript } from "@codemirror/lang-javascript";
   import { sql } from "@codemirror/lang-sql";
   import { json } from "@codemirror/lang-json";
+
   //import { linter } from "@codemirror/lint";
-  
+
   const languageConf = new Compartment();
 
   /**
@@ -24,31 +25,71 @@
    * @type {any}
    */
   export let code;
-  export let lang = "js";
+  export let lang = "txt";
+  //let internalCode;
+
+  $: code, setCode();
 
   // Obtener los cambios del código
-  export function apply() {
-    code = editor.state.doc.toString();
-    console.log(editor.state.doc, code);
+  export function getCode() {
+    //code = editor.state.doc.toString();
+    //console.log(editor.state.doc, code);
+    return editor.state.doc.toString();
+  }
+
+  function setCode() {
+  //  console.log("setCode >>> ");
+    let c = code;
+    if (lang == "json") {
+      c = FormatJson(code);
+    }
+
+    if (editor) {
+      const transaction = editor.state.update({
+        changes: {
+          from: 0,
+          to: editor.state.doc.length,
+          insert: c,
+        },
+      });
+      editor.dispatch(transaction);
+    }
+  }
+
+  function FormatJson() {
+    if (lang == "json") {
+      try {
+        return JSON.stringify(JSON.parse(code), null, 2);
+      } catch (error) {
+        return JSON.stringify({}, null, 2);
+      }
+    } else {
+      return code;
+    }
   }
 
   onMount(() => {
     let extensions = [basicSetup];
+    let internalCode = FormatJson();
 
     if (lang == "sql") {
+      //internalCode = FormatJson(code);
       extensions = [basicSetup, languageConf.of(sql())];
     } else if (lang == "json") {
+      // internalCode = FormatJson(code);
       extensions = [basicSetup, languageConf.of(json())];
     } else if (lang == "js") {
       extensions = [
         basicSetup,
         languageConf.of(javascript()),
-    //    linter(esLint()),
+        //    linter(esLint()),
       ];
     }
 
+//    console.log("onMount: ", code, internalCode);
+
     editor = new EditorView({
-      doc: code,
+      doc: internalCode,
       extensions: extensions,
       parent: txta,
     });
