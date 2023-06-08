@@ -1,4 +1,6 @@
 <script>
+  //  import "@codemirror/lib/codemirror.css";
+
   // @ts-ignore
   import uFetch from "@edwinspire/universal-fetch";
   import {
@@ -33,7 +35,7 @@
    */
   let app = {};
 
-  let mainTab = "endpoints";
+  let mainTab = "app";
 
   let columns = {
     idapp: { hidden: true },
@@ -105,13 +107,11 @@
     // Lógica de autenticación aquí
 
     try {
-      let apps_res = await uf.get("/api/app/routes/" + idapp, { raw: true });
+      let apps_res = await uf.get("/api/app/" + idapp, { raw: true });
       routes = await apps_res.json();
       // console.log(routes);
 
       app = routes.find((element) => (element.idapp = idapp));
-
-
     } catch (error) {
       // @ts-ignore
       alert(error.message);
@@ -140,9 +140,6 @@
     showMethod = true;
   }
 
-
-
-
   onMount(() => {
     // uf.addHeader(tokenStore.);
     console.log(tokenStore);
@@ -158,7 +155,8 @@
         bind:options
         on:select={(/** @type {{ detail: { value: number; }; }} */ e) => {
           console.log(e);
-          getApp(e.detail.value);
+         // getApp(e.detail.value);
+         app.idapp = e.detail.value;
         }}
       />
     </div>
@@ -166,15 +164,6 @@
 
   <div class="tabs is-small is-boxed">
     <ul>
-      <li class={mainTab == "endpoints" ? "is-active" : ""}>
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <a
-          on:click={() => {
-            mainTab = "endpoints";
-          }}>EndPoints</a
-        >
-      </li>
       <li class={mainTab == "app" ? "is-active" : ""}>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-missing-attribute -->
@@ -182,6 +171,15 @@
           on:click={() => {
             mainTab = "app";
           }}>App</a
+        >
+      </li>
+      <li class={mainTab == "endpoints" ? "is-active" : ""}>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <a
+          on:click={() => {
+            mainTab = "endpoints";
+          }}>EndPoints</a
         >
       </li>
     </ul>
@@ -195,8 +193,6 @@
 
   <div class={mainTab == "endpoints" ? "" : "is-hidden"}>
     <Table
-      ShowNewButton={true}
-      ShowEditButton={true}
       bind:RawDataTable={routes}
       bind:columns
       on:editrow={editRow}
@@ -207,7 +203,5 @@
   </div>
 </div>
 
-
 <style>
-  
 </style>

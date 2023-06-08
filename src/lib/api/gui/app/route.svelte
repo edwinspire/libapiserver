@@ -2,7 +2,7 @@
   import Method from "./method.svelte";
 
   /**
-   * @type {{ route: any; methods: any; }}
+   * @type {{ route: any; method: any; }}
    */
   export let route;
   let showMethods = false;
@@ -94,7 +94,7 @@
           <th>Producction</th>
         </tr>
 
-        {#each route.methods as method}
+        {#each route.method as method}
           <tr>
             <td
               >{#if method.env == "dev"}

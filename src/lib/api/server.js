@@ -92,9 +92,8 @@ export class ServerAPI {
       }
     });
 
-    this.app.get("/api/app/routes/:idapp", validateToken, async (req, res) => {
-      console.log(req.params, req.query);
-
+    this.app.get("/api/app/:idapp", validateToken, async (req, res) => {
+      //console.log(req.params, req.query);
 
       try {
 

@@ -9,6 +9,23 @@
   import SqlCode from "./handler/sql.svelte";
 
   /**
+   * @type {FetchCode}
+   */
+  let fnFetchCode;
+  /**
+   * @type {JsCode}
+   */
+  let fnJsCode;
+  /**
+   * @type {SoapCode}
+   */
+  let fnSoapCode;
+  /**
+   * @type {SqlCode}
+   */
+  let fnSqlCode;
+
+  /**
    * @type {any}
    */
   export let method;
@@ -22,20 +39,33 @@
   }}>Code</button
 >
 
-<DialogModal bind:Show={showCode}>
+<DialogModal
+  bind:Show={showCode}
+  on:ok={() => {
+    if (method.handler == "jsFunction") {
+      fnJsCode.apply();
+    } else if (method.handler == "soapFunction") {
+      fnSoapCode.apply();
+    } else if (method.handler == "sqlFunction") {
+      fnSqlCode.apply();
+    } else if (method.handler == "fetchFunction") {
+      fnFetchCode.apply();
+    }
+  }}
+>
   <span slot="title">{method.handler}</span>
 
   <div slot="body">
     {#if method.handler == "jsFunction"}
-      <JsCode bind:code={method.code} />
+      <JsCode bind:this={fnJsCode} bind:code={method.code} />
     {:else if method.handler == "soapFunction"}
-      <SoapCode bind:code={method.code} />
+      <SoapCode bind:this={fnSoapCode} bind:code={method.code} />
     {:else if method.handler == "sqlFunction"}
-      <SqlCode bind:code={method.code} />
+      <SqlCode bind:this={fnSqlCode} bind:code={method.code} />
     {:else if method.handler == "fetchFunction"}
-      <FetchCode bind:code={method.code} />
+      <FetchCode bind:this={fnFetchCode} bind:code={method.code} />
     {:else}
-      <code>
+      <code contenteditable>
         {method.code}
       </code>
     {/if}

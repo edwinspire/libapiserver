@@ -69,13 +69,8 @@
     // Lógica de autenticación aquí
 
     try {
-      let apps_res = await uf.get("/api/app/routes/" + idapp, { raw: false });
-      let apps = await apps_res.json();
-      //console.log(routes);
-
-      app = apps.find(
-        (/** @type {{ idapp: number; }} */ element) => (element.idapp = idapp)
-      );
+      let apps_res = await uf.get("/api/app/" + idapp, { raw: false });
+      app = await apps_res.json();
     } catch (error) {
       // @ts-ignore
       alert(error.message);
@@ -143,7 +138,13 @@
         </span>
       </div>
 
-      <div class="navbar-item">
+      <div
+        class="navbar-item"
+        on:click={() => {
+          alert("OK");
+          console.log(app);
+        }}
+      >
         <a class="button is-primary is-small">
           <strong>Guardar</strong>
         </a>
@@ -234,8 +235,8 @@
         </div>
       </nav>
 
-      {#if app && app.routes && Array.isArray(app.routes)}
-        {#each app.routes as route}
+      {#if app && app.route && Array.isArray(app.route)}
+        {#each app.route as route}
           <Route bind:route />
         {/each}
       {/if}
