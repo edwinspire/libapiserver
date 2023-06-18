@@ -4,6 +4,9 @@
   import SoapCode from "./handler/soap.svelte";
   import SqlCode from "./handler/sql.svelte";
   import { DialogModal } from "@edwinspire/svelte-components";
+  import MethodDialog from "./method.svelte";
+
+  let showMethod = false;
 
   /**
    * @type {FetchCode}
@@ -75,7 +78,13 @@
             </span></a
           >
 
-          <span class={classMap[method] || "tag is-dark"}>{method}</span>
+          <span
+            class={classMap[method] || "tag is-dark"}
+            on:click={() => {
+              methodSelected = method;
+              showMethod = true;
+            }}>{method}</span
+          >
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-missing-attribute -->
           <a
@@ -122,14 +131,27 @@
 </td>
 
 {#if value && methodSelected.length > 2}
+  <MethodDialog
+    method={methodSelected}
+    bind:handler={value[methodSelected].handler}
+    bind:enabled={value[methodSelected].enabled}
+    bind:ispublic={value[methodSelected].public}
+    bind:Show={showMethod}
+    title={`Method ${methodSelected}`}
+    on:ok={(e) => {
+      console.log(e);
+//      value = e.detail;
+      showMethod = false;
+     // value = value;
+    }}
+  />
+
   <DialogModal
     bind:Show={showCode}
     on:ok={() => {
       if (value[methodSelected].handler == "js") {
         value[methodSelected].code = fnJsCode.getCode();
-
-console.log('methodSelected > ', methodSelected, fnJsCode.getCode());
-
+        //console.log("methodSelected > ", methodSelected, fnJsCode.getCode());
       } else if (value[methodSelected].handler == "soap") {
         value[methodSelected].code = fnSoapCode.getCode();
       } else if (value[methodSelected].handler == "sql") {
@@ -137,7 +159,7 @@ console.log('methodSelected > ', methodSelected, fnJsCode.getCode());
       } else if (value[methodSelected].handler == "fetch") {
         value[methodSelected].code = fnFetchCode.getCode();
       }
-      console.log(methodSelected, value, value[methodSelected]);
+//      console.log(methodSelected, value, value[methodSelected]);
 
       showCode = false;
     }}

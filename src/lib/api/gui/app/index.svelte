@@ -13,6 +13,8 @@
   import { createEventDispatcher } from "svelte";
   import { tokenStore } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
+  import MethodDialog from "./method.svelte";
+
   const dispatch = createEventDispatcher();
   export let idapp = 0;
 
@@ -32,6 +34,7 @@
   let nameSelected = "";
   let showDialogOneField = false;
   let showDialogMethod = false;
+  let methodSelectedDialog = "";
   let paramDialogOneField = {
     title: "",
     description: "",
@@ -47,7 +50,7 @@
     title: "",
     values: { enabled: true, public: false, handler: "" },
     function: (/** @type {any} */ value) => {
-      console.log("<Funcion>", value);
+      console.log("<Funcion >>>>>>", value);
     },
   };
 
@@ -208,6 +211,17 @@
     */
 
     return result;
+  }
+
+  /**
+   * @param {string } method_selected
+   */
+  function methodValidation(method_selected) {
+    if (!method_selected || (method_selected && method_selected.length < 2)) {
+      alert("You must select a method");
+      return false;
+    }
+    return true;
   }
 
   async function getApp() {
@@ -609,6 +623,7 @@
                               ><button
                                 class="button is-small"
                                 on:click={() => {
+                                  methodSelectedDialog = "";
                                   paramDialogMethod = {
                                     title: "New Method - Development",
                                     values: {
@@ -619,19 +634,21 @@
                                     function: (/** @type {any} */ value) => {
                                       console.log("<Funcion>", value);
 
-                                      if (!version.dev[value.method]) {
-                                        version.dev[value.method] = {
-                                          code: "",
-                                          enabled: value.enabled,
-                                          handler: value.handler,
-                                          public: value.public,
-                                        };
-                                      } else {
-                                        alert(
-                                          "The Method " +
-                                            value.method +
-                                            " already exists"
-                                        );
+                                      if (methodValidation(value.method)) {
+                                        if (!version.dev[value.method]) {
+                                          version.dev[value.method] = {
+                                            code: "",
+                                            enabled: value.enabled,
+                                            handler: value.handler,
+                                            public: value.public,
+                                          };
+                                        } else {
+                                          alert(
+                                            "The Method " +
+                                              value.method +
+                                              " already exists"
+                                          );
+                                        }
                                       }
                                     },
                                   };
@@ -659,6 +676,7 @@
                               ><button
                                 class="button is-small"
                                 on:click={() => {
+                                  methodSelectedDialog = "";
                                   paramDialogMethod = {
                                     title: "New Method - Quality",
                                     values: {
@@ -669,19 +687,21 @@
                                     function: (/** @type {any} */ value) => {
                                       console.log("<Funcion>", value);
 
-                                      if (!version.qa[value.method]) {
-                                        version.qa[value.method] = {
-                                          code: "",
-                                          enabled: value.enabled,
-                                          handler: value.handler,
-                                          public: value.public,
-                                        };
-                                      } else {
-                                        alert(
-                                          "The Method " +
-                                            value.method +
-                                            " already exists"
-                                        );
+                                      if (methodValidation(value.method)) {
+                                        if (!version.qa[value.method]) {
+                                          version.qa[value.method] = {
+                                            code: "",
+                                            enabled: value.enabled,
+                                            handler: value.handler,
+                                            public: value.public,
+                                          };
+                                        } else {
+                                          alert(
+                                            "The Method " +
+                                              value.method +
+                                              " already exists"
+                                          );
+                                        }
                                       }
                                     },
                                   };
@@ -708,6 +728,7 @@
                               ><button
                                 class="button is-small"
                                 on:click={() => {
+                                  methodSelectedDialog = "";
                                   paramDialogMethod = {
                                     title: "New Method - Production",
                                     values: {
@@ -718,19 +739,21 @@
                                     function: (/** @type {any} */ value) => {
                                       console.log("<Funcion>", value);
 
-                                      if (!version.prd[value.method]) {
-                                        version.prd[value.method] = {
-                                          code: "",
-                                          enabled: value.enabled,
-                                          handler: value.handler,
-                                          public: value.public,
-                                        };
-                                      } else {
-                                        alert(
-                                          "The Method " +
-                                            value.method +
-                                            " already exists"
-                                        );
+                                      if (methodValidation(value.method)) {
+                                        if (!version.prd[value.method]) {
+                                          version.prd[value.method] = {
+                                            code: "",
+                                            enabled: value.enabled,
+                                            handler: value.handler,
+                                            public: value.public,
+                                          };
+                                        } else {
+                                          alert(
+                                            "The Method " +
+                                              value.method +
+                                              " already exists"
+                                          );
+                                        }
                                       }
                                     },
                                   };
@@ -798,99 +821,17 @@
   </div>
 </DialogModal>
 
-<DialogModal
+<MethodDialog
   bind:Show={showDialogMethod}
-  on:ok={() => {
-    paramDialogMethod.function(paramDialogMethod.values);
+  bind:title={paramDialogMethod.title}
+  bind:method={methodSelectedDialog}
+  on:ok={(e) => {
+    console.log(e);
+    paramDialogMethod.function(e.detail);
     showDialogMethod = false;
+    app = app;
   }}
->
-  <span slot="title">{paramDialogMethod.title}</span>
-
-  <div slot="body">
-    <div class="field is-horizontal">
-      <div class="field-label is-normal">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label is-small">Method</label>
-      </div>
-      <div class="field-body">
-        <div class="field is-narrow">
-          <div class="control">
-            <div class="select is-fullwidth is-small">
-              <select bind:value={paramDialogMethod.values.method}>
-                {#each methods as method}
-                  <option value={method.id}>
-                    {method.text}
-                  </option>
-                {/each}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label">Enabled</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <label class="checkbox">
-              <input
-                type="checkbox"
-                on:checked={paramDialogMethod.values.enabled}
-              />
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="field is-horizontal">
-      <div class="field-label is-normal">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label is-small">Handler</label>
-      </div>
-      <div class="field-body">
-        <div class="field is-narrow">
-          <div class="control">
-            <div class="select is-fullwidth is-small">
-              <select bind:value={paramDialogMethod.values.handler}>
-                {#each handlers as handler}
-                  <option value={handler.id}>
-                    {handler.text}
-                  </option>
-                {/each}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="field is-horizontal">
-      <div class="field-label">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label is-small">Public</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <label class="checkbox">
-              <input
-                type="checkbox"
-                on:checked={paramDialogMethod.values.public}
-              />
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</DialogModal>
+/>
 
 <style>
   .env_class {
