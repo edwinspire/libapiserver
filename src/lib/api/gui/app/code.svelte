@@ -2,7 +2,7 @@
   import {
     DialogModal,
     // @ts-ignore
-  } from "@edwinspire/svelte-components/src/index.js";
+  } from "@edwinspire/svelte-components";
   import FetchCode from "./handler/fetch.svelte";
   import JsCode from "./handler/js.svelte";
   import SoapCode from "./handler/soap.svelte";
@@ -42,13 +42,13 @@
 <DialogModal
   bind:Show={showCode}
   on:ok={() => {
-    if (method.handler == "jsFunction") {
+    if (method.handler == "js") {
       method.code = fnJsCode.getCode();
-    } else if (method.handler == "soapFunction") {
+    } else if (method.handler == "soap") {
       method.code = fnSoapCode.getCode();
-    } else if (method.handler == "sqlFunction") {
+    } else if (method.handler == "sql") {
       method.code = fnSqlCode.getCode();
-    } else if (method.handler == "fetchFunction") {
+    } else if (method.handler == "fetch") {
       method.code = fnFetchCode.getCode();
     }
     console.log(method.code);

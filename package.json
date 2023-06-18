@@ -10,8 +10,8 @@
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint .",
 		"format": "prettier --write --plugin-search-dir=. .",
-		"test": "vite build && node src/server.js",
-		"test2": "node build/index.js",
+		"build_test": "vite build && node src/server.js",
+		"test": "node src/server.js",
 		"dev": "vite build && node src/server.js",
 		"main": "index.js"
 	},

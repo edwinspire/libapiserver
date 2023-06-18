@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, { response } from "express";
+import express from "express";
 import { createServer } from "http";
 //import { WebSocketServer } from 'ws'
 // @ts-ignore
@@ -8,12 +8,11 @@ import { WebSocketExpress } from "@edwinspire/websocket_express/src/index.js";
 import { defaultUser } from "./db/user.js";
 
 import dbRestAPI from "./db/sequelize.js";
-import { App } from "./db/models.js";
+import { App, Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import {
   getFullApp,
   defaultExamples,
-  saveApp,
   getAppRoutes,
 } from "./db/app.js";
 import login from "./server/login.js";
@@ -22,7 +21,13 @@ import app from "./server/app.js";
 
 import { validateToken } from "../api/server/utils.js";
 
-const { PORT, EXPRESSJS_SERVER_TIMEOUT } = process.env;
+const {
+  PORT,
+  EXPRESSJS_SERVER_TIMEOUT,
+  EXPOSE_DEV_API,
+  EXPOSE_QA_API,
+  EXPOSE_PROD_API,
+} = process.env;
 
 export class ServerAPI {
   /**
@@ -78,56 +83,6 @@ export class ServerAPI {
       }
     });
 
-    this.app.post("/api/full", validateToken, async (req, res) => {
-      try {
-        let data = await saveApp(req.body);
-
-        if (data) {
-          res.status(200).json(data);
-        } else {
-          res.status(404).json({});
-        }
-      } catch (error) {
-        res.status(500).json({ error });
-      }
-    });
-
-    this.app.get("/api/app/:idapp", validateToken, async (req, res) => {
-      //console.log(req.params, req.query);
-
-      try {
-
-        let raw = !req.query.raw || req.query.raw == "false" ? false : true;
-        // @ts-ignore
-        let data = await getAppRoutes(
-          req.params.idapp,
-          raw
-        );
-
-//console.log(data);
-
-        if (data) {
-          if (Array.isArray(data) && raw && data.length > 0) {
-            // @ts-ignore
-            data = data.map((d) => {
-              return {
-                // @ts-ignore
-                path: `/api/${d.app}/${d["routes.route"]}/${d["routes.methods.env"]}/v${d["routes.methods.version"]}`,
-                ...d,
-              };
-            });
-          }
-
-          res.status(200).json(data);
-        } else {
-          res.status(404).json({});
-        }
-      } catch (error) {
-        console.log(error);
-        // @ts-ignore
-        res.status(500).json({ error: error.message });
-      }
-    });
 
     this.app.all(
       "/api/:app/:route/:environment/:version",
@@ -135,85 +90,97 @@ export class ServerAPI {
       async (req, res) => {
         // http://localhost:3000/api/test001/javascript/1
         let { app, route, version, environment } = req.params;
-        try {
-          let v = Number(version.replace(/[^0-9.]/g, ""));
-          //console.log(v)
-          if (v > 0) {
-            // Obtener el idapp por el nombre
-            let appData = await App.findAll({ where: { app: app } });
 
-            if (appData && Array.isArray(appData) && appData.length > 0) {
-              // Obtener todos los datos de la app por el idapp
-              // @ts-ignore
-              let idapp = appData[0].idapp;
-              let appFull = await getFullApp(idapp);
+        if (
+          (environment == "qa" && EXPOSE_QA_API === "true") ||
+          (environment == "dev" && EXPOSE_DEV_API === "true") ||
+          (environment == "prd" && EXPOSE_PROD_API === "true")
+        ) {
+          try {
+            let v = Number(version.replace(/[^0-9.]/g, ""));
+            //console.log(v)
+            if (v > 0) {
+              // Obtener el idapp por el nombre
+              let appData = await App.findAll({ where: { app: app } });
 
-              //console.log('appFull >>>> ', appFull);
+              if (appData && Array.isArray(appData) && appData.length > 0) {
+                // Obtener todos los datos de la app por el idapp
+                // @ts-ignore
+                let idapp = appData[0].idapp;
+                let appFull = await getFullApp(idapp);
 
-              if (appFull && appFull.enabled) {
-                let routes = appFull.route.filter(
-                  (/** @type {{ route: string; enabled: boolean; }} */ r) => {
-                    return r.route == route && r.enabled == true;
-                  }
-                );
+                //console.log('appFull >>>> ', appFull);
 
-                //console.log('routes >>>> ', routes);
+                if (appFull && appFull.enabled) {
+                  let routes = appFull.route.filter(
+                    (/** @type {{ route: string; enabled: boolean; }} */ r) => {
+                      return r.route == route && r.enabled == true;
+                    }
+                  );
 
-                if (routes && Array.isArray(routes) && routes.length > 0) {
-                  // Verificamos si el método y ambiente existen y están habilitados
+                  //console.log('routes >>>> ', routes);
 
-                  if (routes.length == 1) {
-                    let methods = routes[0].method.filter(
-                      (
-                        /** @type {{ enabled: boolean; method: string; env: string; version: number; handler: string}} */ m
-                      ) => {
-                        //  console.log(m);
-                        return (
-                          m.enabled == true &&
-                          m.method == req.method &&
-                          m.env == environment &&
-                          m.version == v
-                        );
+                  if (routes && Array.isArray(routes) && routes.length > 0) {
+                    // Verificamos si el método y ambiente existen y están habilitados
+
+                    if (routes.length == 1) {
+                      let methods = routes[0].method.filter(
+                        (
+                          /** @type {{ enabled: boolean; method: string; env: string; version: number; handler: string}} */ m
+                        ) => {
+                          //  console.log(m);
+                          return (
+                            m.enabled == true &&
+                            m.method == req.method &&
+                            m.env == environment &&
+                            m.version == v
+                          );
+                        }
+                      );
+
+                      // console.log(methods);
+
+                      if (
+                        methods &&
+                        Array.isArray(methods) &&
+                        methods.length > 0
+                      ) {
+                        let method = methods[0];
+
+                        runHandler(req, res, method);
+                      } else {
+                        res.status(404).json({
+                          error: `Route ${route} has no data for the environment ${environment}`,
+                        });
                       }
-                    );
-
-                    // console.log(methods);
-
-                    if (
-                      methods &&
-                      Array.isArray(methods) &&
-                      methods.length > 0
-                    ) {
-                      let method = methods[0];
-
-                      runHandler(req, res, method);
                     } else {
-                      res.status(404).json({
-                        error: `Route ${route} has no data for the environment ${environment}`,
+                      res.status(500).json({
+                        error: "Hay más de dos rutas con el mismo nombre",
                       });
                     }
                   } else {
-                    res.status(500).json({
-                      error: "Hay más de dos rutas con el mismo nombre",
-                    });
+                    res
+                      .status(404)
+                      .json({
+                        error: `Route ${route} not found`,
+                        data: routes,
+                      });
                   }
                 } else {
-                  res
-                    .status(404)
-                    .json({ error: `Route ${route} not found`, data: routes });
+                  res.status(404).json({ error: `App ${app} not found` });
                 }
               } else {
                 res.status(404).json({ error: `App ${app} not found` });
               }
             } else {
-              res.status(404).json({ error: `App ${app} not found` });
+              res.status(400).json({ error: "Invalid API version" });
             }
-          } else {
-            res.status(400).json({ error: "Invalid API version" });
+          } catch (error) {
+            // @ts-ignore
+            res.status(500).json({ error: error.message });
           }
-        } catch (error) {
-          // @ts-ignore
-          res.status(500).json({ error: error.message });
+        } else {
+          res.status(404).json({});
         }
       }
     );
@@ -236,8 +203,8 @@ export class ServerAPI {
       dbRestAPI.sync({ alter: true }).then(
         async () => {
           console.log("Crea la base de datos");
-          await defaultUser();
-          await defaultExamples();
+         // await defaultUser();
+         // await defaultExamples();
         },
         (/** @type {any} */ e) => {
           console.log("no se pudo crear / modificar la base de datos", e);

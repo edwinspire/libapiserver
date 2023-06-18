@@ -8,114 +8,98 @@
   let showMethods = false;
 </script>
 
-<div class="box">
-  <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <span class="navbar-item">
-        <div class="field is-horizontal">
-          <div class="field-body">
-            <div class="field is-expanded">
-              <div class="field has-addons">
-                <p class="control">
-                  <a class="button is-primary is-small"> Route </a>
-                </p>
-                <p class="control is-expanded">
-                  <input
-                    class="input is-small"
-                    type="text"
-                    placeholder="Route name"
-                    bind:value={route.route}
-                  />
-                </p>
+<div class="method_margin">
+  <!-- Main container -->
+
+  <div class="has-background-grey-dark header_method">
+    <nav class="level has-background-grey-dark">
+      <!-- Left side -->
+      <div class="level-left">
+        <div class="level-item">
+          <div class="field is-horizontal">
+            <div class="field-body">
+              <div class="field is-expanded">
+                <div class="field has-addons">
+                  <p class="control">
+                    <a class="button is-primary is-small"> Route </a>
+                  </p>
+                  <p class="control is-expanded">
+                    <input
+                      class="input is-small"
+                      type="text"
+                      placeholder="Route name"
+                      bind:value={route.route}
+                    />
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </span>
-
-      <a
-        role="button"
-        class="navbar-burger"
-        aria-label="menu"
-        aria-expanded="false"
-        data-target="navbarBasicExample"
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </a>
-    </div>
-
-    <div class="navbar-menu">
-      <div class="navbar-start">
-        <span class="navbar-item">
-          <label class="checkbox">
-            <input type="checkbox" />
-            Enabled
-          </label>
-        </span>
-      </div>
-
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons is-small">
-            <!-- svelte-ignore a11y-missing-attribute -->
-            <a class="button is-primary is-small">
-              <strong>New Method</strong>
-            </a>
-          </div>
-        </div>
-        <div class="navbar-item">
-          <div class="buttons is-small">
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-missing-attribute -->
-            <a
-              class="button is-primary is-small"
-              on:click={() => {
-                showMethods = !showMethods;
-              }}
-            >
-              <strong>Show Methods</strong>
-            </a>
-          </div>
+        <div class="level-item">
+          <span
+            ><label class="checkbox has-text-white">
+              <input type="checkbox" />
+              Enabled
+            </label></span
+          >
         </div>
       </div>
-    </div>
-  </nav>
 
-  <div class={showMethods ? "" : "is-hidden"}>
-    <div class="table-container is-size-7">
-      <table
-        class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
-      >
-        <tr>
-          <th>Development</th>
-          <th>Quality</th>
-          <th>Producction</th>
-        </tr>
+      <!-- Right side -->
+      <div class="level-right">
+        <p class="level-item">
+          <a
+            class="button is-success is-small"
+            on:click={() => {
+              showMethods = !showMethods;
+            }}>Methods</a
+          >
+        </p>
+      </div>
+    </nav>
+  </div>
 
-        {#each route.method as method}
-          <tr>
-            <td
-              >{#if method.env == "dev"}
-                <Method bind:method />
-              {/if}
-            </td>
-
-            <td
-              >{#if method.env == "qa"}
-                <Method bind:method />
-              {/if}</td
-            >
-
-            <td
-              >{#if method.env == "prd"}
-                <Method bind:method />
-              {/if}</td
-            >
-          </tr>
+  <div
+    class={showMethods
+      ? "has-background-light box"
+      : "is-hidden"}
+  >
+    <div class="columns">
+      <div class="column is-one-third">
+        {#each route.methods as method}
+          {#if method.env == "dev"}
+            <Method bind:method />
+          {/if}
         {/each}
-      </table>
+      </div>
+      <div class="column is-one-third">
+        {#each route.methods as method}
+          {#if method.env == "qa"}
+            <Method bind:method />
+          {/if}
+        {/each}
+      </div>
+      <div class="column is-one-third">
+        {#each route.methods as method}
+          {#if method.env == "prd"}
+            <Method bind:method />
+          {/if}
+        {/each}
+      </div>
     </div>
   </div>
 </div>
+
+
+<style>
+  .header_method {
+    padding: 0.3em;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+  }
+
+  .method_margin {
+    margin: 0.3em;
+  }
+</style>

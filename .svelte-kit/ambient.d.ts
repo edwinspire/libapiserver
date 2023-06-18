@@ -30,6 +30,9 @@ declare module '$env/static/private' {
 	export const BUILD_DB_ON_START: string;
 	export const DATABASE_URL_APIREST: string;
 	export const JWT_KEY: string;
+	export const EXPOSE_DEV_API: string;
+	export const EXPOSE_QA_API: string;
+	export const EXPOSE_PROD_API: string;
 	export const ACLOCAL_PATH: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
@@ -168,6 +171,9 @@ declare module '$env/dynamic/private' {
 		BUILD_DB_ON_START: string;
 		DATABASE_URL_APIREST: string;
 		JWT_KEY: string;
+		EXPOSE_DEV_API: string;
+		EXPOSE_QA_API: string;
+		EXPOSE_PROD_API: string;
 		ACLOCAL_PATH: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;

@@ -1,9 +1,11 @@
-import { App } from "./models.js";
+import { App, Application } from "./models.js";
 import dbsequelize from "./sequelize.js";
 import { getUserById } from "./user.js";
 import { Route, Method } from "./models.js";
 import { upsertRoute } from "./route.js";
 import { upsertMethod } from "./method.js";
+import { where } from "sequelize";
+import { application } from "express";
 
 // CREATE
 const createApp = async (
@@ -19,11 +21,13 @@ const createApp = async (
 };
 
 // READ
-const getAppById = async (
-  /** @type {import("sequelize").Identifier | undefined} */ appId
+export const getAppById = async (
+  /** @type {import("sequelize").Identifier} */ idapp
 ) => {
   try {
-    const app = await App.findByPk(appId);
+    const app = await Application.findByPk(idapp, {
+      attributes: ["idapp", "app", "rowkey", "data"],
+    });
     return app;
   } catch (error) {
     console.error("Error retrieving app:", error);
@@ -33,7 +37,7 @@ const getAppById = async (
 
 export const getAllApps = async () => {
   try {
-    const apps = await App.findAll();
+    const apps = await Application.findAll({ attributes: ["idapp", "app"] });
     return apps;
   } catch (error) {
     console.error("Error retrieving apps:", error);
@@ -82,29 +86,30 @@ const getAppByName = async (/** @type {string} */ app_name) => {
   if (d1 && Array.isArray(d1) && d1.length > 0) {
     data = d1[0].dataValues;
   }
-  console.log(" >>>>> getAppByName ZZZZZ ", data);
   return data;
 };
 
 // UPSERT
-const upsertApp = async (
+export const upsertApp = async (
   /** @type {import("sequelize").Optional<any, string>} */ appData,
   /** @type {undefined} */ transaction
 ) => {
   try {
-    let [app, create] = await App.upsert(appData, transaction);
+    let [app, create] = await Application.upsert(appData, transaction);
 
     //console.log('XXXX>>> [app, create] ', app, create);
 
     let data = app.dataValues;
-
+    console.log(data);
+    /*
     if (data.idapp <= 0) {
       // No hay idapp se intenta obtenerlo de acuerdo con el nombre
-      let d2 = await getAppByName(data.app);
+      let d2 = await getAppById(data.idapp);
       data.idapp = d2.idapp;
     }
+    */
 
-    return [data, create];
+    return data;
   } catch (error) {
     console.error("Error performing UPSERT on app:", error);
     throw error;
@@ -231,7 +236,7 @@ export async function defaultExamples() {
 /**
  * @param {import("sequelize").Optional<any, string>} appData
  */
-export async function saveApp(appData) {
+ async function saveApp(appData) {
   //console.log(appData);
 
   const transaction = await dbsequelize.transaction();
@@ -322,9 +327,6 @@ export async function saveApp(appData) {
  * @param {boolean} raw
  */
 export async function getAppRoutes(idapp, raw) {
-
-  console.log('raw', raw);
-
   try {
     return await App.findAll({
       attributes: ["idapp", "enabled", "app", "description", "icon"],

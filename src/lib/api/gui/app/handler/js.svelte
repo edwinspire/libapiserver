@@ -8,7 +8,8 @@
   let fnEditorCode;
 
   export function getCode() {
-    fnEditorCode.getCode();
+    console.log(">> getCode en JS.SVELTE ", );
+    return fnEditorCode.getCode();
   }
 
   onMount(() => {});

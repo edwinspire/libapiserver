@@ -98,6 +98,71 @@ export const User = dbsequelize.define(
 );
 
 // Definir el modelo de la tabla 'App'
+export const Application = dbsequelize.define(
+  "application",
+  {
+    
+    idapp: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    app: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    iduser: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    data: {
+      type: DataTypes.JSON,
+    }
+  },
+  {
+    freezeTableName: true,
+   // timestamps: false,
+    indexes: [
+      
+    ],
+    hooks: {
+      afterUpsert: async (instance, options) => {
+        
+        // @ts-ignore
+        instance.rowkey = 999;
+        // @ts-ignore
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxx', instance);
+        await hookUpsert("application");
+      },
+      beforeUpdate: (instance, options) => {
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+      },
+      beforeUpsert: async (instance, options) => {
+        
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+        console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+        await hookUpsert("application");
+      },
+      beforeSave: (instance, options) => {
+        // Acciones a realizar antes de guardar el modelo
+        //console.log('Antes de guardar:', instance.fieldName);
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+// Definir el modelo de la tabla 'App'
 export const App = dbsequelize.define(
   "app",
   {
@@ -308,13 +373,18 @@ export const Method = dbsequelize.define(
 );
 
 // Definir relaciones entre las tablas
+/*
 User.hasMany(App, {
   foreignKey: "iduser",
   onDelete: "CASCADE",
 });
+*/
+
+/*
 App.belongsTo(User, {
   foreignKey: "iduser",
 });
+*/
 
 App.hasMany(Route, {
   foreignKey: "idapp",

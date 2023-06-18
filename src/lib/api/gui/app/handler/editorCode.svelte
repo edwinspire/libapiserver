@@ -32,9 +32,9 @@
 
   // Obtener los cambios del código
   export function getCode() {
-    //code = editor.state.doc.toString();
-    //console.log(editor.state.doc, code);
-    return editor.state.doc.toString();
+    code = editor.state.doc.toString();
+    console.warn(editor.state.doc, code);
+    return code;
   }
 
   function setCode() {

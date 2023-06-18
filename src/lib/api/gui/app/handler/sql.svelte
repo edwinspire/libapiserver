@@ -19,7 +19,7 @@
 
   let params_code = "{}";
   let query_code = "SELECT 1+1;";
-  $: code, ParseCode;
+  $: code, ParseCode();
 
   function ParseCode() {
     try {
