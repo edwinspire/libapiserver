@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
   import FetchCode from "./handler/fetch.svelte";
   import JsCode from "./handler/js.svelte";
   import SoapCode from "./handler/soap.svelte";
@@ -78,6 +80,7 @@
             </span></a
           >
 
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
           <span
             class={classMap[method] || "tag is-dark"}
             on:click={() => {

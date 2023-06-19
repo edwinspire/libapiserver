@@ -1,14 +1,7 @@
 <script>
-  //  import "@codemirror/lib/codemirror.css";
-
+  // @ts-ignore
   import uFetch from "@edwinspire/universal-fetch";
-  import {
-    PredictiveInput,
-    Table,
-    ColumnTypes,
-    DialogModal,
-    Level,
-  } from "@edwinspire/svelte-components";
+ 
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
   import { tokenStore } from "../utils.js";

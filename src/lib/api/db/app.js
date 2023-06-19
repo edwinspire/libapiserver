@@ -4,8 +4,6 @@ import { getUserById } from "./user.js";
 import { Route, Method } from "./models.js";
 import { upsertRoute } from "./route.js";
 import { upsertMethod } from "./method.js";
-import { where } from "sequelize";
-import { application } from "express";
 
 // CREATE
 const createApp = async (
@@ -425,3 +423,50 @@ export async function getFullApp(idapp) {
     return { error: error.message };
   }
 }
+
+
+
+  /**
+   * @param {any} json
+   */
+export  function AppToTable(json) {
+    console.log(json);
+
+    /**
+   * @type {any[]}
+   */
+    let result = [];
+    /*
+    // Recorrer los datos para construir la matriz
+    for (const app in json) {
+      const appData = json[app];
+      for (const namespace in appData.namespaces) {
+        const namespaceData = appData.namespaces[namespace];
+        for (const name in namespaceData) {
+          const envData = namespaceData[name];
+          for (const env in envData) {
+            const versionData = envData[env];
+            for (const version in versionData) {
+              const methods = versionData[version];
+              result.push({
+                enabled: appData.enabled,
+                endpoint: `/api/${app}/${namespace}/${name}/${env}/${version}`,
+                description: appData.description,
+                idapp: appData.idapp,
+                rowkey: appData.rowkey,
+                app,
+                namespace,
+                name,
+                env,
+                version,
+                methods,
+              });
+            }
+          }
+        }
+      }
+    }
+    */
+
+    return result;
+  }

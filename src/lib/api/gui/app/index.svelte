@@ -14,6 +14,7 @@
   import { tokenStore } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
+  //  import { AppToTable } from "../../db/app.js";
 
   const dispatch = createEventDispatcher();
   export let idapp = 0;
@@ -172,48 +173,6 @@
   }
 
   /**
-   * @param {any} json
-   */
-  function AppToTable(json) {
-    console.log(json);
-
-    let result = [];
-    /*
-    // Recorrer los datos para construir la matriz
-    for (const app in json) {
-      const appData = json[app];
-      for (const namespace in appData.namespaces) {
-        const namespaceData = appData.namespaces[namespace];
-        for (const name in namespaceData) {
-          const envData = namespaceData[name];
-          for (const env in envData) {
-            const versionData = envData[env];
-            for (const version in versionData) {
-              const methods = versionData[version];
-              result.push({
-                enabled: appData.enabled,
-                endpoint: `/api/${app}/${namespace}/${name}/${env}/${version}`,
-                description: appData.description,
-                idapp: appData.idapp,
-                rowkey: appData.rowkey,
-                app,
-                namespace,
-                name,
-                env,
-                version,
-                methods,
-              });
-            }
-          }
-        }
-      }
-    }
-    */
-
-    return result;
-  }
-
-  /**
    * @param {string } method_selected
    */
   function methodValidation(method_selected) {
@@ -233,8 +192,8 @@
         app = await apps_res.json();
         console.log(app);
         if (app) {
-          appDataTable = AppToTable(app);
-          console.log(appDataTable);
+          // appDataTable = AppToTable(app);
+          // console.log(appDataTable);
         }
       } catch (error) {
         // @ts-ignore
@@ -409,7 +368,17 @@
                   <span
                     class="icon is-small"
                     on:click={() => {
-                      console.log("EDIT > ", namespaceSelected);
+                      paramDialogOneField.title = "Edit Namespace";
+                      paramDialogOneField.label = "Namespace";
+                      paramDialogOneField.inputType = "text";
+                      paramDialogOneField.value = namespace.namespace;
+                      paramDialogOneField.function = (value) => {
+                        console.log(value);
+                        namespace.namespace = value;
+                        app = app;
+                      };
+
+                      showDialogOneField = true;
                     }}><i class="fa-solid fa-pen" /></span
                   >
                 </a>

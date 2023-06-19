@@ -11,49 +11,6 @@ import { validateToken } from "./utils.js";
 
 const router = express.Router();
 
-/**
- * @param {any} json
- */
-function AppToTable(json) {
-  console.log(json);
-
-  const result = [];
-
-  // Recorrer los datos para construir la matriz
-  for (const app in json) {
-    const appData = json[app];
-    for (const namespace in appData.namespaces) {
-      const namespaceData = appData.namespaces[namespace];
-      for (const name in namespaceData) {
-        const envData = namespaceData[name];
-        for (const env in envData) {
-          const versionData = envData[env];
-          for (const version in versionData) {
-            const methodData = versionData[version];
-            const methods = [];
-            for (const method in methodData) {
-              methods.push({
-                [method]: methodData[method],
-              });
-            }
-            result.push({
-              endpoint: `/api/${app}/${namespace}/${name}/${env}/${version}`,
-              app,
-              enabled: appData.enabled,
-              namespace,
-              name,
-              env,
-              version,
-              methods,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return result;
-}
 
 router.get("/api/apps", validateToken, async (req, res) => {
   try {
