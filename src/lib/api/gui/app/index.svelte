@@ -447,7 +447,17 @@
                         <span
                           class="icon is-small"
                           on:click={() => {
-                            console.log("EDIT > ", namespaceSelected);
+                            paramDialogOneField.title = "Edit Name";
+                            paramDialogOneField.label = "Name";
+                            paramDialogOneField.inputType = "text";
+                            paramDialogOneField.value = name.name;
+                            paramDialogOneField.function = (value) => {
+                              console.log(value);
+                              name.name = value;
+                              app = app;
+                            };
+      
+                            showDialogOneField = true;
                           }}><i class="fa-solid fa-pen" /></span
                         >
                       </a>
