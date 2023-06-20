@@ -456,7 +456,7 @@
                               name.name = value;
                               app = app;
                             };
-      
+
                             showDialogOneField = true;
                           }}><i class="fa-solid fa-pen" /></span
                         >
@@ -532,7 +532,17 @@
                             <span
                               class="icon is-small"
                               on:click={() => {
-                                console.log("EDIT > ", namespaceSelected);
+                                paramDialogOneField.title = "Edit Version";
+                                paramDialogOneField.label = "Version";
+                                paramDialogOneField.inputType = "text";
+                                paramDialogOneField.value = version.version;
+                                paramDialogOneField.function = (value) => {
+                                  console.log(value);
+                                  version.version = value;
+                                  app = app;
+                                };
+
+                                showDialogOneField = true;
                               }}><i class="fa-solid fa-pen" /></span
                             >
                           </a>
