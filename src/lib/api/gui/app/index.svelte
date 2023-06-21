@@ -27,6 +27,10 @@
     prd: { decorator: { component: CellMethods } },
     idapp: { hidden: true },
     rowkey: { hidden: true },
+    app: { hidden: true },
+    namespace: { hidden: true },
+    name: { hidden: true },
+    version: { hidden: true },
     description: { hidden: true },
   };
   /**
@@ -161,7 +165,7 @@
 
     for (let i = 0; i < objeto.length; i++) {
       let row = objeto[i];
-      console.log("row>", row);
+      //  console.log("row>", row);
 
       // Buscamos el namespace, sino existe se la crea
       let ns = nuevoObjeto.data.namespaces.find(
@@ -170,13 +174,13 @@
       );
 
       if (ns) {
-        console.log("existe > ", ns);
+        //      console.log("existe > ", ns);
 
         // Verifica si existe o no el name
 
         if (ns.names) {
           // Existe names
-          console.log("names >> EXISTE", ns.names);
+          // console.log("names >> EXISTE", ns.names);
 
           let name = ns.names.find(
             // @ts-ignore
@@ -184,7 +188,7 @@
           );
 
           if (name) {
-            console.log("MANE ", name);
+            //  console.log("MANE ", name);
 
             if (!name.versions) {
               name.versions = [];
@@ -240,7 +244,7 @@
         nuevoObjeto.data.namespaces.push(ns);
       }
     }
-    console.log(" nuevoObjeto>>> ", nuevoObjeto);
+    //   console.log(" nuevoObjeto>>> ", nuevoObjeto);
 
     return nuevoObjeto;
   }
@@ -739,9 +743,31 @@
                                 }}
                               >
                                 <span class="icon is-small">
-                                  <i class="fab fa-github" />
+                                  <i class="fa-solid fa-plus" />
                                 </span>
                                 <span>New</span>
+                              </button></span
+                            >
+
+                            <span slot="r02"
+                              ><button
+                                class="button is-small"
+                                on:click={() => {
+                                  console.log("To QA");
+
+                                  if (
+                                    confirm(
+                                      "Are you sure to copy and replace the QA code with the Development code?"
+                                    )
+                                  ) {
+                                    version.qa = { ...version.dev };
+                                  }
+                                }}
+                              >
+                                <span class="icon is-small">
+                                  <i class="fa-solid fa-turn-up" />
+                                </span>
+                                <span>To QA</span>
                               </button></span
                             >
                           </Level>
@@ -758,43 +784,19 @@
                               ><button
                                 class="button is-small"
                                 on:click={() => {
-                                  methodSelectedDialog = "";
-                                  paramDialogMethod = {
-                                    title: "New Method - Quality",
-                                    values: {
-                                      enabled: false,
-                                      public: false,
-                                      handler: "",
-                                    },
-                                    function: (/** @type {any} */ value) => {
-                                      console.log("<Funcion>", value);
-
-                                      if (methodValidation(value.method)) {
-                                        if (!version.qa[value.method]) {
-                                          version.qa[value.method] = {
-                                            code: "",
-                                            enabled: value.enabled,
-                                            handler: value.handler,
-                                            public: value.public,
-                                          };
-                                        } else {
-                                          alert(
-                                            "The Method " +
-                                              value.method +
-                                              " already exists"
-                                          );
-                                        }
-                                      }
-                                    },
-                                  };
-                                  showDialogMethod = true;
-                                  app = app;
+                                  if (
+                                    confirm(
+                                      "Are you sure to copy and replace the Production code with the Development code?"
+                                    )
+                                  ) {
+                                    version.prd = { ...version.qa };
+                                  }
                                 }}
                               >
                                 <span class="icon is-small">
-                                  <i class="fab fa-github" />
+                                  <i class="fa-solid fa-turn-up" />
                                 </span>
-                                <span>New</span>
+                                <span>To Production</span>
                               </button></span
                             >
                           </Level>
@@ -806,49 +808,7 @@
                         <div class="column env_class is-one-third">
                           <Level>
                             <span slot="l01">PRODUCTION</span>
-                            <span slot="r01"
-                              ><button
-                                class="button is-small"
-                                on:click={() => {
-                                  methodSelectedDialog = "";
-                                  paramDialogMethod = {
-                                    title: "New Method - Production",
-                                    values: {
-                                      enabled: false,
-                                      public: false,
-                                      handler: "",
-                                    },
-                                    function: (/** @type {any} */ value) => {
-                                      console.log("<Funcion>", value);
-
-                                      if (methodValidation(value.method)) {
-                                        if (!version.prd[value.method]) {
-                                          version.prd[value.method] = {
-                                            code: "",
-                                            enabled: value.enabled,
-                                            handler: value.handler,
-                                            public: value.public,
-                                          };
-                                        } else {
-                                          alert(
-                                            "The Method " +
-                                              value.method +
-                                              " already exists"
-                                          );
-                                        }
-                                      }
-                                    },
-                                  };
-                                  showDialogMethod = true;
-                                  app = app;
-                                }}
-                              >
-                                <span class="icon is-small">
-                                  <i class="fab fa-github" />
-                                </span>
-                                <span>New</span>
-                              </button></span
-                            >
+                           
                           </Level>
                           {#if version.prd}
                             <CellMethods bind:value={version.prd} />
