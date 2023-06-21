@@ -1,8 +1,8 @@
 import express from "express";
 import {
-  getFullApp,
-  defaultExamples,
-  getAppRoutes,
+//  getFullApp,
+//  defaultExamples,
+//  getAppRoutes,
   getAllApps,
   getAppById,
   upsertApp,

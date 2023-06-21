@@ -48,88 +48,90 @@
 
 <td>
   <div class="field is-grouped is-grouped-multiline space">
+    {#if value}
     {#each Object.keys(value) as method}
-      <div class="control">
-        <div class="tags has-addons">
-          <!-- svelte-ignore a11y-missing-attribute -->
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <a
-            class="tag is-dark"
-            on:click={() => {
-              let message = "Do you want to enable the method?";
+    <div class="control">
+      <div class="tags has-addons">
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <a
+          class="tag is-dark"
+          on:click={() => {
+            let message = "Do you want to enable the method?";
 
-              if (value[method].enabled) {
-                message = "Do you want to disable the method?";
-              }
+            if (value[method].enabled) {
+              message = "Do you want to disable the method?";
+            }
 
-              if (confirm(message)) {
-                value[method].enabled = !value[method].enabled;
-              }
-            }}
-          >
-            <span
-              class={value[method].enabled
-                ? "icon has-text-success"
-                : "icon has-text-danger"}
-            >
-              <i
-                class={value[method].enabled
-                  ? "fa-solid fa-check"
-                  : "fa-solid fa-xmark"}
-              />
-            </span></a
-          >
-
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
+            if (confirm(message)) {
+              value[method].enabled = !value[method].enabled;
+            }
+          }}
+        >
           <span
-            class={classMap[method] || "tag is-dark"}
-            on:click={() => {
-              methodSelected = method;
-              showMethod = true;
-            }}>{method}</span
+            class={value[method].enabled
+              ? "icon has-text-success"
+              : "icon has-text-danger"}
           >
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-missing-attribute -->
-          <a
-            class="tag is-dark"
-            on:click={() => {
-              ///
-              methodSelected = method;
-              showCode = true;
-            }}>{value[method].handler}</a
+            <i
+              class={value[method].enabled
+                ? "fa-solid fa-check"
+                : "fa-solid fa-xmark"}
+            />
+          </span></a
+        >
+
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <span
+          class={classMap[method] || "tag is-dark"}
+          on:click={() => {
+            methodSelected = method;
+            showMethod = true;
+          }}>{method}</span
+        >
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <a
+          class="tag is-dark"
+          on:click={() => {
+            ///
+            methodSelected = method;
+            showCode = true;
+          }}>{value[method].handler}</a
+        >
+
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <a
+          class="tag is-dark"
+          on:click={() => {
+            let message = "Do you want to make the method public?";
+
+            if (value[method].public) {
+              message = "Do you want to make the method private?";
+            }
+
+            if (confirm(message)) {
+              value[method].public = !value[method].public;
+            }
+          }}
+        >
+          <span
+            class={value[method].public
+              ? "icon has-text-success"
+              : "icon has-text-danger"}
           >
-
-          <!-- svelte-ignore a11y-missing-attribute -->
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <a
-            class="tag is-dark"
-            on:click={() => {
-              let message = "Do you want to make the method public?";
-
-              if (value[method].public) {
-                message = "Do you want to make the method private?";
-              }
-
-              if (confirm(message)) {
-                value[method].public = !value[method].public;
-              }
-            }}
-          >
-            <span
+            <i
               class={value[method].public
-                ? "icon has-text-success"
-                : "icon has-text-danger"}
-            >
-              <i
-                class={value[method].public
-                  ? "fa-solid fa-lock-open"
-                  : "fa-solid fa-lock"}
-              />
-            </span></a
-          >
-        </div>
+                ? "fa-solid fa-lock-open"
+                : "fa-solid fa-lock"}
+            />
+          </span></a
+        >
       </div>
-    {/each}
+    </div>
+  {/each}
+    {/if}
   </div>
 </td>
 

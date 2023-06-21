@@ -14,7 +14,7 @@
   import { tokenStore } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
-  //  import { AppToTable } from "../../db/app.js";
+  //   import { AppToTable } from "../../db/app.js";
 
   const dispatch = createEventDispatcher();
   export let idapp = 0;
@@ -22,9 +22,12 @@
   $: idapp, getApp();
 
   let columns = {
-    methods: { decorator: { component: CellMethods } },
+    dev: { decorator: { component: CellMethods } },
+    qa: { decorator: { component: CellMethods } },
+    prd: { decorator: { component: CellMethods } },
     idapp: { hidden: true },
     rowkey: { hidden: true },
+    description: { hidden: true },
   };
   /**
    * @type {{ name: any; value: any; }[]}
@@ -54,23 +57,6 @@
       console.log("<Funcion >>>>>>", value);
     },
   };
-
-  let methods = [
-    { id: "CONNECT", text: `CONNECT` },
-    { id: "GET", text: `GET` },
-    { id: "DELETE", text: `DELETE` },
-    { id: "HEAD", text: `HEAD` },
-    { id: "PATCH", text: `PATCH` },
-    { id: "POST", text: `POST` },
-    { id: "PUT", text: `PUT` },
-  ];
-
-  let handlers = [
-    { id: "fetch", text: `fetch` },
-    { id: "js", text: `js` },
-    { id: "soap", text: `soap` },
-    { id: "sql", text: `sql` },
-  ];
 
   /**
    * @type {any}
@@ -109,67 +95,154 @@
   }
 
   /**
-   * @param {any[]} array
+   * @param {any} json
    */
-  function TableToApp(array) {
-    const result = {};
+  function AppToTable(json) {
+    //console.log(json);
 
-    for (let i = 0; i < array.length; i++) {
-      const obj = array[i];
-      const {
-        idapp,
-        rowkey,
-        app,
-        enabled,
-        description,
-        namespace,
-        name,
-        env,
-        version,
-        methods,
-      } = obj;
+    /**
+     * @type {any[]}
+     */
+    let result = [];
 
-      // @ts-ignore
-      if (!result[app]) {
-        // @ts-ignore
-        result[app] = {
-          idapp: idapp,
-          rowkey: rowkey,
-          enabled: enabled,
-          description: description,
-          namespaces: {},
-        };
-      }
+    const { idapp, app, rowkey, data } = json;
+    let baseRow = {
+      idapp,
+      enabled: json.data.enabled,
+      app,
+      rowkey,
+      description: json.data.description,
+    };
+    //console.warn("Inicila => ", idapp, app, rowkey, data);//
+    let ns = json.data.namespaces;
 
-      const namespaceObj = {
-        [name]: {
-          [env]: {
-            [version]: {},
-          },
-        },
-      };
+    // Recorrer los datos para construir la matriz
+    for (const d in ns) {
+      // console.warn("->", d, ns[d]);
 
-      for (let j = 0; j < methods.length; j++) {
-        const method = methods[j];
-        const key = Object.keys(method)[0];
-        // @ts-ignore
-        namespaceObj[name][env][version][key] = method[key];
-      }
+      for (const iname in ns[d].names) {
+        const name = ns[d].names[iname];
+        for (const iversion in name.versions) {
+          const version = name.versions[iversion];
+          let row = {
+            url: `/api/${baseRow.app}/${ns[d].namespace}/${name.name}/v${version.version}/environment`,
+            ...baseRow,
+            namespace: ns[d].namespace,
+            name: name.name,
+            version: version.version,
+            dev: version.dev,
+            qa: version.qa,
+            prd: version.prd,
+          };
 
-      // @ts-ignore
-      if (!result[app].namespaces[namespace]) {
-        // @ts-ignore
-        result[app].namespaces[namespace] = namespaceObj;
-      } else {
-        Object.assign(
-          // @ts-ignore
-          result[app].namespaces[namespace],
-          namespaceObj[namespace]
-        );
+          result.push(row);
+        }
       }
     }
 
+    console.log("AppToTable = ", result);
     return result;
+  }
+
+  /**
+   * @param {any[]} objeto
+   */
+  function TableToApp(objeto) {
+    let nuevoObjeto = {
+      idapp: objeto[0].idapp,
+      app: objeto[0].app,
+      rowkey: objeto[0].rowkey,
+      data: {
+        description: objeto[0].description,
+        enabled: objeto[0].enabled || false,
+        namespaces: [],
+      },
+    };
+
+    for (let i = 0; i < objeto.length; i++) {
+      let row = objeto[i];
+      console.log("row>", row);
+
+      // Buscamos el namespace, sino existe se la crea
+      let ns = nuevoObjeto.data.namespaces.find(
+        // @ts-ignore
+        (element) => element.namespace == row.namespace
+      );
+
+      if (ns) {
+        console.log("existe > ", ns);
+
+        // Verifica si existe o no el name
+
+        if (ns.names) {
+          // Existe names
+          console.log("names >> EXISTE", ns.names);
+
+          let name = ns.names.find(
+            // @ts-ignore
+            (element) => element.name == row.name
+          );
+
+          if (name) {
+            console.log("MANE ", name);
+
+            if (!name.versions) {
+              name.versions = [];
+            }
+
+            let version = name.versions.find(
+              // @ts-ignore
+              (element) => element.version == row.version
+            );
+
+            if (!version) {
+              name.versions.push({
+                version: row.version,
+                dev: row.dev,
+                qa: row.qa,
+                prd: row.prd,
+              });
+            }
+          } else {
+            let version = {
+              version: row.version,
+              dev: row.dev,
+              qa: row.qa,
+              prd: row.prd,
+            };
+            // @ts-ignore
+            ns.names.push({ name: row.name, versions: [version] });
+          }
+        } else {
+          // Buscamos el namespace, sino existe se la crea
+          let version = {
+            version: row.version,
+            dev: row.dev,
+            qa: row.qa,
+            prd: row.prd,
+          };
+          // @ts-ignore
+          ns.names.push({ name: row.name, versions: [version] });
+        }
+      } else {
+        // @ts-ignore
+        ns = { namespace: row.namespace, names: [] };
+        let version = {
+          version: row.version,
+          dev: row.dev,
+          qa: row.qa,
+          prd: row.prd,
+        };
+        // @ts-ignore
+        ns.names.push({ name: row.name, versions: [version] });
+
+        // @ts-ignore
+        nuevoObjeto.data.namespaces.push(ns);
+      }
+    }
+    console.log(" nuevoObjeto>>> ", nuevoObjeto);
+
+    return nuevoObjeto;
   }
 
   /**
@@ -192,8 +265,8 @@
         app = await apps_res.json();
         console.log(app);
         if (app) {
-          // appDataTable = AppToTable(app);
-          // console.log(appDataTable);
+          appDataTable = AppToTable(app);
+          console.log("appDataTable = ", appDataTable);
         }
       } catch (error) {
         // @ts-ignore
@@ -288,6 +361,26 @@
 <div class={pageSelected == "endpoint" ? "" : "is-hidden"}>
   <Table bind:RawDataTable={appDataTable} bind:columns>
     <span slot="l01"> Endpoints </span>
+    <span slot="r07">
+      <button
+        class="button is-small"
+        on:click={() => {
+          console.log("save", appDataTable);
+          if (confirm("Do you want to save the application data?")) {
+            console.log(
+              "Comparacion org vs tabla",
+              TableToApp(appDataTable),
+              app
+            );
+          }
+        }}
+      >
+        <span class="icon is-small">
+          <i class="fab fa-github" />
+        </span>
+        <span>Save</span>
+      </button>
+    </span>
   </Table>
 </div>
 <div class={pageSelected == "app" ? "" : "is-hidden"}>

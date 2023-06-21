@@ -8,13 +8,9 @@ import { WebSocketExpress } from "@edwinspire/websocket_express/src/index.js";
 import { defaultUser } from "./db/user.js";
 
 import dbRestAPI from "./db/sequelize.js";
-import { App, Application } from "./db/models.js";
+import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
-import {
-  getFullApp,
-  defaultExamples,
-  getAppRoutes,
-} from "./db/app.js";
+
 import login from "./server/login.js";
 import user from "./server/user.js";
 import app from "./server/app.js";
@@ -67,21 +63,7 @@ export class ServerAPI {
       }
     });
 
-    this.app.get("/api/full/:idapp", validateToken, async (req, res) => {
-      console.log(req.params);
-      try {
-        let data = await getFullApp(req.params.idapp);
-
-        if (data) {
-          res.status(200).json(data);
-        } else {
-          res.status(404).json({});
-        }
-      } catch (error) {
-        // @ts-ignore
-        res.status(500).json({ error });
-      }
-    });
+   
 
 
     this.app.all(
