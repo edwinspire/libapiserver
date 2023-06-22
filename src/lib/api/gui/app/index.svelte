@@ -414,7 +414,7 @@
           class="input is-small"
           type="text"
           placeholder="Text input"
-          value={app.app}
+          bind:value={app.app}
         />
       </div>
     </div>
@@ -422,7 +422,7 @@
     <div class="field">
       <div class="control">
         <label class="checkbox is-small">
-          <input type="checkbox" checked={app.data.enabled} />
+          <input type="checkbox" bind:checked={app.data.enabled} />
           Enabled
         </label>
       </div>
@@ -805,7 +805,6 @@
                         <div class="column env_class is-one-third">
                           <Level>
                             <span slot="l01">PRODUCTION</span>
-                           
                           </Level>
                           {#if version.prd}
                             <CellMethods bind:value={version.prd} />
