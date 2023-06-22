@@ -7,6 +7,20 @@ const errors = {
   2: { code: 2, message: "Invalid credentials" },
 };
 
+/**
+ * @param {any} token
+ */
+export function checkToken(token) {
+  try {
+    // Verificar y decodificar el token
+    const decodedToken = tokenVerify(token);
+    // @ts-ignore
+    return decodedToken;
+  } catch (error) {
+    return false;
+  }
+}
+
 // Middleware para validar el token
 /**
  * @param {any} req
@@ -23,17 +37,11 @@ export function validateToken(req, res, next) {
     return res.status(401).json({ error: "Token not found" });
   }
 
-  try {
-    // Verificar y decodificar el token
-    const decodedToken = tokenVerify(token);
+  let data = checkToken(token);
 
-    // Agregar el token decodificado al objeto de solicitud
-    // @ts-ignore
-    req.dataUser = decodedToken;
-
-    // Continuar con la ejecución del siguiente middleware o ruta
+  if (data) {
     next();
-  } catch (error) {
+  } else {
     return res.status(401).json({ error: "Token invalid" });
   }
 }

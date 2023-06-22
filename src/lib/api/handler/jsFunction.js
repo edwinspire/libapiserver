@@ -9,9 +9,9 @@ export const jsFunction = (
     let $_UFETCH_ = new uFetch();
     let codefunction = `
 const {$_REQUEST_, $_UFETCH_} = $_VARS_;
-let RETURN_DATA = {};
+let $_RETURN_DATA_ = {};
 ${method.code}
-return RETURN_DATA;
+return $_RETURN_DATA_;
 `;
 
     let f = new Function("$_VARS_", codefunction);

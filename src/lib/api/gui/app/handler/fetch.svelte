@@ -10,8 +10,6 @@
    * @type {EditorCode}
    */
   let fnEditorCode;
-  let instrucions =
-    "Url to make the request. The operation is similar to a proxy.<br>";
 
   export function getCode() {
     //fnEditorCode.apply();
@@ -23,4 +21,11 @@
   });
 </script>
 
-<EditorCode lang="txt" bind:code bind:this={fnEditorCode} {instrucions} />
+<EditorCode lang="txt" bind:code bind:this={fnEditorCode}>
+  <div slot="message">
+    <div class="content is-small">
+      <h2>Fetch</h2>
+      Url to make the request. The operation is similar to a proxy
+    </div>
+  </div>
+</EditorCode>

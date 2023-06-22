@@ -20,4 +20,22 @@
   onMount(() => {});
 </script>
 
-<EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions} />
+<EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions}>
+  <div slot="message">
+    <div class="content is-small">
+      <h2>Predefined variables</h2>
+      <ul>
+        <li>
+          <strong>$_RETURN_DATA_:</strong> Variable that returns the return of the
+          function
+        </li>
+        <li><strong>$_UFETCH_:</strong> Instance of the uFetch class</li>
+        <li>
+          <strong>$_REQUEST_</strong> Represents the HTTP request received by the
+          server. Contains information about the request made by the client, such
+          as URL parameters, headers, body data, and more.
+        </li>
+      </ul>
+    </div>
+  </div>
+</EditorCode>

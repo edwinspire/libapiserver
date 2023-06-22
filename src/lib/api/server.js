@@ -15,7 +15,7 @@ import login from "./server/login.js";
 import user from "./server/user.js";
 import app from "./server/app.js";
 
-import { validateToken } from "../api/server/utils.js";
+import { validateToken, checkToken } from "../api/server/utils.js";
 
 const {
   PORT,
@@ -83,7 +83,7 @@ export class ServerAPI {
             console.log(appData);
 
             // @ts-ignore
-            if (appData.data && appData.data.enabled) {
+            if (appData && appData.data && appData.data.enabled) {
               // Verificar que exista namespaces
               if (
                 appData.data.namespaces &&
@@ -96,7 +96,6 @@ export class ServerAPI {
 
                 // Verifcar si fue encontrado el namespace
                 if (ns) {
-                  console.log("ddd");
                   // Buscar el name
                   if (ns.names && Array.isArray(ns.names)) {
                     // Buscar el name
@@ -118,16 +117,29 @@ export class ServerAPI {
                               console.log(v[environment][req.method]);
 
                               if (v[environment][req.method]) {
+                                const token = req.headers["api-token"];
                                 // Verificar si es publico o privado
-                                if (true) {
-                                  runHandler(
-                                    req,
-                                    res,
-                                    v[environment][req.method]
-                                  );
+                                if (v[environment][req.method].enabled) {
+                                  //  && (v[environment][req.method].enabled   && checkToken(token))
+
+                                  if (
+                                    v[environment][req.method].public ||
+                                    (!v[environment][req.method].public &&
+                                      checkToken(token))
+                                  ) {
+                                    runHandler(
+                                      req,
+                                      res,
+                                      v[environment][req.method]
+                                    );
+                                  } else {
+                                    res.status(403).json({
+                                      error: `Valid Token required`,
+                                    });
+                                  }
                                 } else {
-                                  res.status(403).json({
-                                    error: `Invalid Token`,
+                                  res.status(404).json({
+                                    error: `Method ${req.method} Unabled`,
                                   });
                                 }
                               } else {

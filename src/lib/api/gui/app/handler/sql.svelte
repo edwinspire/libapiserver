@@ -62,21 +62,23 @@
 </script>
 
 <div>
-  Parametros:
-  <EditorCode
-    lang="json"
-    bind:code={params_code}
-    bind:this={fnEditorCode}
-    instrucions={instrucionsParams}
-  />
+  <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode}>
+    <div slot="message">
+      <div class="content is-small">
+        <h2>Parameters</h2>
+        Url to make the request. The operation is similar to a proxy
+      </div>
+    </div>
+  </EditorCode>
 </div>
 
 <div>
-  Query:
-  <EditorCode2
-    lang="sql"
-    bind:code={query_code}
-    bind:this={fnEditorCode2}
-    instrucions={instrucionsQuery}
-  />
+  <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
+    ><div slot="message">
+      <div class="content is-small">
+        <h2>Query</h2>
+        Url to make the request. The operation is similar to a proxy
+      </div>
+    </div></EditorCode2
+  >
 </div>

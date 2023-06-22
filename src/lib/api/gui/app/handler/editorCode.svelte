@@ -11,7 +11,6 @@
   //import { linter } from "@codemirror/lint";
 
   const languageConf = new Compartment();
- export let instrucions = '';
 
   /**
    * @type {EditorView}
@@ -80,7 +79,6 @@
       // internalCode = FormatJson(code);
       extensions = [basicSetup, languageConf.of(json())];
     } else if (lang == "js") {
-      
       extensions = [
         basicSetup,
         languageConf.of(javascript()),
@@ -106,12 +104,8 @@
   });
 </script>
 
-{#if instrucions && instrucions.length > 0}
-  <div>
-    Instrucions:<br />
-    <div>
-      {instrucions}
-    </div>
-  </div>
+{#if $$slots.message}
+  <slot name="message" />
 {/if}
-<div bind:this={txta} />
+
+<div class="box" bind:this={txta} />
