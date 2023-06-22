@@ -63,15 +63,11 @@ export class ServerAPI {
       }
     });
 
-   
-
-
     this.app.all(
-      "/api/:app/:route/:environment/:version",
-      validateToken,
+      "/api/:app/:namespace/:name/:version/:environment",
       async (req, res) => {
         // http://localhost:3000/api/test001/javascript/1
-        let { app, route, version, environment } = req.params;
+        let { app, namespace, name, version, environment } = req.params;
 
         if (
           (environment == "qa" && EXPOSE_QA_API === "true") ||
@@ -79,83 +75,117 @@ export class ServerAPI {
           (environment == "prd" && EXPOSE_PROD_API === "true")
         ) {
           try {
-            let v = Number(version.replace(/[^0-9.]/g, ""));
-            //console.log(v)
-            if (v > 0) {
-              // Obtener el idapp por el nombre
-              let appData = await App.findAll({ where: { app: app } });
+            let ver = Number(version.replace(/[^0-9.]/g, ""));
 
-              if (appData && Array.isArray(appData) && appData.length > 0) {
-                // Obtener todos los datos de la app por el idapp
-                // @ts-ignore
-                let idapp = appData[0].idapp;
-                let appFull = await getFullApp(idapp);
+            // Obtener el idapp por el nombre
+            let appData = await Application.findOne({ where: { app: app } });
 
-                //console.log('appFull >>>> ', appFull);
+            console.log(appData);
 
-                if (appFull && appFull.enabled) {
-                  let routes = appFull.route.filter(
-                    (/** @type {{ route: string; enabled: boolean; }} */ r) => {
-                      return r.route == route && r.enabled == true;
-                    }
-                  );
+            // @ts-ignore
+            if (appData.data && appData.data.enabled) {
+              // Verificar que exista namespaces
+              if (
+                appData.data.namespaces &&
+                Array.isArray(appData.data.namespaces)
+              ) {
+                // Busca el namespace
+                let ns = appData.data.namespaces.find(
+                  (element) => element.namespace == namespace
+                );
 
-                  //console.log('routes >>>> ', routes);
+                // Verifcar si fue encontrado el namespace
+                if (ns) {
+                  console.log("ddd");
+                  // Buscar el name
+                  if (ns.names && Array.isArray(ns.names)) {
+                    // Buscar el name
+                    let n = ns.names.find((element) => element.name == name);
 
-                  if (routes && Array.isArray(routes) && routes.length > 0) {
-                    // Verificamos si el método y ambiente existen y están habilitados
+                    if (n) {
+                      // Verificamos que exista version dentro de name
+                      if (n.versions && Array.isArray(n.versions)) {
+                        // Buscamos la version
+                        let v = n.versions.find(
+                          (element) => element.version == ver
+                        );
 
-                    if (routes.length == 1) {
-                      let methods = routes[0].method.filter(
-                        (
-                          /** @type {{ enabled: boolean; method: string; env: string; version: number; handler: string}} */ m
-                        ) => {
-                          //  console.log(m);
-                          return (
-                            m.enabled == true &&
-                            m.method == req.method &&
-                            m.env == environment &&
-                            m.version == v
-                          );
+                        if (v) {
+                          // Verificar que exista el ambiente
+                          if (v[environment]) {
+                            // Verificar el método
+                            if (v[environment][req.method]) {
+                              console.log(v[environment][req.method]);
+
+                              if (v[environment][req.method]) {
+                                // Verificar si es publico o privado
+                                if (true) {
+                                  runHandler(
+                                    req,
+                                    res,
+                                    v[environment][req.method]
+                                  );
+                                } else {
+                                  res.status(403).json({
+                                    error: `Invalid Token`,
+                                  });
+                                }
+                              } else {
+                                res.status(404).json({
+                                  error: `Method ${req.method} on Environment ${environment}, unabled`,
+                                });
+                              }
+
+                              //   runHandler(req, res, v[environment][req.method]);
+                              /*
+                                res
+                                  .status(200)
+                                  .json(v[environment][req.method]);
+*/
+                            } else {
+                              res.status(404).json({
+                                error: `Method ${req.method} not exists on Environment ${environment}`,
+                              });
+                            }
+                          } else {
+                            res.status(404).json({
+                              error: `Environment ${environment} not exists on ${ver}`,
+                            });
+                          }
+                        } else {
+                          res.status(404).json({
+                            error: `Version ${ver} not exists on ${name}`,
+                          });
                         }
-                      );
-
-                      // console.log(methods);
-
-                      if (
-                        methods &&
-                        Array.isArray(methods) &&
-                        methods.length > 0
-                      ) {
-                        let method = methods[0];
-
-                        runHandler(req, res, method);
                       } else {
                         res.status(404).json({
-                          error: `Route ${route} has no data for the environment ${environment}`,
+                          error: `Not exists versions to name ${name}`,
                         });
                       }
                     } else {
-                      res.status(500).json({
-                        error: "Hay más de dos rutas con el mismo nombre",
+                      res.status(404).json({
+                        error: `Name ${name} not found`,
                       });
                     }
                   } else {
-                    res
-                      .status(404)
-                      .json({
-                        error: `Route ${route} not found`,
-                        data: routes,
-                      });
+                    res.status(404).json({
+                      error: `Names not exists in name ${name}`,
+                    });
                   }
                 } else {
-                  res.status(404).json({ error: `App ${app} not found` });
+                  res.status(404).json({
+                    error: `Namespace ${namespace} not found`,
+                  });
                 }
               } else {
-                res.status(404).json({ error: `App ${app} not found` });
+                res.status(404).json({
+                  error: `Namespace ${namespace} not found`,
+                });
               }
             } else {
-              res.status(400).json({ error: "Invalid API version" });
+              res.status(404).json({
+                error: `App ${app} not found`,
+              });
             }
           } catch (error) {
             // @ts-ignore
@@ -185,8 +215,8 @@ export class ServerAPI {
       dbRestAPI.sync({ alter: true }).then(
         async () => {
           console.log("Crea la base de datos");
-         // await defaultUser();
-         // await defaultExamples();
+          // await defaultUser();
+          // await defaultExamples();
         },
         (/** @type {any} */ e) => {
           console.log("no se pudo crear / modificar la base de datos", e);

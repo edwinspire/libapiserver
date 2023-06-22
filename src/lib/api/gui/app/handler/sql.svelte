@@ -16,7 +16,8 @@
    * @type {EditorCode}
    */
   let fnEditorCode2;
-
+  let instrucionsParams = "";
+  let instrucionsQuery = "";
   let params_code = "{}";
   let query_code = "SELECT 1+1;";
   $: code, ParseCode();
@@ -62,10 +63,20 @@
 
 <div>
   Parametros:
-  <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode} />
+  <EditorCode
+    lang="json"
+    bind:code={params_code}
+    bind:this={fnEditorCode}
+    instrucions={instrucionsParams}
+  />
 </div>
 
 <div>
   Query:
-  <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2} />
+  <EditorCode2
+    lang="sql"
+    bind:code={query_code}
+    bind:this={fnEditorCode2}
+    instrucions={instrucionsQuery}
+  />
 </div>

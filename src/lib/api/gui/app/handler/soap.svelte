@@ -10,6 +10,8 @@
    * @type {EditorCode}
    */
   let fnEditorCode;
+  let instrucions = '{ wsdl: string; FunctionName: string | any[]; BasicAuthSecurity: { User: any; Password: any; }; RequestArgs: any; }';
+
 
   export function getCode() {
     //fnEditorCode.apply();
@@ -21,4 +23,4 @@
   });
 </script>
 
-<EditorCode lang="json" bind:code bind:this={fnEditorCode} />
+<EditorCode lang="json" bind:code bind:this={fnEditorCode} {instrucions}/>

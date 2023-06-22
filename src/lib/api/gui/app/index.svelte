@@ -371,11 +371,8 @@
         on:click={() => {
           console.log("save", appDataTable);
           if (confirm("Do you want to save the application data?")) {
-            console.log(
-              "Comparacion org vs tabla",
-              TableToApp(appDataTable),
-              app
-            );
+            app = TableToApp(appDataTable);
+            saveApp();
           }
         }}
       >

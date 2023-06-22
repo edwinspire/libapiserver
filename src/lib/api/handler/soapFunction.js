@@ -2,7 +2,7 @@
 import soap from "soap";
 
 export const soapFunction = async (
-  /** @type {{ method?: any; headers: any; body: any; query: any; }} */ request,
+  /** @type {{ method?: any; headers: any; body: any; query: any; }} */ $_REQUEST_,
   /** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }} */ response,
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
@@ -10,12 +10,12 @@ export const soapFunction = async (
     let SOAPParameters = JSON.parse(method.code);
 
     if (!SOAPParameters.RequestArgs) {
-      if (request.method == "GET") {
+      if ($_REQUEST_.method == "GET") {
         // Obtiene los datos del query
-        SOAPParameters.RequestArgs = request.query;
-      } else if (request.method == "POST") {
+        SOAPParameters.RequestArgs = $_REQUEST_.query;
+      } else if ($_REQUEST_.method == "POST") {
         // Obtiene los datos del body
-        SOAPParameters.RequestArgs = request.body;
+        SOAPParameters.RequestArgs = $_REQUEST_.body;
       }
     }
 

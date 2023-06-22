@@ -11,6 +11,7 @@
   //import { linter } from "@codemirror/lint";
 
   const languageConf = new Compartment();
+ export let instrucions = '';
 
   /**
    * @type {EditorView}
@@ -38,7 +39,7 @@
   }
 
   function setCode() {
-  //  console.log("setCode >>> ");
+    //  console.log("setCode >>> ");
     let c = code;
     if (lang == "json") {
       c = FormatJson(code);
@@ -79,6 +80,7 @@
       // internalCode = FormatJson(code);
       extensions = [basicSetup, languageConf.of(json())];
     } else if (lang == "js") {
+      
       extensions = [
         basicSetup,
         languageConf.of(javascript()),
@@ -86,7 +88,7 @@
       ];
     }
 
-//    console.log("onMount: ", code, internalCode);
+    //    console.log("onMount: ", code, internalCode);
 
     editor = new EditorView({
       doc: internalCode,
@@ -104,4 +106,12 @@
   });
 </script>
 
+{#if instrucions && instrucions.length > 0}
+  <div>
+    Instrucions:<br />
+    <div>
+      {instrucions}
+    </div>
+  </div>
+{/if}
 <div bind:this={txta} />

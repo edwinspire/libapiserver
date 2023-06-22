@@ -62,17 +62,17 @@ type Api = {
  */
 export function runHandler(request, response, method) {
   switch (method.handler) {
-    case "jsFunction":
+    case "js":
       jsFunction(request, response, method);
       break;
-    case "fetchFunction":
+    case "fetch":
       // @ts-ignore
       fetchFunction(request, response, method);
       break;
-    case "soapFunction":
+    case "soap":
       soapFunction(request, response, method);
       break;
-    case "sqlFunction":
+    case "sql":
       sqlFunction(request, response, method);
       break;
     default:
