@@ -1,3 +1,4 @@
+// @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
 
 export const jsFunction = (
@@ -19,6 +20,20 @@ return $_RETURN_DATA_;
     response
       .status(200)
       .json(f({ $_REQUEST_: $_REQUEST_, $_UFETCH_: $_UFETCH_ }));
+
+/*
+      const startTime = process.hrtime();
+      const endTime = process.hrtime(startTime);
+      const durationMs = endTime[0] * 1000 + endTime[1] / 1000000;
+
+//      console.log(`Tiempo de respuesta: ${durationMs.toFixed(2)} ms`, req.path);
+
+      webSocketServer.broadcastByPath("/ws/api/system/endpoint/response_time", {
+        path: req.path,
+        time: durationMs,
+      });
+*/
+
   } catch (error) {
     // @ts-ignore
     response.status(500).json({ error: error.message });

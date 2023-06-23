@@ -48,6 +48,25 @@ export class ServerAPI {
 
     this.app.use(express.json()); // Agrega esta línea
 
+    this.app.use((req, res, next) => {
+      const startTime = new Date().getTime();
+
+      res.on("finish", () => {
+        const endTime = new Date().getTime();
+        const duration = endTime - startTime + 5;
+
+        console.log(`Tiempo de respuesta: ${duration} ms`);
+
+        webSocketServer.broadcastByPath("/ws/api/system/endpoint/response_time", {
+          path: req.path,
+          time: duration,
+        });
+
+      });
+
+      next();
+    });
+
     this.app.use(login);
     this.app.use(user);
     this.app.use(app);
@@ -66,7 +85,6 @@ export class ServerAPI {
     this.app.all(
       "/api/:app/:namespace/:name/:version/:environment",
       async (req, res) => {
-        // http://localhost:3000/api/test001/javascript/1
         let { app, namespace, name, version, environment } = req.params;
 
         if (
@@ -94,7 +112,8 @@ export class ServerAPI {
                 // Busca el namespace
                 // @ts-ignore
                 let ns = appData.data.namespaces.find(
-                  (/** @type {{ namespace: string; }} */ element) => element.namespace == namespace
+                  (/** @type {{ namespace: string; }} */ element) =>
+                    element.namespace == namespace
                 );
 
                 // Verifcar si fue encontrado el namespace
@@ -102,14 +121,18 @@ export class ServerAPI {
                   // Buscar el name
                   if (ns.names && Array.isArray(ns.names)) {
                     // Buscar el name
-                    let n = ns.names.find((/** @type {{ name: string; }} */ element) => element.name == name);
+                    let n = ns.names.find(
+                      (/** @type {{ name: string; }} */ element) =>
+                        element.name == name
+                    );
 
                     if (n) {
                       // Verificamos que exista version dentro de name
                       if (n.versions && Array.isArray(n.versions)) {
                         // Buscamos la version
                         let v = n.versions.find(
-                          (/** @type {{ version: number; }} */ element) => element.version == ver
+                          (/** @type {{ version: number; }} */ element) =>
+                            element.version == ver
                         );
 
                         if (v) {
@@ -150,13 +173,6 @@ export class ServerAPI {
                                   error: `Method ${req.method} on Environment ${environment}, unabled`,
                                 });
                               }
-
-                              //   runHandler(req, res, v[environment][req.method]);
-                              /*
-                                res
-                                  .status(200)
-                                  .json(v[environment][req.method]);
-*/
                             } else {
                               res.status(404).json({
                                 error: `Method ${req.method} not exists on Environment ${environment}`,
