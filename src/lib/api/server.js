@@ -80,18 +80,21 @@ export class ServerAPI {
             // Obtener el idapp por el nombre
             let appData = await Application.findOne({ where: { app: app } });
 
-            console.log(appData);
+            //console.log(appData);
 
             // @ts-ignore
             if (appData && appData.data && appData.data.enabled) {
               // Verificar que exista namespaces
               if (
+                // @ts-ignore
                 appData.data.namespaces &&
+                // @ts-ignore
                 Array.isArray(appData.data.namespaces)
               ) {
                 // Busca el namespace
+                // @ts-ignore
                 let ns = appData.data.namespaces.find(
-                  (element) => element.namespace == namespace
+                  (/** @type {{ namespace: string; }} */ element) => element.namespace == namespace
                 );
 
                 // Verifcar si fue encontrado el namespace
@@ -99,14 +102,14 @@ export class ServerAPI {
                   // Buscar el name
                   if (ns.names && Array.isArray(ns.names)) {
                     // Buscar el name
-                    let n = ns.names.find((element) => element.name == name);
+                    let n = ns.names.find((/** @type {{ name: string; }} */ element) => element.name == name);
 
                     if (n) {
                       // Verificamos que exista version dentro de name
                       if (n.versions && Array.isArray(n.versions)) {
                         // Buscamos la version
                         let v = n.versions.find(
-                          (element) => element.version == ver
+                          (/** @type {{ version: number; }} */ element) => element.version == ver
                         );
 
                         if (v) {

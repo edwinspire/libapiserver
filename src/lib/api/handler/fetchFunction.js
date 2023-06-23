@@ -22,10 +22,10 @@ export const fetchFunction = async (
       query: $_REQUEST_.query, // Usar los query de la peticion
     };
 
-//    console.log(init);
+  // console.log($_REQUEST_);
 
     const FData = new uFetch();
-    let resp = await FData[$_REQUEST_.method](method.code, init);
+    let resp = await FData[$_REQUEST_.method.toLowerCase()](method.code, init);
 
     let r = await resp.json();
     response.status(resp.status).json(r);

@@ -118,7 +118,7 @@
       description: json.data.description,
     };
     //console.warn("Inicila => ", idapp, app, rowkey, data);//
-    let ns = json.data.namespaces;
+    let ns = data.namespaces;
 
     // Recorrer los datos para construir la matriz
     for (const d in ns) {
@@ -178,10 +178,12 @@
 
         // Verifica si existe o no el name
 
+        // @ts-ignore
         if (ns.names) {
           // Existe names
           // console.log("names >> EXISTE", ns.names);
 
+          // @ts-ignore
           let name = ns.names.find(
             // @ts-ignore
             (element) => element.name == row.name
