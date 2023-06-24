@@ -40,7 +40,7 @@
         time: Math.floor(Math.random() * 1000) + 1,
       });
       //console.log(data);
-      data = data;
+      data = data.slice(-500);
     }, 200);
   });
 </script>
