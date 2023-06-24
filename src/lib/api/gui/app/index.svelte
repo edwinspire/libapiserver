@@ -14,7 +14,10 @@
   import { tokenStore } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
-  //   import { AppToTable } from "../../db/app.js";
+  import Times from "./time_response.svelte";
+  import Test from "./test.svelte";
+  import Plot from "./plot.svelte";
+
 
   const dispatch = createEventDispatcher();
   export let idapp = 0;
@@ -872,6 +875,10 @@
     app = app;
   }}
 />
+
+<Times></Times>
+<Test></Test>
+<Plot></Plot>
 
 <style>
   .env_class {

@@ -60,6 +60,8 @@ export class ServerAPI {
         webSocketServer.broadcastByPath("/ws/api/system/endpoint/response_time", {
           path: req.path,
           time: duration,
+          method: req.method,
+          timestamp: Date.now()
         });
 
       });
