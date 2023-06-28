@@ -1,6 +1,6 @@
 {
-	"name": "libapiserver",
-	"version": "0.0.1",
+	"name": "@edwinspire/libapiserver",
+	"version": "0.1.0",
 	"scripts": {
 		"dev_vite": "vite dev --host",
 		"build": "vite build",
