@@ -94,44 +94,29 @@ export class ServerAPI extends EventEmitter {
       async (req, res) => {
         let { app, namespace, name, version, environment } = req.params;
 
-        if (
-          (environment == "qa" && EXPOSE_QA_API === "true") ||
-          (environment == "dev" && EXPOSE_DEV_API === "true") ||
-          (environment == "prd" && EXPOSE_PROD_API === "true")
-        ) {
-          try {
-            // Obtener el idapp por el nombre
-            let appData = await Application.findOne({ where: { app: app } });
+        try {
+          let h = await this._getApiHandler(
+            app,
+            namespace,
+            name,
+            version,
+            environment,
+            req.method,
+            req.headers["api-token"]
+          );
 
-            let h = getApiHandler(
-              appData,
-              app,
-              namespace,
-              name,
-              version,
-              environment,
-              req.method,
-              req.headers["api-token"]
-            );
-
-            if (h.status == 200) {
-              runHandler(req, res, h.params);
-            } else {
-              res.status(h.status).json({
-                // @ts-ignore
-                error: h.message,
-              });
-            }
-          } catch (error) {
-            res.status(505).json({
+          if (h.status == 200) {
+            runHandler(req, res, h.params);
+          } else {
+            res.status(h.status).json({
               // @ts-ignore
-              error: error.message,
+              error: h.message,
             });
           }
-        } else {
-          res.status(404).json({
+        } catch (error) {
+          res.status(505).json({
             // @ts-ignore
-            message: "Not found",
+            error: error.message,
           });
         }
       }
@@ -232,28 +217,93 @@ export class ServerAPI extends EventEmitter {
     });
   }
 
+  /**
+   * @param {string} app
+   * @param {string} namespace
+   * @param {string} name
+   * @param {string} version
+   * @param {string} environment
+   * @param {string} method
+   * @param {string | string[] | undefined | null} token
+   */
+  async _getApiHandler(
+    app,
+    namespace,
+    name,
+    version,
+    environment,
+    method,
+    token
+  ) {
+    if (
+      (environment == "qa" && EXPOSE_QA_API === "true") ||
+      (environment == "dev" && EXPOSE_DEV_API === "true") ||
+      (environment == "prd" && EXPOSE_PROD_API === "true")
+    ) {
+      try {
+        // Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
+        let appData = await Application.findOne({ where: { app: app } });
+
+        return getApiHandler(
+          appData,
+          app,
+          namespace,
+          name,
+          version,
+          environment,
+          method,
+          token
+        );
+      } catch (error) {
+        // @ts-ignore
+        return { message: error.message, status: 505, params: undefined };
+      }
+    } else {
+      return { message: "Not found", status: 404, params: undefined };
+    }
+  }
+
   _upgrade() {
-    this._httpServer.on("upgrade", (request, socket, head) => {
+    this._httpServer.on("upgrade", async (request, socket, head) => {
       // @ts-ignore
       let urlData = this._url(request.url);
 
-      if (urlData.pathname.startsWith(this.ws_root_path)) {
-        const token = request.headers["api-token"];
+      //"/api/:app/:namespace/:name/:version/:environment",
+      const parts = urlData.pathname ? urlData.pathname.split("/") : [];
 
-        if (checkToken(token)) {
-          /*
-          if (this.authentication(request, socket, head, urlData)) {
-            this._createWebSocket(request, socket, head, urlData);
-          } else {
-            socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-            socket.destroy();
-          }
-          */
-        } else {
+      //const api = parts[0];
+      const app = parts[2];
+      const namespace = parts[3];
+      const name = parts[4];
+      const version = parts[5];
+      const environment = parts[6];
+
+      let token =
+        request.headers["api-token"] || urlData.searchParams.get("api-token");
+
+      // console.log(request.url, urlData, token, parts);
+
+      try {
+        let h = await this._getApiHandler(
+          app,
+          namespace,
+          name,
+          version,
+          environment,
+          "WS",
+          token
+        );
+
+        console.log(h);
+
+        if (h.status == 200) {
           this._createWebSocket(request, socket, head, urlData);
+        } else {
+          socket.write(`HTTP/1.1 ${h.status} Not Found\r\n\r\n`);
+          socket.destroy();
         }
-      } else {
-        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      } catch (error) {
+        socket.write("HTTP/1.1 505 Not Found\r\n\r\n");
         socket.destroy();
       }
     });

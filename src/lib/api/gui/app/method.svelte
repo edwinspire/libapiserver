@@ -11,6 +11,7 @@
     { id: "PATCH", text: `PATCH` },
     { id: "POST", text: `POST` },
     { id: "PUT", text: `PUT` },
+    { id: "WS", text: `WS` },
   ];
 
   let handlers = [

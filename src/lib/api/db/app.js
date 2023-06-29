@@ -113,7 +113,7 @@ runExample()
  * @param {string} version
  * @param {string} environment
  * @param {string} method
- * @param {string | undefined | string[]} token
+ * @param {string | undefined | string[] | null} token
  */
 export function getApiHandler(
   appData,
