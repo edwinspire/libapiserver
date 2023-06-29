@@ -1,6 +1,8 @@
 import "dotenv/config";
+import WebSocket, { WebSocketServer } from "ws";
 import express from "express";
 import { createServer } from "http";
+import { EventEmitter } from "node:events";
 //import { WebSocketServer } from 'ws'
 // @ts-ignore
 import { WebSocketExpress } from "@edwinspire/websocket_express/src/index.js";
@@ -25,26 +27,44 @@ const {
   EXPOSE_PROD_API,
 } = process.env;
 
-export class ServerAPI {
+// constructor(httpServer, root_path, authentication_callback) {
+
+export class ServerAPI extends EventEmitter {
   /**
    * @param {boolean} buildDB
    * @param {any} handlerExternal
+   * @param {any|undefined} [ws_root_path]
+   * @param {any|undefined} [ws_authentication_callback]
    */
-  constructor(buildDB, handlerExternal) {
+  constructor(
+    buildDB,
+    handlerExternal,
+    ws_root_path,
+    ws_authentication_callback
+  ) {
+    super();
+    
+    this.root_path = ws_root_path || "/ws";
+    this.authentication = ws_authentication_callback;
+    /**
+     * @type {{ path: string; WebSocket: WebSocket.Server<WebSocket.WebSocket>; }[]}
+     */
+    this.ws_paths = [];
+
     this.buildDB(buildDB);
+
 
     this.app = express();
     this._httpServer = createServer(this.app);
 
     const webSocketServer = new WebSocketExpress(
       this._httpServer,
-      undefined,
-      undefined
+      ws_root_path,
+      ws_authentication_callback
     );
 
-    webSocketServer.on("client_connection", (/** @type {any} */ data) => {
-      console.log("client_connection", data);
-    });
+    this._upgrade();
+    
 
     this.app.use(express.json()); // Agrega esta línea
 
@@ -57,13 +77,15 @@ export class ServerAPI {
 
         console.log(`Tiempo de respuesta: ${duration} ms`);
 
-        webSocketServer.broadcastByPath("/ws/api/system/endpoint/response_time", {
-          path: req.path,
-          time: duration,
-          method: req.method,
-          timestamp: Date.now()
-        });
-
+        webSocketServer.broadcastByPath(
+          "/ws/api/system/endpoint/response_time",
+          {
+            path: req.path,
+            time: duration,
+            method: req.method,
+            timestamp: Date.now(),
+          }
+        );
       });
 
       next();
@@ -239,6 +261,108 @@ export class ServerAPI {
     console.log("EXPRESSJS_SERVER_TIMEOUT: " + EXPRESSJS_SERVER_TIMEOUT);
     this._httpServer.setTimeout(rto); // Para 5 minutos
   }
+
+  /**
+   * @param {any} path
+   * @param {any} payload
+   */
+  broadcastByPath(path, payload) {
+    let cli = this.ws_paths.find((p) => {
+      return p.path == path;
+    });
+
+    if (cli && cli.WebSocket) {
+      cli.WebSocket.clients.forEach(function each(/** @type {{ readyState: number; send: (arg0: string) => void; }} */ client) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(payload));
+        }
+      });
+    }
+  }
+
+  /**
+   * @param {string} url
+   */
+  _url(url) {
+    return new URL("http://localhost" + url);
+  }
+
+    // Crea el websocket en el servidor
+    /**
+   * @param {any} request
+   * @param {any} socket
+   * @param {any} head
+   * @param {URL} url_data
+   */
+    _createWebSocket(request, socket, head, url_data) {
+      let wscreated = this.ws_paths.find((w) => w.path === url_data.pathname);
+      if (wscreated) {
+        this._wshandleUpgrade(
+          wscreated.WebSocket,
+          request,
+          socket,
+          head,
+          url_data
+        );
+      } else {
+        let WSServer = new WebSocketServer({ noServer: true });
+        WSServer.on("connection", (socketc) => {
+          console.log("Client connected to ws " + url_data.pathname);
+        });
+  
+        this._wshandleUpgrade(WSServer, request, socket, head, url_data);
+        // Agrega el path a la lista
+        this.ws_paths.push({
+          path: url_data.pathname,
+          WebSocket: WSServer,
+        });
+      }
+    }
+  
+    /**
+   * @param {WebSocket.Server<WebSocket.WebSocket>} wsServer
+   * @param {any} request
+   * @param {any} socket
+   * @param {any} head
+   * @param {URL} url_data
+   */
+    _wshandleUpgrade(wsServer, request, socket, head, url_data) {
+      wsServer.handleUpgrade(request, socket, head, (socketc) => {
+        socketc.on("message", (message) => {
+          this.emit("ws_message", {
+            socket: socketc,
+            message: message,
+            url: url_data,
+          });
+        });
+  
+        this.emit("ws_client_connection", { socket: socketc, url: url_data });
+        //wsServer.emit("ws_connection", socketc, request);
+      });
+    }
+  
+    _upgrade() {
+      this._httpServer.on("upgrade", (request, socket, head) => {
+        // @ts-ignore
+        let urlData = this._url(request.url);
+  
+        if (urlData.pathname.startsWith(this.root_path)) {
+          if (this.authentication) {
+            if (this.authentication(request, socket, head, urlData)) {
+              this._createWebSocket(request, socket, head, urlData);
+            } else {
+              socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+              socket.destroy();
+            }
+          } else {
+            this._createWebSocket(request, socket, head, urlData);
+          }
+        } else {
+          socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+          socket.destroy();
+        }
+      });
+    }
 
   /**
    * @param {boolean} buildDB

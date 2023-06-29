@@ -1,7 +1,6 @@
 import { c as create_ssr_component, d as createEventDispatcher, f as add_attribute, v as validate_component } from './index2-a5cf0d2b.js';
 import uFetch from '@edwinspire/universal-fetch';
 import 'events';
-import 'd3';
 
 const css = {
   code: '@import "bulma/css/bulma.min.css";.container.svelte-osrx57{max-width:400px;margin:0 auto;padding:2rem;margin-top:10vh;border:1px solid #ccc;border-radius:4px}.form.svelte-osrx57{margin-bottom:1rem}',
@@ -30,4 +29,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-9ee67d01.js.map
+//# sourceMappingURL=_page.svelte-fcba7661.js.map
