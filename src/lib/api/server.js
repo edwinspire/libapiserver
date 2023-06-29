@@ -94,29 +94,44 @@ export class ServerAPI extends EventEmitter {
       async (req, res) => {
         let { app, namespace, name, version, environment } = req.params;
 
-        try {
-          let h = await getApiHandler(
-            app,
-            namespace,
-            name,
-            version,
-            environment,
-            req.method,
-            req.headers["api-token"]
-          );
+        if (
+          (environment == "qa" && EXPOSE_QA_API === "true") ||
+          (environment == "dev" && EXPOSE_DEV_API === "true") ||
+          (environment == "prd" && EXPOSE_PROD_API === "true")
+        ) {
+          try {
+            // Obtener el idapp por el nombre
+            let appData = await Application.findOne({ where: { app: app } });
 
-          if (h.status == 200) {
-            runHandler(req, res, h.params);
-          } else {
-            res.status(h.status).json({
+            let h = getApiHandler(
+              appData,
+              app,
+              namespace,
+              name,
+              version,
+              environment,
+              req.method,
+              req.headers["api-token"]
+            );
+
+            if (h.status == 200) {
+              runHandler(req, res, h.params);
+            } else {
+              res.status(h.status).json({
+                // @ts-ignore
+                error: h.message,
+              });
+            }
+          } catch (error) {
+            res.status(505).json({
               // @ts-ignore
-              error: h.message,
+              error: error.message,
             });
           }
-        } catch (error) {
-          res.status(505).json({
+        } else {
+          res.status(404).json({
             // @ts-ignore
-            error: error.message,
+            message: "Not found",
           });
         }
       }

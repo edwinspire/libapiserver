@@ -106,16 +106,17 @@ runExample()
 */
 
 /**
+ * @param {Model<any, any>|null} appData
  * @param {string} app
  * @param {string} namespace
  * @param {string} name
  * @param {string} version
  * @param {string} environment
-* @param {string} method 
-* @param {string|undefined|string[]} token
- 
+ * @param {string} method
+ * @param {string | undefined | string[]} token
  */
-export async function getApiHandler(
+export function getApiHandler(
+  appData,
   app,
   namespace,
   name,
@@ -125,111 +126,98 @@ export async function getApiHandler(
   token
 ) {
   let returnHandler = {};
-  if (
-    (environment == "qa" && EXPOSE_QA_API === "true") ||
-    (environment == "dev" && EXPOSE_DEV_API === "true") ||
-    (environment == "prd" && EXPOSE_PROD_API === "true")
-  ) {
-    try {
-      // Obtener el idapp por el nombre
-      let appData = await Application.findOne({ where: { app: app } });
+  try {
+    // @ts-ignore
+    if (appData && appData.data && appData.data.enabled) {
+      // Verificar que exista namespaces
+      if (
+        // @ts-ignore
+        appData.data.namespaces &&
+        // @ts-ignore
+        Array.isArray(appData.data.namespaces)
+      ) {
+        // Busca el namespace
+        // @ts-ignore
+        let ns = appData.data.namespaces.find(
+          (/** @type {{ namespace: string; }} */ element) =>
+            element.namespace == namespace
+        );
 
-      // @ts-ignore
-      if (appData && appData.data && appData.data.enabled) {
-        // Verificar que exista namespaces
-        if (
-          // @ts-ignore
-          appData.data.namespaces &&
-          // @ts-ignore
-          Array.isArray(appData.data.namespaces)
-        ) {
-          // Busca el namespace
-          // @ts-ignore
-          let ns = appData.data.namespaces.find(
-            (/** @type {{ namespace: string; }} */ element) =>
-              element.namespace == namespace
-          );
-
-          // Verifcar si fue encontrado el namespace
-          if (ns) {
+        // Verifcar si fue encontrado el namespace
+        if (ns) {
+          // Buscar el name
+          if (ns.names && Array.isArray(ns.names)) {
             // Buscar el name
-            if (ns.names && Array.isArray(ns.names)) {
-              // Buscar el name
-              let n = ns.names.find(
-                (/** @type {{ name: string; }} */ element) =>
-                  element.name == name
-              );
+            let n = ns.names.find(
+              (/** @type {{ name: string; }} */ element) => element.name == name
+            );
 
-              if (n) {
-                let ver = Number(version.replace(/[^0-9.]/g, ""));
+            if (n) {
+              let ver = Number(version.replace(/[^0-9.]/g, ""));
 
-                // Verificamos que exista version dentro de name
-                if (n.versions && Array.isArray(n.versions)) {
-                  // Buscamos la version
-                  let v = n.versions.find(
-                    (/** @type {{ version: number; }} */ element) =>
-                      element.version == ver
-                  );
+              // Verificamos que exista version dentro de name
+              if (n.versions && Array.isArray(n.versions)) {
+                // Buscamos la version
+                let v = n.versions.find(
+                  (/** @type {{ version: number; }} */ element) =>
+                    element.version == ver
+                );
 
-                  if (v) {
-                    // Verificar que exista el ambiente
-                    if (v[environment]) {
-                      // Verificar el método
+                if (v) {
+                  // Verificar que exista el ambiente
+                  if (v[environment]) {
+                    // Verificar el método
+                    if (v[environment][method]) {
+                      console.log(v[environment][method]);
+
                       if (v[environment][method]) {
-                        console.log(v[environment][method]);
+                        // Verificar si es publico o privado
+                        if (v[environment][method].enabled) {
+                          //  && (v[environment][req.method].enabled   && checkToken(token))
 
-                        if (v[environment][method]) {
-                          // Verificar si es publico o privado
-                          if (v[environment][method].enabled) {
-                            //  && (v[environment][req.method].enabled   && checkToken(token))
-
-                            if (
-                              v[environment][method].public ||
-                              (!v[environment][method].public &&
-                                checkToken(token))
-                            ) {
-                              //runHandler(req, res, v[environment][method]);
-                              returnHandler.params = v[environment][method];
-                              returnHandler.message = "";
-                              returnHandler.status = 200;
-                            } else {
-                              returnHandler.message = `Valid Token required`;
-                              returnHandler.status = 403;
-                            }
+                          if (
+                            v[environment][method].public ||
+                            (!v[environment][method].public &&
+                              checkToken(token))
+                          ) {
+                            //runHandler(req, res, v[environment][method]);
+                            returnHandler.params = v[environment][method];
+                            returnHandler.message = "";
+                            returnHandler.status = 200;
                           } else {
-                            returnHandler.message = `Method ${method} Unabled`;
-                            returnHandler.status = 404;
+                            returnHandler.message = `Valid Token required`;
+                            returnHandler.status = 403;
                           }
                         } else {
-                          returnHandler.message = `Method ${method} on Environment ${environment}, unabled`;
+                          returnHandler.message = `Method ${method} Unabled`;
                           returnHandler.status = 404;
                         }
                       } else {
-                        returnHandler.message = `Method ${method} not exists on Environment ${environment}`;
+                        returnHandler.message = `Method ${method} on Environment ${environment}, unabled`;
                         returnHandler.status = 404;
                       }
                     } else {
-                      returnHandler.message = `Environment ${environment} not exists on ${ver}`;
+                      returnHandler.message = `Method ${method} not exists on Environment ${environment}`;
                       returnHandler.status = 404;
                     }
                   } else {
-                    returnHandler.message = `Version ${ver} not exists on ${name}`;
+                    returnHandler.message = `Environment ${environment} not exists on ${ver}`;
                     returnHandler.status = 404;
                   }
                 } else {
-                  returnHandler.message = `Not exists versions to name ${name}`;
+                  returnHandler.message = `Version ${ver} not exists on ${name}`;
                   returnHandler.status = 404;
                 }
               } else {
-                returnHandler.message = `Name ${name} not found`;
+                returnHandler.message = `Not exists versions to name ${name}`;
                 returnHandler.status = 404;
               }
             } else {
-              returnHandler.message = `Names not exists in name ${name}`;
+              returnHandler.message = `Name ${name} not found`;
               returnHandler.status = 404;
             }
           } else {
-            returnHandler.message = `Namespace ${namespace} not found`;
+            returnHandler.message = `Names not exists in name ${name}`;
             returnHandler.status = 404;
           }
         } else {
@@ -237,17 +225,18 @@ export async function getApiHandler(
           returnHandler.status = 404;
         }
       } else {
-        returnHandler.message = `App ${app} not found`;
+        returnHandler.message = `Namespace ${namespace} not found`;
         returnHandler.status = 404;
       }
-    } catch (error) {
-      // @ts-ignore
-      returnHandler.message = error.message;
-      returnHandler.status = 505;
+    } else {
+      returnHandler.message = `App ${app} not found`;
+      returnHandler.status = 404;
     }
-  } else {
-    returnHandler.message = "";
-    returnHandler.status = 404;
+  } catch (error) {
+    // @ts-ignore
+    returnHandler.message = error.message;
+    returnHandler.status = 505;
   }
+
   return returnHandler;
 }
