@@ -1,11 +1,22 @@
 const { createHmac } = await import("node:crypto");
 import jwt from "jsonwebtoken";
-const { JWT_KEY } = process.env;
+
+
+const {
+  JWT_KEY,
+  EXPOSE_DEV_API,
+  EXPOSE_QA_API,
+  EXPOSE_PROD_API,
+} = process.env;
+
+
 
 const errors = {
   1: { code: 1, message: "You must enter the same password twice" },
   2: { code: 2, message: "Invalid credentials" },
 };
+
+
 
 /**
  * @param {any} token

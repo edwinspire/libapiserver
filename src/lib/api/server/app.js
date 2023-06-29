@@ -11,7 +11,6 @@ import { validateToken } from "./utils.js";
 
 const router = express.Router();
 
-
 router.get("/api/apps", validateToken, async (req, res) => {
   try {
     const apps = await getAllApps();
