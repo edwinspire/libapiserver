@@ -82,24 +82,8 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
-      beforeCreate: async (user, options) => {
-        // Verificar si el usuario "admin" ya existe
-        const existingUser = await User.findOne({
-          where: { username: "admin" },
-        });
-        if (existingUser) {
-          // El usuario "admin" ya existe, no se realiza la inserción
-          return;
-        }
+      afterCreate: async (user, options) => {
 
-        // El usuario "admin" no existe, se realiza la inserción
-        await User.create({
-          username: "admin",
-          password: EncryptPwd("admin"),
-          first_name: "admin",
-          last_name: "admin",
-          email: "admin@example.com",
-        });
       },
       afterUpsert: async (instance, options) => {
         // @ts-ignore

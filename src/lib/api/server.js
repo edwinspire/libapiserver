@@ -28,7 +28,7 @@ const {
   EXPOSE_PROD_API,
   PATH_API_RESPONSE_TIME,
   PATH_API_HOOKS,
-  PATH_WS_HOOKS
+  PATH_WS_HOOKS,
 } = process.env;
 
 // constructor(httpServer, root_path, authentication_callback) {
@@ -48,8 +48,10 @@ export class ServerAPI extends EventEmitter {
     this._path_ws_api_response_time =
       PATH_API_RESPONSE_TIME || "/system/api/endpoint/response/time";
     this._path_api_hooks = PATH_API_HOOKS || "/system/api/hooks";
-    this._path_ws_hooks =  PATH_WS_HOOKS || "/system/ws/hooks";
-      this.buildDB(buildDB);
+    this._path_ws_hooks = PATH_WS_HOOKS || "/system/ws/hooks";
+    this.buildDB(buildDB);
+
+    defaultUser();
 
     this.app = express();
     this._httpServer = createServer(this.app);
