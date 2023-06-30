@@ -26,6 +26,9 @@ const {
   EXPOSE_DEV_API,
   EXPOSE_QA_API,
   EXPOSE_PROD_API,
+  PATH_API_RESPONSE_TIME,
+  PATH_API_HOOKS,
+  PATH_WS_HOOKS
 } = process.env;
 
 // constructor(httpServer, root_path, authentication_callback) {
@@ -38,14 +41,15 @@ export class ServerAPI extends EventEmitter {
   constructor(buildDB, handlerExternal) {
     super();
 
-    this.ws_root_path = "/ws";
-
     /**
      * @type {{ path: string; WebSocket: WebSocket.Server<WebSocket.WebSocket>; }[]}
      */
-    this.ws_paths = [];
-
-    this.buildDB(buildDB);
+    this._ws_paths = [];
+    this._path_ws_api_response_time =
+      PATH_API_RESPONSE_TIME || "/system/api/endpoint/response/time";
+    this._path_api_hooks = PATH_API_HOOKS || "/system/api/hooks";
+    this._path_ws_hooks =  PATH_WS_HOOKS || "/system/ws/hooks";
+      this.buildDB(buildDB);
 
     this.app = express();
     this._httpServer = createServer(this.app);
@@ -57,13 +61,14 @@ export class ServerAPI extends EventEmitter {
     this.app.use((req, res, next) => {
       const startTime = new Date().getTime();
 
+      // Emit time
       res.on("finish", () => {
         const endTime = new Date().getTime();
         const duration = endTime - startTime + 5;
 
-        console.log(`Tiempo de respuesta: ${duration} ms`);
+        // console.log(`Tiempo de respuesta: ${duration} ms`);
 
-        this.broadcastByPath("/ws/api/system/endpoint/response_time", {
+        this.broadcastByPath(this._path_ws_api_response_time, {
           path: req.path,
           time: duration,
           method: req.method,
@@ -79,7 +84,7 @@ export class ServerAPI extends EventEmitter {
     this.app.use(app);
 
     // Controlar para que este path sea solo accesible de forma local
-    this.app.post("/api/hooks", validateToken, async (req, res) => {
+    this.app.post(this._path_api_hooks, validateToken, async (req, res) => {
       if (req.body && req.body.model) {
         res.status(200).json(req.body);
         let path = "/ws/api/hooks/" + req.body.model;
@@ -137,7 +142,7 @@ export class ServerAPI extends EventEmitter {
    * @param {any} payload
    */
   broadcastByPath(path, payload) {
-    let cli = this.ws_paths.find((p) => {
+    let cli = this._ws_paths.find((p) => {
       return p.path == path;
     });
 
@@ -168,7 +173,7 @@ export class ServerAPI extends EventEmitter {
    */
   _createWebSocket(request, socket, head, url_data) {
     // @ts-ignore
-    let wscreated = this.ws_paths.find((w) => w.path === url_data.pathname);
+    let wscreated = this._ws_paths.find((w) => w.path === url_data.pathname);
 
     //      console.log(url_data.pathname, wscreated);
 
@@ -188,7 +193,7 @@ export class ServerAPI extends EventEmitter {
 
       this._wshandleUpgrade(WSServer, request, socket, head, url_data);
       // Agrega el path a la lista
-      this.ws_paths.push({
+      this._ws_paths.push({
         path: url_data.pathname,
         WebSocket: WSServer,
       });
@@ -281,18 +286,23 @@ export class ServerAPI extends EventEmitter {
       let token =
         request.headers["api-token"] || urlData.searchParams.get("api-token");
 
-      // console.log(request.url, urlData, token, parts);
+      console.log(request.url, urlData, token, parts);
 
       try {
-        let h = await this._getApiHandler(
-          app,
-          namespace,
-          name,
-          version,
-          environment,
-          "WS",
-          token
-        );
+        let h = { status: 404, message: "?" };
+        if (this._path_ws_api_response_time == urlData.pathname) {
+          h = { status: 200, message: "System" };
+        } else {
+          h = await this._getApiHandler(
+            app,
+            namespace,
+            name,
+            version,
+            environment,
+            "WS",
+            token
+          );
+        }
 
         console.log(h);
 

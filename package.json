@@ -28,7 +28,7 @@
 		"eslint": "^8.16.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^4.0.0",
-		"nodemon": "^2.0.22",
+		"nodemon": "^1.14.9",
 		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "next",
 		"svelte": "^3.54.0",

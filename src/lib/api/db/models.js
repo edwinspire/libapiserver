@@ -4,10 +4,11 @@ import dbsequelize from "./sequelize.js";
 // @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
 
-const { PORT } = process.env;
+const { PORT, PATH_API_HOOKS } = process.env;
 
-const urlHooks = "http://localhost:" + PORT + "/api/hooks";
+const urlHooks = "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
 const uF = new uFetch(urlHooks);
+
 
 /**
  * @param {string} modelName
