@@ -1,2 +1,3 @@
 import { ServerAPI } from './src/lib/api/server.js'
-export { ServerAPI };
+import ServerAPIGUI from "./src/lib/api/gui/index.svelte";
+export { ServerAPI, ServerAPIGUI };
