@@ -1,6 +1,7 @@
 {
 	"name": "@edwinspire/libapiserver",
 	"version": "0.1.0",
+	"main": "index.js",
 	"scripts": {
 		"dev_vite": "vite dev --host",
 		"build": "vite build",
@@ -13,7 +14,6 @@
 		"build_test": "vite build && node test/server.js",
 		"test": "node test/server.js",
 		"dev": "vite build && node test/server.js",
-		"main": "index.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
