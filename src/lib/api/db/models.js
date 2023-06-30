@@ -3,12 +3,13 @@ import dbsequelize from "./sequelize.js";
 //import {EncryptPwd} from "../server/utils.js";
 // @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
+import {EncryptPwd} from "../server/utils.js"
 
 const { PORT, PATH_API_HOOKS } = process.env;
 
-const urlHooks = "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
+const urlHooks =
+  "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
 const uF = new uFetch(urlHooks);
-
 
 /**
  * @param {string} modelName
@@ -81,6 +82,25 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
+      beforeCreate: async (user, options) => {
+        // Verificar si el usuario "admin" ya existe
+        const existingUser = await User.findOne({
+          where: { username: "admin" },
+        });
+        if (existingUser) {
+          // El usuario "admin" ya existe, no se realiza la inserción
+          return;
+        }
+
+        // El usuario "admin" no existe, se realiza la inserción
+        await User.create({
+          username: "admin",
+          password: EncryptPwd("admin"),
+          first_name: "admin",
+          last_name: "admin",
+          email: "admin@example.com",
+        });
+      },
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert("user");
@@ -92,7 +112,6 @@ export const User = dbsequelize.define(
         //user.password = EncryptPwd(user.password);
         // @ts-ignore
         user.rowkey = Math.floor(Math.random() * 1000);
-
       },
     },
   }
@@ -102,7 +121,6 @@ export const User = dbsequelize.define(
 export const Application = dbsequelize.define(
   "application",
   {
-    
     idapp: {
       type: DataTypes.BIGINT,
       primaryKey: true,
@@ -125,21 +143,18 @@ export const Application = dbsequelize.define(
     },
     data: {
       type: DataTypes.JSON,
-    }
+    },
   },
   {
     freezeTableName: true,
-   // timestamps: false,
-    indexes: [
-      
-    ],
+    // timestamps: false,
+    indexes: [],
     hooks: {
       afterUpsert: async (instance, options) => {
-        
         // @ts-ignore
         instance.rowkey = 999;
         // @ts-ignore
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxx', instance);
+        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
         await hookUpsert("application");
       },
       beforeUpdate: (instance, options) => {
@@ -147,10 +162,9 @@ export const Application = dbsequelize.define(
         instance.rowkey = Math.floor(Math.random() * 1000);
       },
       beforeUpsert: async (instance, options) => {
-        
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
-        console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+        console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
         await hookUpsert("application");
       },
       beforeSave: (instance, options) => {
@@ -162,8 +176,6 @@ export const Application = dbsequelize.define(
     },
   }
 );
-
-
 
 // Definir relaciones entre las tablas
 /*
@@ -178,8 +190,6 @@ App.belongsTo(User, {
   foreignKey: "iduser",
 });
 */
-
-
 
 /*
 // Crear una vista que contenga los campos solicitados
