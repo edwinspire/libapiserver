@@ -1,6 +1,11 @@
 {
 	"name": "@edwinspire/libapiserver",
 	"version": "0.1.0",
+	"exports": {
+		".": {
+			"svelte": "./src/index.js"
+		}
+	},
 	"scripts": {
 		"dev_vite": "vite dev --host",
 		"build": "vite build",
@@ -10,9 +15,9 @@
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint .",
 		"format": "prettier --write --plugin-search-dir=. .",
-		"build_test": "vite build && node src/server.js",
-		"test": "node src/server.js",
-		"dev": "vite build && node src/server.js",
+		"build_test": "vite build && node test/server.js",
+		"test": "node test/server.js",
+		"dev": "vite build && node test/server.js",
 		"main": "index.js"
 	},
 	"devDependencies": {
