@@ -13,7 +13,7 @@
 		"format": "prettier --write --plugin-search-dir=. .",
 		"build_test": "vite build && node test/server.js",
 		"test": "node test/server.js",
-		"dev": "vite build && node test/server.js",
+		"dev": "vite build && node test/server.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
