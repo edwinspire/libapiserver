@@ -3,12 +3,8 @@ import WebSocket, { WebSocketServer } from "ws";
 import express from "express";
 import { createServer } from "http";
 import { EventEmitter } from "node:events";
-//import { WebSocketServer } from 'ws'
-// @ts-ignore
-//import { WebSocketExpress } from "@edwinspire/websocket_express/src/index.js";
-//import { User, App, Route, Method } from './db/models.js'
 import { defaultUser } from "./db/user.js";
-
+import { defaultRoles } from "./db/role.js";
 import dbRestAPI from "./db/sequelize.js";
 import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
@@ -288,7 +284,7 @@ export class ServerAPI extends EventEmitter {
       let token =
         request.headers["api-token"] || urlData.searchParams.get("api-token");
 
-      console.log(request.url, urlData, token, parts);
+      //console.log(token, parts);
 
       try {
         let h = { status: 404, message: "?" };
@@ -306,7 +302,7 @@ export class ServerAPI extends EventEmitter {
           );
         }
 
-        console.log(h);
+        //console.log(h);
 
         if (h.status == 200) {
           this._createWebSocket(request, socket, head, urlData);
@@ -329,8 +325,8 @@ export class ServerAPI extends EventEmitter {
       dbRestAPI.sync({ alter: true }).then(
         async () => {
           console.log("Crea la base de datos");
-          // await defaultUser();
-          // await defaultExamples();
+          await defaultRoles();
+          await defaultUser();
         },
         (/** @type {any} */ e) => {
           console.log("no se pudo crear / modificar la base de datos", e);

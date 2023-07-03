@@ -15,7 +15,6 @@
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
 
-
   const dispatch = createEventDispatcher();
   export let idapp = 0;
 
@@ -704,7 +703,29 @@
                         <div class="column env_class is-one-third">
                           <Level>
                             <span slot="l01">DEVELOPMENT</span>
+
                             <span slot="r01"
+                              ><button
+                                class="button is-small"
+                                on:click={() => {
+                                  console.log("To QA");
+
+                                  if (
+                                    confirm(
+                                      "Are you sure to copy and replace the QA code with the Development code?"
+                                    )
+                                  ) {
+                                    version.qa = { ...version.dev };
+                                  }
+                                }}
+                              >
+                                <span class="icon is-small">
+                                  <i class="fa-solid fa-turn-up" />
+                                </span>
+                                <span>To QA</span>
+                              </button></span
+                            >
+                            <span slot="r02"
                               ><button
                                 class="button is-small"
                                 on:click={() => {
@@ -745,28 +766,6 @@
                                   <i class="fa-solid fa-plus" />
                                 </span>
                                 <span>New</span>
-                              </button></span
-                            >
-
-                            <span slot="r02"
-                              ><button
-                                class="button is-small"
-                                on:click={() => {
-                                  console.log("To QA");
-
-                                  if (
-                                    confirm(
-                                      "Are you sure to copy and replace the QA code with the Development code?"
-                                    )
-                                  ) {
-                                    version.qa = { ...version.dev };
-                                  }
-                                }}
-                              >
-                                <span class="icon is-small">
-                                  <i class="fa-solid fa-turn-up" />
-                                </span>
-                                <span>To QA</span>
                               </button></span
                             >
                           </Level>
@@ -872,7 +871,6 @@
     app = app;
   }}
 />
-
 
 <style>
   .env_class {

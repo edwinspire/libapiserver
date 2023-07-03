@@ -1,10 +1,6 @@
 import { Application } from "./models.js";
-//import dbsequelize from "./sequelize.js";
-import { getUserById } from "./user.js";
-//import { Route, Method } from "./models.js";
-//import { upsertRoute } from "./route.js";
-//import { upsertMethod } from "./method.js";
 import { checkToken } from "../server/utils.js";
+
 
 const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
@@ -60,50 +56,6 @@ export const upsertApp = async (
   }
 };
 
-/*
-// Usage examples
-const runExample = async () => {
-  try {
-    // Create an app
-    const newApp = await createApp({
-      name: 'MyApp',
-      version: '1.0.0',
-      description: 'My awesome app',
-    })
-    console.log('New app created:', newApp)
-
-    // Get an app by ID
-    const appById = await getAppById(newApp.id)
-    console.log('App by ID:', appById)
-
-    // Get all apps
-    const allApps = await getAllApps()
-    console.log('All apps:', allApps)
-
-    // Update an app
-    const updatedApp = await updateApp(newApp.id, {
-      description: 'Updated description',
-    })
-    console.log('Updated app:', updatedApp)
-
-    // Delete an app
-    const deleted = await deleteApp(newApp.id)
-    console.log('App deleted:', deleted)
-
-    // Upsert an app
-    const upsertedApp = await upsertApp({
-      name: 'MyApp',
-      version: '1.0.1',
-      description: 'Updated app',
-    })
-    console.log('Upserted app:', upsertedApp)
-  } catch (error) {
-    console.error('Example error:', error)
-  }
-}
-
-runExample()
-*/
 
 /**
  * @param {Model<any, any>|null} appData
@@ -125,6 +77,16 @@ export function getApiHandler(
   method,
   token
 ) {
+
+console.log('<<<< getApiHandler >>>>', appData,
+  app,
+  namespace,
+  name,
+  version,
+  environment,
+  method,
+  token);
+
   let returnHandler = {};
   try {
     // @ts-ignore
@@ -166,9 +128,12 @@ export function getApiHandler(
                 if (v) {
                   // Verificar que exista el ambiente
                   if (v[environment]) {
+
+                 //   console.log('< v[environment] >', method, v[environment]);
+
                     // Verificar el método
                     if (v[environment][method]) {
-                      console.log(v[environment][method]);
+                   //   console.log('< v[environment][method] >', v[environment][method]);
 
                       if (v[environment][method]) {
                         // Verificar si es publico o privado

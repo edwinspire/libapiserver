@@ -3,13 +3,20 @@ import dbsequelize from "./sequelize.js";
 //import {EncryptPwd} from "../server/utils.js";
 // @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
-import {EncryptPwd} from "../server/utils.js"
+//import {EncryptPwd} from "../server/utils.js"
 
-const { PORT, PATH_API_HOOKS } = process.env;
+const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
 const urlHooks =
   "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
 const uF = new uFetch(urlHooks);
+
+/**
+ * @param {string} table_name
+ */
+export function prefixTableName(table_name) {
+  return (TABLE_NAME_PREFIX_API || "apiserver_") + table_name;
+}
 
 /**
  * @param {string} modelName
@@ -22,7 +29,7 @@ async function hookUpsert(modelName) {
 
 // Definir el modelo de la tabla 'User'
 export const User = dbsequelize.define(
-  "user",
+  prefixTableName("user"),
   {
     iduser: {
       type: DataTypes.BIGINT,
@@ -30,10 +37,6 @@ export const User = dbsequelize.define(
       autoIncrement: true,
       allowNull: false,
       unique: true,
-    },
-    ts: {
-      type: DataTypes.DATE,
-      defaultValue: NOW,
     },
     rowkey: {
       type: DataTypes.SMALLINT,
@@ -63,6 +66,7 @@ export const User = dbsequelize.define(
     idrole: {
       type: DataTypes.BIGINT,
       allowNull: true,
+      defaultValue: 1
     },
     token: {
       type: DataTypes.STRING,
@@ -74,7 +78,7 @@ export const User = dbsequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         unique: true,
@@ -82,12 +86,10 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
-      afterCreate: async (user, options) => {
-
-      },
+      afterCreate: async (user, options) => {},
       afterUpsert: async (instance, options) => {
         // @ts-ignore
-        await hookUpsert("user");
+        await hookUpsert(prefixTableName("user"));
       },
       beforeUpdate: (user, options) => {
         // @ts-ignore
@@ -101,9 +103,56 @@ export const User = dbsequelize.define(
   }
 );
 
+// Definir el modelo de la tabla 'User'
+export const Role = dbsequelize.define(
+  prefixTableName("role"),
+  {
+    idrole: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    role: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    attrs: { type: DataTypes.JSON, allowNull: true },
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["role"],
+      },
+    ],
+    hooks: {
+      afterCreate: async (user, options) => {},
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("role"));
+      },
+      beforeUpdate: (user, options) => {},
+    },
+  }
+);
+
 // Definir el modelo de la tabla 'App'
+// @ts-ignore
 export const Application = dbsequelize.define(
-  "application",
+  prefixTableName("application"),
   {
     idapp: {
       type: DataTypes.BIGINT,
@@ -131,7 +180,7 @@ export const Application = dbsequelize.define(
   },
   {
     freezeTableName: true,
-    // timestamps: false,
+    timestamps: true,
     indexes: [],
     hooks: {
       afterUpsert: async (instance, options) => {
@@ -139,7 +188,7 @@ export const Application = dbsequelize.define(
         instance.rowkey = 999;
         // @ts-ignore
         console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-        await hookUpsert("application");
+        await hookUpsert(prefixTableName("application"));
       },
       beforeUpdate: (instance, options) => {
         // @ts-ignore
@@ -149,7 +198,7 @@ export const Application = dbsequelize.define(
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
         console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
-        await hookUpsert("application");
+        await hookUpsert(prefixTableName("application"));
       },
       beforeSave: (instance, options) => {
         // Acciones a realizar antes de guardar el modelo
@@ -161,40 +210,6 @@ export const Application = dbsequelize.define(
   }
 );
 
-// Definir relaciones entre las tablas
-/*
-User.hasMany(App, {
-  foreignKey: "iduser",
-  onDelete: "CASCADE",
-});
-*/
-
-/*
-App.belongsTo(User, {
-  foreignKey: "iduser",
-});
-*/
-
-/*
-// Crear una vista que contenga los campos solicitados
-dbsequelize.query(`
-  CREATE VIEW IF NOT EXISTS AppMethodView AS
-  SELECT
-    app.idapp,
-    app.icon,
-    app.app,
-    app.enabled,
-    route.idroute,
-    route.route,
-    method.idmethod,
-    method.method,
-    method.version,
-    method.handler,
-    method.code,
-    method.examples
-  FROM
-    App app
-    INNER JOIN Route route ON app.idapp = route.idapp
-    INNER JOIN Method method ON route.idroute = method.idroute;
-`)
-*/
+// Define la relación entre User y Role
+User.belongsTo(Role, { foreignKey: "idrole", as: "role" });
+Role.hasMany(User, { foreignKey: "idrole", as: "users1" });

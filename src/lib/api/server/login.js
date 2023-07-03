@@ -48,7 +48,7 @@ router.post("/api/login", async (req, res) => {
       EncryptPwd(req.body.password)
     );
 
-console.log(EncryptPwd(req.body.password));
+// console.log(EncryptPwd(req.body.password));
 
     if (user) {
       // Envía el Token en el Header
