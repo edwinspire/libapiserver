@@ -1,7 +1,13 @@
 import express from "express";
 import { User } from "../db/models.js";
 import { getUserByCredentials } from "../db/user.js";
-import { EncryptPwd, GenToken, tokenVerify, customError, validateToken } from "./utils.js";
+import {
+  EncryptPwd,
+  GenToken,
+  tokenVerify,
+  customError,
+  validateToken,
+} from "./utils.js";
 
 const router = express.Router();
 
@@ -48,14 +54,16 @@ router.post("/api/login", async (req, res) => {
       EncryptPwd(req.body.password)
     );
 
-// console.log(EncryptPwd(req.body.password));
+    //console.log(user?.dataValues);
+    // console.log(EncryptPwd(req.body.password));
 
     if (user) {
+      let u = { ...user.dataValues };
+    
       // Envía el Token en el Header
       let token = GenToken({
-        username: user.dataValues.username,
-        first_name: user.dataValues.first_name,
-        last_name: user.dataValues.last_name,
+        username: u.username,
+        role: u.role.dataValues,
       });
       res.set("api-token", token);
 
@@ -64,10 +72,10 @@ router.post("/api/login", async (req, res) => {
 
       res.status(200).json({
         login: true,
-        username: user.dataValues.username,
-        first_name: user.dataValues.first_name,
-        last_name: user.dataValues.last_name,
-        token: token
+        username: u.username,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        token: token,
       });
     } else {
       res.status(401).json(customError(2));

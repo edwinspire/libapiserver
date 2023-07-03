@@ -65,8 +65,8 @@ export const User = dbsequelize.define(
     },
     idrole: {
       type: DataTypes.BIGINT,
-      allowNull: true,
-      defaultValue: 1
+      allowNull: false,
+      defaultValue: 0
     },
     token: {
       type: DataTypes.STRING,

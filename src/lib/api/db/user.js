@@ -13,19 +13,6 @@ export const upsertUser = async (
   }
 };
 
-/*
-// CREATE
-const createUser = async ( userData) => {
-  try {
-    const newUser = await User.create(userData)
-    return newUser
-  } catch (error) {
-    console.error('Error creating user:', error)
-    throw error
-  }
-}
-*/
-
 // READ
 export const getUserById = async (
   /** @type {import("sequelize").Identifier | undefined} */ userId
@@ -48,23 +35,6 @@ export const getAllUsers = async () => {
     throw error;
   }
 };
-
-/*
-// UPDATE
-const updateUser = async ( userData) => {
-  try {
-    const user = await User.findByPk(userId)
-    if (user) {
-      await user.update(userData)
-      return user
-    }
-    return null // User not found
-  } catch (error) {
-    console.error('Error updating user:', error)
-    throw error
-  }
-}
-*/
 
 // DELETE
 export const deleteUser = async (
@@ -89,15 +59,24 @@ export const deleteUser = async (
  */
 export const getUserByCredentials = async (username, password) => {
   return await User.findOne({
-    where: { iduser: 1 },
-    include: [{ model: Role, as: "role" }],
-  });
-
-  /*
-  return await User.findOne({
     where: { username: username, password: password },
+    attributes: [
+      "iduser",
+      "enabled",
+      "username",
+      "first_name",
+      "last_name",
+      "email",
+      "idrole"
+    ],
+    include: [
+      {
+        model: Role,
+        as: "role",
+        attributes: ["role", "enabled", "attrs"],
+      },
+    ],
   });
-  */
 };
 
 // Usage examples
@@ -126,5 +105,3 @@ export const defaultUser = async () => {
     console.error("Example error:", error);
   }
 };
-
-//runExample()

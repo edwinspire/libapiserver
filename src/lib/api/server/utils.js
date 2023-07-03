@@ -86,6 +86,7 @@ export function EncryptPwd(pwd) {
  * @param {any} data
  */
 export function GenToken(data) {
+  console.log('GenToken > ', data);
   // Genera un Token
   return jwt.sign(
     { data: data, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
