@@ -12,13 +12,13 @@ export function AppToTable(json) {
   const { idapp, app, rowkey, data } = json;
   let baseRow = {
     idapp,
-    enabled: json.data.enabled,
+    enabled: data && data.enabled ? true : false,
     app,
     rowkey,
-    description: json.data.description,
+    description: data && data.description ? data.description : "",
   };
   //console.warn("Inicila => ", idapp, app, rowkey, data);//
-  let ns = data.namespaces;
+  let ns = data && data.namespaces ? data.namespaces : [];
 
   // Recorrer los datos para construir la matriz
   for (const d in ns) {
@@ -29,7 +29,7 @@ export function AppToTable(json) {
       for (const iversion in name.versions) {
         const version = name.versions[iversion];
         let row = {
-          url: `/api/${baseRow.app}/${ns[d].namespace}/${name.name}/v${version.version}/environment`,
+          url: `/api/${baseRow.app}/${ns[d].namespace}/${name.name}/v${version.version}/[environment]`,
           ...baseRow,
           namespace: ns[d].namespace,
           name: name.name,

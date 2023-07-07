@@ -11,10 +11,12 @@
   } from "@edwinspire/svelte-components";
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
-  import { tokenStore } from "../utils.js";
+  import { userStore } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
   import { AppToTable, TableToApp } from "../../db/utils.js";
+  //  import { tokenVerify } from "../../server/utils.js";
+  //  import jwt from "jsonwebtoken";
 
   const dispatch = createEventDispatcher();
   export let idapp = 0;
@@ -77,10 +79,14 @@
 
   let uf = new uFetch();
 
+  //let dataUser = {};
+
   async function getListApps() {
     // Lógica de autenticación aquí
 
     try {
+//      console.log("getListApps > ", $userStore, uf);
+
       let apps_res = await uf.get("/api/apps");
       let apps = await apps_res.json();
       //console.log(apps);
@@ -97,8 +103,6 @@
       alert(error.message);
     }
   }
-
-
 
   /**
    * @param {string } method_selected
@@ -130,9 +134,10 @@
     }
   }
 
-  tokenStore.subscribe((value) => {
-    console.log("tokenStore", value);
-    uf.addHeader("api-token", value);
+  userStore.subscribe((value) => {
+    console.log("tokenStore ->>>>", value);
+    // @ts-ignore
+    uf.addHeader("api-token", value.token);
   });
 
   async function saveApp() {
@@ -149,8 +154,9 @@
   }
 
   onMount(() => {
-    // uf.addHeader(tokenStore.);
-    console.log(tokenStore);
+    // dataUser = tokenVerify(tokenStore);
+    // uf.addHeader();
+    // console.log($userStore);
 
     getListApps();
   });
@@ -161,31 +167,46 @@
     <PredictiveInput
       bind:options
       on:select={(/** @type {{ detail: { value: number; }; }} */ e) => {
-        idapp = e.detail.value;
+        if (
+          $userStore &&
+          $userStore.role &&
+          $userStore.role.enabled &&
+          ($userStore.role.type == 1 ||
+            ($userStore.role.attrs &&
+              $userStore.role.attrs.apps &&
+              $userStore.role.attrs.apps.read))
+        ) {
+          idapp = e.detail.value;
+        } else {
+          alert("No tiene autorizacion para ver la app");
+        }
+
         //getApp();
       }}
     /></span
   >
   <span slot="r01">
-    <button
-      class="button is-small"
-      on:click={() => {
-        paramDialogOneField.title = "New Application";
-        paramDialogOneField.label = "Application Name";
-        paramDialogOneField.inputType = "text";
-        paramDialogOneField.value = "";
-        paramDialogOneField.function = (value) => {
-          app = { app: value, data: { namespaces: [] } };
-          pageSelected = "app";
-        };
-        showDialogOneField = true;
-      }}
-    >
-      <span class="icon is-small">
-        <i class="fab fa-github" />
-      </span>
-      <span>New App</span>
-    </button>
+    {#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.create))}
+      <button
+        class="button is-small"
+        on:click={() => {
+          paramDialogOneField.title = "New Application";
+          paramDialogOneField.label = "Application Name";
+          paramDialogOneField.inputType = "text";
+          paramDialogOneField.value = "";
+          paramDialogOneField.function = (value) => {
+            app = { app: value, data: { namespaces: [] } };
+            pageSelected = "app";
+          };
+          showDialogOneField = true;
+        }}
+      >
+        <span class="icon is-small">
+          <i class="fab fa-github" />
+        </span>
+        <span>New App</span>
+      </button>
+    {/if}
   </span>
 </Level>
 
@@ -216,22 +237,25 @@
 <div class={pageSelected == "endpoint" ? "" : "is-hidden"}>
   <Table bind:RawDataTable={appDataTable} bind:columns>
     <span slot="l01"> Endpoints </span>
+
     <span slot="r07">
-      <button
-        class="button is-small"
-        on:click={() => {
-          console.log("save", appDataTable);
-          if (confirm("Do you want to save the application data?")) {
-            app = TableToApp(appDataTable);
-            saveApp();
-          }
-        }}
-      >
-        <span class="icon is-small">
-          <i class="fab fa-github" />
-        </span>
-        <span>Save</span>
-      </button>
+      {#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+        <button
+          class="button is-small"
+          on:click={() => {
+            console.log("save", appDataTable);
+            if (confirm("Do you want to save the application data?")) {
+              app = TableToApp(appDataTable);
+              saveApp();
+            }
+          }}
+        >
+          <span class="icon is-small">
+            <i class="fab fa-github" />
+          </span>
+          <span>Save</span>
+        </button>
+      {/if}
     </span>
   </Table>
 </div>
@@ -239,20 +263,22 @@
   <Level>
     <span slot="l01"> <strong>APPLICATION</strong></span>
     <span slot="r01">
-      <button
-        class="button is-small"
-        on:click={() => {
-          console.log("save", app);
-          if (confirm("Do you want to save the application data?")) {
-            saveApp();
-          }
-        }}
-      >
-        <span class="icon is-small">
-          <i class="fab fa-github" />
-        </span>
-        <span>Save</span>
-      </button>
+      {#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+        <button
+          class="button is-small"
+          on:click={() => {
+            console.log("save", app);
+            if (confirm("Do you want to save the application data?")) {
+              saveApp();
+            }
+          }}
+        >
+          <span class="icon is-small">
+            <i class="fab fa-github" />
+          </span>
+          <span>Save</span>
+        </button>
+      {/if}
     </span>
   </Level>
 

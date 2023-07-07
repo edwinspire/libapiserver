@@ -67,13 +67,13 @@ export const getUserByCredentials = async (username, password) => {
       "first_name",
       "last_name",
       "email",
-      "idrole"
+      "idrole",
     ],
     include: [
       {
         model: Role,
         as: "role",
-        attributes: ["role", "enabled", "attrs"],
+        attributes: ["role", "type", "enabled", "attrs"],
       },
     ],
   });
@@ -100,8 +100,10 @@ export const defaultUser = async () => {
       first_name: "super",
       last_name: "user",
       email: "superuser@example.com",
+      idrole: 1,
     });
   } catch (error) {
     console.error("Example error:", error);
+    return;
   }
 };

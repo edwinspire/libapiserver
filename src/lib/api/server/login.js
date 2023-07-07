@@ -54,12 +54,9 @@ router.post("/api/login", async (req, res) => {
       EncryptPwd(req.body.password)
     );
 
-    //console.log(user?.dataValues);
-    // console.log(EncryptPwd(req.body.password));
-
     if (user) {
       let u = { ...user.dataValues };
-    
+
       // Envía el Token en el Header
       let token = GenToken({
         username: u.username,
@@ -75,6 +72,7 @@ router.post("/api/login", async (req, res) => {
         username: u.username,
         first_name: u.first_name,
         last_name: u.last_name,
+        role: u.role.dataValues,
         token: token,
       });
     } else {

@@ -5,6 +5,7 @@ import { createServer } from "http";
 import { EventEmitter } from "node:events";
 import { defaultUser } from "./db/user.js";
 import { defaultRoles } from "./db/role.js";
+import { defaultMethods } from "./db/method.js";
 import dbRestAPI from "./db/sequelize.js";
 import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
@@ -13,6 +14,7 @@ import { getApiHandler } from "./db/app.js";
 import login from "./server/login.js";
 import user from "./server/user.js";
 import app from "./server/app.js";
+import method from "./server/method.js";
 
 import { validateToken, checkToken } from "../api/server/utils.js";
 
@@ -80,6 +82,7 @@ export class ServerAPI extends EventEmitter {
     this.app.use(login);
     this.app.use(user);
     this.app.use(app);
+    this.app.use(method);
 
     // Controlar para que este path sea solo accesible de forma local
     this.app.post(this._path_api_hooks, validateToken, async (req, res) => {
@@ -325,8 +328,20 @@ export class ServerAPI extends EventEmitter {
       dbRestAPI.sync({ alter: true }).then(
         async () => {
           console.log("Crea la base de datos");
-          await defaultRoles();
-          await defaultUser();
+
+          try {
+            await defaultRoles();
+          } catch (error) {
+            console.log(error);
+          }
+
+          try {
+            await defaultUser();
+          } catch (error) {
+            console.log(error);
+          }
+
+          defaultMethods();
         },
         (/** @type {any} */ e) => {
           console.log("no se pudo crear / modificar la base de datos", e);

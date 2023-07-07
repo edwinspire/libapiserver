@@ -1,6 +1,6 @@
 import { Application } from "./models.js";
 import { checkToken } from "../server/utils.js";
-
+//import jwt from "jsonwebtoken";
 
 const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
@@ -21,7 +21,8 @@ export const getAppById = async (
 
 export const getAllApps = async () => {
   try {
-    const apps = await Application.findAll({ attributes: ["idapp", "app"] });
+    //const apps = await Application.findAll({ attributes: ["idapp", "app"] });
+    const apps = await Application.findAll();
     return apps;
   } catch (error) {
     console.error("Error retrieving apps:", error);

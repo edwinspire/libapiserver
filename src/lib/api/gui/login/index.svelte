@@ -3,7 +3,7 @@
   import uFetch from "@edwinspire/universal-fetch";
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
-  import { tokenStore } from "../utils.js";
+  import { userStore } from "../utils.js";
 
   const dispatch = createEventDispatcher();
 
@@ -29,7 +29,7 @@
       console.log(data);
 
       if (data.login) {
-        tokenStore.set(data.token);
+        userStore.set(data);
       } else {
         alert("Credenciales inválidas");
       }

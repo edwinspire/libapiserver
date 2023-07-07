@@ -50,6 +50,7 @@ export const defaultRoles = async () => {
         type: 1, // 0 sin privilegios, 1 superadmin (acceso total, configuraciones no aplican), 2 user (Aplican configuraciones)
         enabled: true,
         attrs: {
+          apps: { create: true, read: true, delete: true, update: true },
           users: {
             read: true,
             delete: true,
@@ -117,13 +118,13 @@ export const defaultRoles = async () => {
         type: 2, // 0 sin privilegios, 1 superadmin (acceso total, configuraciones no aplican), 2 user (Aplican configuraciones)
         enabled: true,
         attrs: {
-            users: {
-                read: false,
-                delete: false,
-                create: false,
-                update: false,
-                types: [],
-              },
+          users: {
+            read: false,
+            delete: false,
+            create: false,
+            update: false,
+            types: [],
+          },
           endpoints: [
             {
               endpoint: "*",
@@ -140,7 +141,9 @@ export const defaultRoles = async () => {
         },
       });
     }
+    return;
   } catch (error) {
     console.error("Example error:", error);
+    return;
   }
 };

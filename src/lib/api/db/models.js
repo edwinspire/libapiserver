@@ -66,7 +66,7 @@ export const User = dbsequelize.define(
     idrole: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     token: {
       type: DataTypes.STRING,
@@ -103,7 +103,7 @@ export const User = dbsequelize.define(
   }
 );
 
-// Definir el modelo de la tabla 'User'
+// Definir el modelo de la tabla 'Role'
 export const Role = dbsequelize.define(
   prefixTableName("role"),
   {
@@ -127,6 +127,10 @@ export const Role = dbsequelize.define(
       unique: true,
       allowNull: false,
     },
+    type: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0, // 0: Role min - 1: Role max - 2: Custom Role
+    }, 
     attrs: { type: DataTypes.JSON, allowNull: true },
   },
   {
@@ -143,6 +147,41 @@ export const Role = dbsequelize.define(
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert(prefixTableName("role"));
+      },
+      beforeUpdate: (user, options) => {},
+    },
+  }
+);
+
+// Definir el modelo de la tabla 'User'
+export const Method = dbsequelize.define(
+  prefixTableName("methods"),
+  {
+    method: {
+      type: DataTypes.TEXT,
+      primaryKey: true,
+      allowNull: false,
+      unique: true,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    label: {
+      type: DataTypes.CHAR(5),
+      unique: true,
+      allowNull: false,
+    },
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [],
+    hooks: {
+      afterCreate: async (user, options) => {},
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("method"));
       },
       beforeUpdate: (user, options) => {},
     },
