@@ -35,8 +35,9 @@ export class ServerAPI extends EventEmitter {
   /**
    * @param {boolean} buildDB
    * @param {any} handlerExternal
+   * @param {any} customRouter
    */
-  constructor(buildDB, handlerExternal) {
+  constructor(buildDB, handlerExternal, customRouter) {
     super();
 
     /**
@@ -83,6 +84,10 @@ export class ServerAPI extends EventEmitter {
     this.app.use(user);
     this.app.use(app);
     this.app.use(method);
+    
+    if (customRouter) {
+      this.app.use(customRouter);
+    }
 
     // Controlar para que este path sea solo accesible de forma local
     this.app.post(this._path_api_hooks, validateToken, async (req, res) => {
