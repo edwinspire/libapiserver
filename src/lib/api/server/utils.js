@@ -1,22 +1,16 @@
 const { createHmac } = await import("node:crypto");
 import jwt from "jsonwebtoken";
 
-
-const {
-  JWT_KEY,
-  EXPOSE_DEV_API,
-  EXPOSE_QA_API,
-  EXPOSE_PROD_API,
-} = process.env;
-
-
+const { JWT_KEY, EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
 const errors = {
   1: { code: 1, message: "You must enter the same password twice" },
   2: { code: 2, message: "Invalid credentials" },
 };
 
-
+export const defaultSystemPath = (/** @type {string} */ name) => {
+  return "/system/main/" + name;
+};
 
 /**
  * @param {any} token
@@ -86,7 +80,7 @@ export function EncryptPwd(pwd) {
  * @param {any} data
  */
 export function GenToken(data) {
-  console.log('GenToken > ', data);
+  console.log("GenToken > ", data);
   // Genera un Token
   return jwt.sign(
     { data: data, exp: Math.floor(Date.now() / 1000) + 60 * 60 },

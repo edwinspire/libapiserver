@@ -3,7 +3,7 @@
   import uFetch from "@edwinspire/universal-fetch";
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
-  import { userStore } from "../utils.js";
+  import { userStore, getListMethods, getListHandler } from "../utils.js";
 
   const dispatch = createEventDispatcher();
 
@@ -30,6 +30,8 @@
 
       if (data.login) {
         userStore.set(data);
+        await getListMethods(data.token);
+        await getListHandler(data.token);
       } else {
         alert("Credenciales inválidas");
       }

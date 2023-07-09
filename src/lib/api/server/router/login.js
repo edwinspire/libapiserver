@@ -1,21 +1,22 @@
 import express from "express";
-import { User } from "../db/models.js";
-import { getUserByCredentials } from "../db/user.js";
+import { User } from "../../db/models.js";
+import { getUserByCredentials } from "../../db/user.js";
 import {
   EncryptPwd,
   GenToken,
   tokenVerify,
   customError,
   validateToken,
-} from "./utils.js";
+  defaultSystemPath,
+} from "../utils.js";
 
 const router = express.Router();
 
-router.post("/api/logout", validateToken, async (req, res) => {
+router.post(defaultSystemPath("logout"), validateToken, async (req, res) => {
   try {
     // Check Token
 
-    console.log(req.headers);
+    //   console.log(req.headers);
 
     const token = req.headers["api-token"];
     const data = tokenVerify(token);
@@ -47,7 +48,7 @@ router.post("/api/logout", validateToken, async (req, res) => {
   }
 });
 
-router.post("/api/login", async (req, res) => {
+router.post(defaultSystemPath("login"), async (req, res) => {
   try {
     let user = await getUserByCredentials(
       req.body.username,

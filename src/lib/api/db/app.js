@@ -1,6 +1,6 @@
 import { Application } from "./models.js";
 import { checkToken } from "../server/utils.js";
-//import jwt from "jsonwebtoken";
+import { createFunction } from "../handler/jsFunction.js";
 
 const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
@@ -41,14 +41,6 @@ export const upsertApp = async (
     //console.log('XXXX>>> [app, create] ', app, create);
 
     let data = app.dataValues;
-    console.log(data);
-    /*
-    if (data.idapp <= 0) {
-      // No hay idapp se intenta obtenerlo de acuerdo con el nombre
-      let d2 = await getAppById(data.idapp);
-      data.idapp = d2.idapp;
-    }
-    */
 
     return data;
   } catch (error) {
@@ -56,7 +48,6 @@ export const upsertApp = async (
     throw error;
   }
 };
-
 
 /**
  * @param {Model<any, any>|null} appData
@@ -78,15 +69,6 @@ export function getApiHandler(
   method,
   token
 ) {
-
-console.log('<<<< getApiHandler >>>>', appData,
-  app,
-  namespace,
-  name,
-  version,
-  environment,
-  method,
-  token);
 
   let returnHandler = {};
   try {
@@ -129,12 +111,11 @@ console.log('<<<< getApiHandler >>>>', appData,
                 if (v) {
                   // Verificar que exista el ambiente
                   if (v[environment]) {
-
-                 //   console.log('< v[environment] >', method, v[environment]);
+                    //   console.log('< v[environment] >', method, v[environment]);
 
                     // Verificar el método
                     if (v[environment][method]) {
-                   //   console.log('< v[environment][method] >', v[environment][method]);
+                      //   console.log('< v[environment][method] >', v[environment][method]);
 
                       if (v[environment][method]) {
                         // Verificar si es publico o privado
@@ -148,6 +129,13 @@ console.log('<<<< getApiHandler >>>>', appData,
                           ) {
                             //runHandler(req, res, v[environment][method]);
                             returnHandler.params = v[environment][method];
+                            console.log(
+                              "returnHandler.params > ",
+                              returnHandler.params
+                            );
+                            returnHandler.params.jsFn = createFunction(
+                              returnHandler.params.code
+                            );
                             returnHandler.message = "";
                             returnHandler.status = 200;
                           } else {
@@ -206,5 +194,3 @@ console.log('<<<< getApiHandler >>>>', appData,
 
   return returnHandler;
 }
-
-

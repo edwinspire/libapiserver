@@ -85,7 +85,7 @@
     // Lógica de autenticación aquí
 
     try {
-//      console.log("getListApps > ", $userStore, uf);
+      //      console.log("getListApps > ", $userStore, uf);
 
       let apps_res = await uf.get("/api/apps");
       let apps = await apps_res.json();
@@ -153,12 +153,12 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     // dataUser = tokenVerify(tokenStore);
     // uf.addHeader();
     // console.log($userStore);
-
-    getListApps();
+    await getListApps();
+    // @ts-ignore
   });
 </script>
 

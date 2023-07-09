@@ -1,17 +1,14 @@
 import express from "express";
 import {
-//  getFullApp,
-//  defaultExamples,
-//  getAppRoutes,
   getAllApps,
   getAppById,
   upsertApp,
-} from "../db/app.js";
-import { validateToken } from "./utils.js";
+} from "../../db/app.js";
+import { validateToken, defaultSystemPath } from "../utils.js";
 
 const router = express.Router();
 
-router.get("/api/apps", validateToken, async (req, res) => {
+router.get(defaultSystemPath("app/all"), validateToken, async (req, res) => {
   try {
     const apps = await getAllApps();
 
@@ -22,7 +19,7 @@ router.get("/api/apps", validateToken, async (req, res) => {
   }
 });
 
-router.get("/api/app/:idapp", validateToken, async (req, res) => {
+router.get(defaultSystemPath("app/:idapp"), validateToken, async (req, res) => {
   try {
     let raw = !req.query.raw || req.query.raw == "false" ? false : true;
 
@@ -39,7 +36,7 @@ router.get("/api/app/:idapp", validateToken, async (req, res) => {
   }
 });
 
-router.post("/api/app/:idapp", validateToken, async (req, res) => {
+router.post(defaultSystemPath("app/:idapp"), validateToken, async (req, res) => {
   try {
     console.log(req.params, req.body);
 

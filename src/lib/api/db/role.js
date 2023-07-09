@@ -75,6 +75,7 @@ export const defaultRoles = async () => {
       });
     }
 
+    /*
     // create admin user
     const r2 = await Role.findOne({
       where: { role: "admin" },
@@ -108,7 +109,9 @@ export const defaultRoles = async () => {
         },
       });
     }
+    */
 
+    /*
     const r3 = await Role.findOne({
       where: { role: "public" },
     });
@@ -141,6 +144,8 @@ export const defaultRoles = async () => {
         },
       });
     }
+*/
+
     return;
   } catch (error) {
     console.error("Example error:", error);

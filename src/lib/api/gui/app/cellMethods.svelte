@@ -1,10 +1,11 @@
 <script>
-// @ts-nocheck
+  // @ts-nocheck
 
   import FetchCode from "./handler/fetch.svelte";
   import JsCode from "./handler/js.svelte";
   import SoapCode from "./handler/soap.svelte";
   import SqlCode from "./handler/sql.svelte";
+  import CustomFn from "./handler/customFunction.svelte";
   import { DialogModal } from "@edwinspire/svelte-components";
   import MethodDialog from "./method.svelte";
 
@@ -26,6 +27,9 @@
    * @type {SqlCode}
    */
   let fnSqlCode;
+
+  let fnCustomFn;
+
   let showCode = false;
 
   /**
@@ -49,88 +53,88 @@
 <td>
   <div class="field is-grouped is-grouped-multiline space">
     {#if value}
-    {#each Object.keys(value) as method}
-    <div class="control">
-      <div class="tags has-addons">
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <a
-          class="tag is-dark"
-          on:click={() => {
-            let message = "Do you want to enable the method?";
+      {#each Object.keys(value) as method}
+        <div class="control">
+          <div class="tags has-addons">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <a
+              class="tag is-dark"
+              on:click={() => {
+                let message = "Do you want to enable the method?";
 
-            if (value[method].enabled) {
-              message = "Do you want to disable the method?";
-            }
+                if (value[method].enabled) {
+                  message = "Do you want to disable the method?";
+                }
 
-            if (confirm(message)) {
-              value[method].enabled = !value[method].enabled;
-            }
-          }}
-        >
-          <span
-            class={value[method].enabled
-              ? "icon has-text-success"
-              : "icon has-text-danger"}
-          >
-            <i
-              class={value[method].enabled
-                ? "fa-solid fa-check"
-                : "fa-solid fa-xmark"}
-            />
-          </span></a
-        >
+                if (confirm(message)) {
+                  value[method].enabled = !value[method].enabled;
+                }
+              }}
+            >
+              <span
+                class={value[method].enabled
+                  ? "icon has-text-success"
+                  : "icon has-text-danger"}
+              >
+                <i
+                  class={value[method].enabled
+                    ? "fa-solid fa-check"
+                    : "fa-solid fa-xmark"}
+                />
+              </span></a
+            >
 
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <span
-          class={classMap[method] || "tag is-dark"}
-          on:click={() => {
-            methodSelected = method;
-            showMethod = true;
-          }}>{method}</span
-        >
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <a
-          class="tag is-dark"
-          on:click={() => {
-            ///
-            methodSelected = method;
-            showCode = true;
-          }}>{value[method].handler}</a
-        >
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <span
+              class={classMap[method] || "tag is-dark"}
+              on:click={() => {
+                methodSelected = method;
+                showMethod = true;
+              }}>{method}</span
+            >
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <a
+              class="tag is-dark"
+              on:click={() => {
+                ///
+                methodSelected = method;
+                showCode = true;
+              }}>{value[method].handler}</a
+            >
 
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <a
-          class="tag is-dark"
-          on:click={() => {
-            let message = "Do you want to make the method public?";
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <a
+              class="tag is-dark"
+              on:click={() => {
+                let message = "Do you want to make the method public?";
 
-            if (value[method].public) {
-              message = "Do you want to make the method private?";
-            }
+                if (value[method].public) {
+                  message = "Do you want to make the method private?";
+                }
 
-            if (confirm(message)) {
-              value[method].public = !value[method].public;
-            }
-          }}
-        >
-          <span
-            class={value[method].public
-              ? "icon has-text-success"
-              : "icon has-text-danger"}
-          >
-            <i
-              class={value[method].public
-                ? "fa-solid fa-lock-open"
-                : "fa-solid fa-lock"}
-            />
-          </span></a
-        >
-      </div>
-    </div>
-  {/each}
+                if (confirm(message)) {
+                  value[method].public = !value[method].public;
+                }
+              }}
+            >
+              <span
+                class={value[method].public
+                  ? "icon has-text-success"
+                  : "icon has-text-danger"}
+              >
+                <i
+                  class={value[method].public
+                    ? "fa-solid fa-lock-open"
+                    : "fa-solid fa-lock"}
+                />
+              </span></a
+            >
+          </div>
+        </div>
+      {/each}
     {/if}
   </div>
 </td>
@@ -145,26 +149,28 @@
     title={`Method ${methodSelected}`}
     on:ok={(e) => {
       console.log(e);
-//      value = e.detail;
+      //      value = e.detail;
       showMethod = false;
-     // value = value;
+      // value = value;
     }}
   />
 
   <DialogModal
     bind:Show={showCode}
     on:ok={() => {
-      if (value[methodSelected].handler == "js") {
+      if (value[methodSelected].handler == "JS") {
         value[methodSelected].code = fnJsCode.getCode();
         //console.log("methodSelected > ", methodSelected, fnJsCode.getCode());
-      } else if (value[methodSelected].handler == "soap") {
+      } else if (value[methodSelected].handler == "SOAP") {
         value[methodSelected].code = fnSoapCode.getCode();
-      } else if (value[methodSelected].handler == "sql") {
+      } else if (value[methodSelected].handler == "SQL") {
         value[methodSelected].code = fnSqlCode.getCode();
-      } else if (value[methodSelected].handler == "fetch") {
+      } else if (value[methodSelected].handler == "FETCH") {
         value[methodSelected].code = fnFetchCode.getCode();
+      } else if (value[methodSelected].handler == "FUNCTION") {
+        value[methodSelected].code = fnCustomFn.getCode();
       }
-//      console.log(methodSelected, value, value[methodSelected]);
+      //      console.log(methodSelected, value, value[methodSelected]);
 
       showCode = false;
     }}
@@ -172,18 +178,23 @@
     <span slot="title">{value[methodSelected].handler}</span>
 
     <div slot="body">
-      {#if value[methodSelected].handler == "js"}
+      {#if value[methodSelected].handler == "JS"}
         <JsCode bind:this={fnJsCode} code={value[methodSelected].code} />
-      {:else if value[methodSelected].handler == "soap"}
+      {:else if value[methodSelected].handler == "SOAP"}
         <SoapCode
           bind:this={fnSoapCode}
           bind:code={value[methodSelected].code}
         />
-      {:else if value[methodSelected].handler == "sql"}
+      {:else if value[methodSelected].handler == "SQL"}
         <SqlCode bind:this={fnSqlCode} bind:code={value[methodSelected].code} />
-      {:else if value[methodSelected].handler == "fetch"}
+      {:else if value[methodSelected].handler == "FETCH"}
         <FetchCode
           bind:this={fnFetchCode}
+          bind:code={value[methodSelected].code}
+        />
+      {:else if value[methodSelected].handler == "FUNCTION"}
+        <CustomFn
+          bind:this={fnCustomFn}
           bind:code={value[methodSelected].code}
         />
       {:else}

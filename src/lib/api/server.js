@@ -6,17 +6,23 @@ import { EventEmitter } from "node:events";
 import { defaultUser } from "./db/user.js";
 import { defaultRoles } from "./db/role.js";
 import { defaultMethods } from "./db/method.js";
+import { defaultHandlers } from "./db/handler.js";
 import dbRestAPI from "./db/sequelize.js";
 import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getApiHandler } from "./db/app.js";
 
+/*
 import login from "./server/login.js";
 import user from "./server/user.js";
-import app from "./server/app.js";
+import app from "./server/router/app.js";
 import method from "./server/method.js";
+*/
+import systemRoutes from "./server/router/system.js";
 
-import { validateToken, checkToken } from "../api/server/utils.js";
+import { validateToken, defaultSystemPath } from "../api/server/utils.js";
+
+import * as fnSystem from "./server/functions/system.js";
 
 const {
   PORT,
@@ -44,6 +50,9 @@ export class ServerAPI extends EventEmitter {
      * @type {{ path: string; WebSocket: WebSocket.Server<WebSocket.WebSocket>; }[]}
      */
     this._ws_paths = [];
+    //this._cacheFn = {};
+    this._cacheApi = new Map();
+    this._fn = new Map();
     this._path_ws_api_response_time =
       PATH_API_RESPONSE_TIME || "/system/api/endpoint/response/time";
     this._path_api_hooks = PATH_API_HOOKS || "/system/api/hooks";
@@ -80,11 +89,22 @@ export class ServerAPI extends EventEmitter {
       next();
     });
 
-    this.app.use(login);
-    this.app.use(user);
-    this.app.use(app);
-    this.app.use(method);
-    
+    this.app.use(systemRoutes);
+
+    this.app.get(
+      defaultSystemPath("functions"),
+      validateToken,
+      async (req, res) => {
+        try {
+          // @ts-ignore
+          this._functions(req, res);
+        } catch (error) {
+          // @ts-ignore
+          res.status(500).json({ error: error.message });
+        }
+      }
+    );
+
     if (customRouter) {
       this.app.use(customRouter);
     }
@@ -117,7 +137,7 @@ export class ServerAPI extends EventEmitter {
           );
 
           if (h.status == 200) {
-            runHandler(req, res, h.params);
+            runHandler(req, res, h.params, this._fn.get(app));
           } else {
             res.status(h.status).json({
               // @ts-ignore
@@ -133,7 +153,11 @@ export class ServerAPI extends EventEmitter {
       }
     );
 
-    this.app.use(handlerExternal);
+    if (handlerExternal) {
+      this.app.use(handlerExternal);
+    }
+
+    this._addSystemFunction();
 
     let rto = 1000 * 60 * 5;
     if (EXPRESSJS_SERVER_TIMEOUT && Number(EXPRESSJS_SERVER_TIMEOUT) > 1000) {
@@ -141,6 +165,37 @@ export class ServerAPI extends EventEmitter {
     }
     console.log("EXPRESSJS_SERVER_TIMEOUT: " + EXPRESSJS_SERVER_TIMEOUT);
     this._httpServer.setTimeout(rto); // Para 5 minutos
+  }
+
+  /**
+   * @param {string} appname
+   * @param {string} functionName
+   * @param {any} Function
+   */
+  appendAppFunction(appname, functionName, Function) {
+    if (appname != "system") {
+      this._appendAppFunction(appname, functionName, Function);
+    } else {
+      throw "system not allow";
+    }
+  }
+
+  /**
+   * @param {string} appname
+   * @param {string} functionName
+   * @param {any} Function
+   */
+  _appendAppFunction(appname, functionName, Function) {
+    if (this._fn.has(appname)) {
+      let fnList = this._fn.get(appname);
+      fnList[functionName] = Function;
+      this._fn.set(appname, fnList);
+    } else {
+      let f = {};
+      // @ts-ignore
+      f[functionName] = Function;
+      this._fn.set(appname, f);
+    }
   }
 
   /**
@@ -252,19 +307,28 @@ export class ServerAPI extends EventEmitter {
       (environment == "prd" && EXPOSE_PROD_API === "true")
     ) {
       try {
-        // Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
-        let appData = await Application.findOne({ where: { app: app } });
+        const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
+        if (!this._cacheApi.has(apiPath)) {
+          console.log(">>>> NO usa cache", apiPath);
+          // Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
+          let appData = await Application.findOne({ where: { app: app } });
 
-        return getApiHandler(
-          appData,
-          app,
-          namespace,
-          name,
-          version,
-          environment,
-          method,
-          token
-        );
+          this._cacheApi.set(
+            apiPath,
+            getApiHandler(
+              appData,
+              app,
+              namespace,
+              name,
+              version,
+              environment,
+              method,
+              token
+            )
+          );
+        }
+
+        return this._cacheApi.get(apiPath);
       } catch (error) {
         // @ts-ignore
         return { message: error.message, status: 505, params: undefined };
@@ -346,7 +410,17 @@ export class ServerAPI extends EventEmitter {
             console.log(error);
           }
 
-          defaultMethods();
+          try {
+            defaultMethods();
+          } catch (error) {
+            console.log(error);
+          }
+
+          try {
+            defaultHandlers();
+          } catch (error) {
+            console.log(error);
+          }
         },
         (/** @type {any} */ e) => {
           console.log("no se pudo crear / modificar la base de datos", e);
@@ -354,6 +428,45 @@ export class ServerAPI extends EventEmitter {
       );
     }
   }
+
+  _addSystemFunction() {
+    const entries = Object.entries(fnSystem);
+    for (let [prop, fn] of entries) {
+      //console.log(prop + ": " + fn);
+      this._appendAppFunction("system", prop, fn);
+    }
+
+    this._fn.forEach((fx) => {
+      console.log(fx);
+    });
+
+    this._appendAppFunction("system", "fnGetHandlers", this._functions);
+  }
+
+  /**
+   * @param {string} appName
+   */
+  _getFunctions(appName) {
+    let d = this._fn.get(appName);
+    if (d) {
+      return Object.entries(d);
+    }
+    return [];
+  }
+
+  _functions = async (
+    /** @type {{ params: any; body: import("sequelize").Optional<any, string>; }} */ req,
+    /** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }} */ res
+  ) => {
+    try {
+      // @ts-ignore
+      res.status(200).json(this._getFunctions(req.query.appName));
+    } catch (error) {
+      console.log(error);
+      // @ts-ignore
+      res.status(500).json({ error: error.message });
+    }
+  };
 
   listen() {
     this._httpServer.listen(PORT, () => {

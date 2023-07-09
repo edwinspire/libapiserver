@@ -1,25 +1,21 @@
 <script>
   import { DialogModal } from "@edwinspire/svelte-components";
   import { createEventDispatcher } from "svelte";
+  import { listHandlerStore, listMethodStore } from "../utils.js";
+  import SelectMethods from "../widgets/Select.svelte";
+  import SelectHandlers from "../widgets/Select.svelte";
+
   const dispatch = createEventDispatcher();
 
-  let methods = [
-    { id: "CONNECT", text: `CONNECT` },
-    { id: "GET", text: `GET` },
-    { id: "DELETE", text: `DELETE` },
-    { id: "HEAD", text: `HEAD` },
-    { id: "PATCH", text: `PATCH` },
-    { id: "POST", text: `POST` },
-    { id: "PUT", text: `PUT` },
-    { id: "WS", text: `WS` },
-  ];
+  /**
+   * @type {any[]}
+   */
+  let methods = [];
 
-  let handlers = [
-    { id: "fetch", text: `FETCH` },
-    { id: "js", text: `JS` },
-    { id: "soap", text: `SOAP` },
-    { id: "sql", text: `SQL` },
-  ];
+  /**
+   * @type {any[]}
+   */
+  let handlers = [];
 
   export let method = "";
   export let handler = "js";
@@ -28,11 +24,22 @@
 
   export let Show = false;
   export let title = "Method";
+
+  listMethodStore.subscribe((value) => {
+    console.log("listMethodStore ->>>>", value);
+    // @ts-ignore
+    methods = value;
+  });
+
+  listHandlerStore.subscribe((value) => {
+    console.log("listHandlerStore ->>>>", value);
+    // @ts-ignore
+    handlers = value;
+  });
 </script>
 
 <DialogModal
   bind:Show
-  
   on:ok={() => {
     if (method && method.length) {
       dispatch("ok", {
@@ -56,20 +63,7 @@
       </div>
       <div class="field-body">
         <div class="field is-narrow">
-          <div class="control">
-            <div class="select is-fullwidth is-small">
-              <select
-                bind:value={method}
-                disabled={method.length > 0 ? true : false}
-              >
-                {#each methods as m}
-                  <option value={m.id}>
-                    {m.text}
-                  </option>
-                {/each}
-              </select>
-            </div>
-          </div>
+          <SelectMethods bind:options={methods} bind:option={method} />
         </div>
       </div>
     </div>
@@ -97,17 +91,7 @@
       </div>
       <div class="field-body">
         <div class="field is-narrow">
-          <div class="control">
-            <div class="select is-fullwidth is-small">
-              <select bind:value={handler}>
-                {#each handlers as h}
-                  <option value={h.id}>
-                    {h.text}
-                  </option>
-                {/each}
-              </select>
-            </div>
-          </div>
+          <SelectHandlers bind:options={handlers} bind:option={handler} />
         </div>
       </div>
     </div>

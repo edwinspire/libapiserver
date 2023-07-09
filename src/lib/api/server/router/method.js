@@ -1,15 +1,10 @@
 import express from "express";
-import {
-  //  getFullApp,
-  //  defaultExamples,
-  //  getAppRoutes,
-  getAllMethods,
-} from "../db/method.js";
-import { validateToken } from "./utils.js";
+import { getAllMethods } from "../../db/method.js";
+import { validateToken, defaultSystemPath } from "../utils.js";
 
 const router = express.Router();
 
-router.get("/api/methods", validateToken, async (req, res) => {
+router.get(defaultSystemPath("methods"), validateToken, async (req, res) => {
   try {
     const methods = await getAllMethods();
 
