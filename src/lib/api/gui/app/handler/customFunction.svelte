@@ -1,6 +1,16 @@
 <script>
   import { onMount } from "svelte";
+  import SelectHandlers from "../../widgets/Select.svelte";
+  // @ts-ignore
+  import uFetch from "@edwinspire/universal-fetch";
+  import { userStore, listFunctionStore } from "../../utils";
   //  import EditorCode from "./editorCode.svelte";
+
+  let uF = new uFetch();
+  /**
+   * @type {any[]}
+   */
+  let functions = [];
 
   /**
    * @type {any}
@@ -12,6 +22,11 @@
     return code;
   }
 
+  listFunctionStore.subscribe((value) => {
+    // @ts-ignore
+    functions = value;
+  });
+
   onMount(() => {
     console.log(code);
   });
@@ -19,8 +34,18 @@
 
 <div>
   <div class="content is-small">
-    <h2>FUNCTION</h2>
-    Url to make the request. The operation is similar to a proxy
+    Use the selected function to return a response.
   </div>
-  <div>code</div>
+
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <label class="label is-small">Function</label>
+    </div>
+    <div class="field-body">
+      <div class="field is-narrow">
+        <SelectHandlers bind:options={functions} bind:option={code} />
+      </div>
+    </div>
+  </div>
 </div>

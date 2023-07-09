@@ -11,18 +11,12 @@ import dbRestAPI from "./db/sequelize.js";
 import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getApiHandler } from "./db/app.js";
-
-/*
-import login from "./server/login.js";
-import user from "./server/user.js";
-import app from "./server/router/app.js";
-import method from "./server/method.js";
-*/
 import systemRoutes from "./server/router/system.js";
 
 import { validateToken, defaultSystemPath } from "../api/server/utils.js";
 
 import * as fnSystem from "./server/functions/system.js";
+import * as fnPublic from "./server/functions/public.js";
 
 const {
   PORT,
@@ -91,19 +85,16 @@ export class ServerAPI extends EventEmitter {
 
     this.app.use(systemRoutes);
 
-    this.app.get(
-      defaultSystemPath("functions"),
-      validateToken,
-      async (req, res) => {
-        try {
-          // @ts-ignore
-          this._functions(req, res);
-        } catch (error) {
-          // @ts-ignore
-          res.status(500).json({ error: error.message });
-        }
+    this.app.get(defaultSystemPath("functions"), validateToken, (req, res) => {
+      try {
+        console.log("Functions >>>>>>>");
+        // @ts-ignore
+        this._functions(req, res);
+      } catch (error) {
+        // @ts-ignore
+        res.status(500).json({ error: error.message });
       }
-    );
+    });
 
     if (customRouter) {
       this.app.use(customRouter);
@@ -137,7 +128,7 @@ export class ServerAPI extends EventEmitter {
           );
 
           if (h.status == 200) {
-            runHandler(req, res, h.params, this._fn.get(app));
+            runHandler(req, res, h.params, this._getFunctions(app));
           } else {
             res.status(h.status).json({
               // @ts-ignore
@@ -157,7 +148,7 @@ export class ServerAPI extends EventEmitter {
       this.app.use(handlerExternal);
     }
 
-    this._addSystemFunction();
+    this._addFunctions();
 
     let rto = 1000 * 60 * 5;
     if (EXPRESSJS_SERVER_TIMEOUT && Number(EXPRESSJS_SERVER_TIMEOUT) > 1000) {
@@ -429,18 +420,24 @@ export class ServerAPI extends EventEmitter {
     }
   }
 
-  _addSystemFunction() {
+  _addFunctions() {
     const entries = Object.entries(fnSystem);
-    for (let [prop, fn] of entries) {
+    for (let [fName, fn] of entries) {
       //console.log(prop + ": " + fn);
-      this._appendAppFunction("system", prop, fn);
+      this._appendAppFunction("system", fName, fn);
     }
+
+    const entriesP = Object.entries(fnPublic);
+    for (let [fName, fn] of entriesP) {
+      //console.log(prop + ": " + fn);
+      this.appendAppFunction("public", fName, fn);
+    }
+
+    this._appendAppFunction("system", "fnGetFunctions", this._functions);
 
     this._fn.forEach((fx) => {
       console.log(fx);
     });
-
-    this._appendAppFunction("system", "fnGetHandlers", this._functions);
   }
 
   /**
@@ -448,9 +445,33 @@ export class ServerAPI extends EventEmitter {
    */
   _getFunctions(appName) {
     let d = this._fn.get(appName);
-    if (d) {
-      return Object.entries(d);
+    let p = this._fn.get("public");
+    return { ...d, ...p };
+  }
+
+  /**
+   * @param {string} appName
+   */
+  _getNameFunctions(appName) {
+    let f = this._getFunctions(appName);
+    if (f) {
+      return Object.keys(f);
     }
+    /*
+    let d = this._fn.get(appName);
+    let p = this._fn.get("public");
+
+    //    console.log(appName, d, p);
+
+    if (d && p) {
+      return Object.keys(p).concat(Object.keys(d)).flat();
+    } else if (d) {
+      return Object.keys(d);
+    } else if (p) {
+      return Object.keys(p);
+    }
+    */
+
     return [];
   }
 
@@ -460,7 +481,7 @@ export class ServerAPI extends EventEmitter {
   ) => {
     try {
       // @ts-ignore
-      res.status(200).json(this._getFunctions(req.query.appName));
+      res.status(200).json(this._getNameFunctions(req.query.appName));
     } catch (error) {
       console.log(error);
       // @ts-ignore
@@ -469,6 +490,17 @@ export class ServerAPI extends EventEmitter {
   };
 
   listen() {
+    /*
+    const routes = this.app._router.stack
+      .filter((layer) => layer.route)
+      .map((layer) => layer.route.path);
+
+    console.log(routes);
+*/
+
+    let g = this._getNameFunctions("system");
+    console.log(g);
+
     this._httpServer.listen(PORT, () => {
       console.log("App listening on port " + PORT);
     });

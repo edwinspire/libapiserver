@@ -8,7 +8,7 @@ import { validateToken, defaultSystemPath } from "../utils.js";
 
 const router = express.Router();
 
-router.get(defaultSystemPath("app/all"), validateToken, async (req, res) => {
+router.get(defaultSystemPath("apps"), validateToken, async (req, res) => {
   try {
     const apps = await getAllApps();
 

@@ -47,7 +47,7 @@
     try {
       //     console.log("getMethods >>>>>> ", $userStore, uf);
 
-      let ms_res = await uf.get("/api/methods");
+      let ms_res = await uf.get("/system/main/methods");
       let mtds = await ms_res.json();
       //console.log(apps);
 
@@ -83,7 +83,7 @@
 
       console.log("getListApps >>>>>> ", $userStore, uf);
 
-      let apps_res = await uf.get("/api/apps");
+      let apps_res = await uf.get("/system/main/apps");
       let apps = await apps_res.json();
       //console.log(apps);
 

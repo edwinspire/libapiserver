@@ -11,7 +11,7 @@
   } from "@edwinspire/svelte-components";
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
-  import { userStore } from "../utils.js";
+  import { userStore, getListFunction } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
   import { AppToTable, TableToApp } from "../../db/utils.js";
@@ -87,7 +87,7 @@
     try {
       //      console.log("getListApps > ", $userStore, uf);
 
-      let apps_res = await uf.get("/api/apps");
+      let apps_res = await uf.get("/system/main/apps");
       let apps = await apps_res.json();
       //console.log(apps);
 
@@ -116,16 +116,19 @@
   }
 
   async function getApp() {
-    // Lógica de autenticación aquí
-
     if (idapp) {
       try {
-        let apps_res = await uf.get("/api/app/" + idapp, { raw: false });
+        let apps_res = await uf.get("/system/main/app/" + idapp, {
+          raw: false,
+        });
         app = await apps_res.json();
-        console.log(app);
+        //console.log(app);
         if (app) {
           appDataTable = AppToTable(app);
-          console.log("appDataTable = ", appDataTable);
+          //console.log("appDataTable = ", appDataTable);
+          console.log(app);
+          // @ts-ignore
+          getListFunction($userStore.token, app.app);
         }
       } catch (error) {
         // @ts-ignore
@@ -142,7 +145,7 @@
 
   async function saveApp() {
     try {
-      let apps_res = await uf.post("/api/app/0", app);
+      let apps_res = await uf.post("/system/main/app/0", app);
       let rapp = await apps_res.json();
       idapp = rapp.idapp;
 

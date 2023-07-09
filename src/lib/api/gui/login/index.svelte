@@ -24,7 +24,7 @@
     // Lógica de autenticación aquí
 
     try {
-      let user = await uf.post("/api/login", { username, password });
+      let user = await uf.post("/system/main/login", { username, password });
       let data = await user.json();
       console.log(data);
 
