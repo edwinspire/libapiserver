@@ -2,8 +2,6 @@ import { Application } from "./models.js";
 import { checkToken } from "../server/utils.js";
 import { createFunction } from "../handler/jsFunction.js";
 
-//const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
-
 // READ
 export const getAppById = async (
   /** @type {import("sequelize").Identifier} */ idapp

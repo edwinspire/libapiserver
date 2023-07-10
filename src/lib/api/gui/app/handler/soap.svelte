@@ -10,8 +10,19 @@
    * @type {EditorCode}
    */
   let fnEditorCode;
-  let jsonParams =
-    "{ wsdl: string; FunctionName: string | any[]; BasicAuthSecurity: { User: any; Password: any; }; RequestArgs: any; }";
+  let jsonParams = JSON.stringify(
+    {
+      wsdl: "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",
+      FunctionName: "NumberToDollars",
+      BasicAuthSecurity: {
+        User: "any",
+        Password: "any",
+      },
+      RequestArgs: {}
+    },
+    null,
+    2
+  );
 
   export function getCode() {
     //fnEditorCode.apply();
@@ -37,11 +48,15 @@
         <li>
           <strong>wsdl:</strong> url where the wsdl is located.
         </li>
+
         <li>
-          <strong>FunctionName:</strong> Function or method to call
+          <strong>FunctionName:</strong> Function or method to call.
         </li>
         <li>
-          <strong>RequestArgs</strong> Nor defined.
+          <strong>BasicAuthSecurity:</strong> Only if required.
+        </li>
+        <li>
+          <strong>RequestArgs:</strong> Better not define it. Internally, the variables that must be sent when consuming the endpoint are assigned.
         </li>
       </ul>
     </div>
