@@ -7,7 +7,11 @@ export const soapFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
+    console.log('method.code -----> ', method.code);
+
     let SOAPParameters = JSON.parse(method.code);
+
+//    console.log(SOAPParameters);
 
     if (!SOAPParameters.RequestArgs) {
       if ($_REQUEST_.method == "GET") {

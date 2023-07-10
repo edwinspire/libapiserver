@@ -32,17 +32,19 @@
 
   // Obtener los cambios del código
   export function getCode() {
-    code = editor.state.doc.toString();
-    console.warn(editor.state.doc, code);
-    return code;
+    let c = FormatJson(editor.state.doc.toString());
+    console.warn('>>> getCode >>>>>>>', editor.state.doc, c, editor.state.doc.toString());
+    return c;
   }
 
   function setCode() {
-    //  console.log("setCode >>> ");
-    let c = code;
-    if (lang == "json") {
-      c = FormatJson(code);
+    if (!editor) {
+      createEditor();
     }
+
+    let c = FormatJson(code);
+    
+    console.log("setCode >>> ", code, c, lang, editor);
 
     if (editor) {
       const transaction = editor.state.update({
@@ -56,21 +58,22 @@
     }
   }
 
-  function FormatJson() {
+  function FormatJson(c) {
     if (lang == "json") {
       try {
-        return JSON.stringify(JSON.parse(code), null, 2);
+        return JSON.stringify(JSON.parse(c), null, 2);
       } catch (error) {
+        console.error(error, c);
         return JSON.stringify({}, null, 2);
       }
     } else {
-      return code;
+      return c;
     }
   }
 
-  onMount(() => {
+  function createEditor() {
     let extensions = [basicSetup];
-    let internalCode = FormatJson();
+    let internalCode = FormatJson(code);
 
     if (lang == "sql") {
       //internalCode = FormatJson(code);
@@ -93,7 +96,10 @@
       extensions: extensions,
       parent: txta,
     });
+  }
 
+  onMount(() => {
+    createEditor();
     /*
       editor.contentDOM.addEventListener("input", () => {
         console.log("Contenido actualizado:");
@@ -101,6 +107,7 @@
       */
 
     // console.log(editor.contentDOM);
+    //  setCode();
   });
 </script>
 

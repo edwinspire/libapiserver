@@ -1,9 +1,8 @@
-import { jsFunction } from "./jsFunction.js";
+import { jsFunction, createFunction } from "./jsFunction.js";
 import { fetchFunction } from "./fetchFunction.js";
 import { soapFunction } from "./soapFunction.js";
 import { sqlFunction } from "./sqlFunction.js";
 import { customFunction } from "./customFunction.js";
-
 
 /**
  * @param {{headers: any;body: any;query: any;}} request
@@ -12,6 +11,17 @@ import { customFunction } from "./customFunction.js";
  * @param {{ [x: string]: (arg0: { method?: any; headers: any; body: any; query: any; }, arg1: { status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }) => void; }} appFunctions
  */
 export function runHandler(request, response, method, appFunctions) {
+  // let f = getFnHandler(method.handler, method.code);
+
+  /*
+  if (f) {
+    // @ts-ignore
+    f(request, response, method, appFunctions);
+  } else {
+    response.status(404).json(`handler ${method.handler} not valid`);
+  }
+*/
+
   switch (method.handler) {
     case "JS":
       jsFunction(request, response, method);
@@ -26,11 +36,40 @@ export function runHandler(request, response, method, appFunctions) {
     case "SQL":
       sqlFunction(request, response, method);
       break;
-	  case 'FUNCTION':
-		customFunction(request, response, method, appFunctions);
-	  break;
+    case "FUNCTION":
+      customFunction(request, response, method, appFunctions);
+      break;
     default:
       response.status(404).json(`handler ${method.handler} not valid`);
       break;
   }
 }
+
+/**
+ * @param {string} handler
+ * @param {string} code
+ */
+/*
+export function getFnHandler(handler, code) {
+  let f;
+  switch (handler) {
+    case "JS":
+      f = createFunction(code);
+      break;
+    case "FETCH":
+      // @ts-ignore
+      f = fetchFunction;
+      break;
+    case "SOAP":
+      f = soapFunction;
+      break;
+    case "SQL":
+      f = sqlFunction;
+      break;
+    case "FUNCTION":
+      f = customFunction;
+      break;
+  }
+  return f;
+}
+*/

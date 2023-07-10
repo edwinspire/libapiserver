@@ -2,7 +2,7 @@ import { Application } from "./models.js";
 import { checkToken } from "../server/utils.js";
 import { createFunction } from "../handler/jsFunction.js";
 
-const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
+//const { EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
 // READ
 export const getAppById = async (
@@ -69,7 +69,6 @@ export function getApiHandler(
   method,
   token
 ) {
-
   let returnHandler = {};
   try {
     // @ts-ignore
@@ -129,13 +128,17 @@ export function getApiHandler(
                           ) {
                             //runHandler(req, res, v[environment][method]);
                             returnHandler.params = v[environment][method];
+                            /*
                             console.log(
                               "returnHandler.params > ",
                               returnHandler.params
                             );
-                            returnHandler.params.jsFn = createFunction(
-                              returnHandler.params.code
-                            );
+                            */
+                            if (returnHandler.params.handler == "JS") {
+                              returnHandler.params.jsFn = createFunction(
+                                returnHandler.params.code
+                              );
+                            }
                             returnHandler.message = "";
                             returnHandler.status = 200;
                           } else {

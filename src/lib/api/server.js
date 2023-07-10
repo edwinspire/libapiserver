@@ -12,7 +12,7 @@ import { Application } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getApiHandler } from "./db/app.js";
 import systemRoutes from "./server/router/system.js";
-
+//import uFetch from "@edwinspire/universal-fetch";
 import { validateToken, defaultSystemPath } from "../api/server/utils.js";
 
 import * as fnSystem from "./server/functions/system.js";
@@ -127,8 +127,10 @@ export class ServerAPI extends EventEmitter {
             req.headers["api-token"]
           );
 
+          console.log("HHHHHH >>>> ", h);
+
           if (h.status == 200) {
-            runHandler(req, res, h.params, this._getFunctions(app));
+              runHandler(req, res, h.params, this._getFunctions(app));
           } else {
             res.status(h.status).json({
               // @ts-ignore
@@ -365,7 +367,7 @@ export class ServerAPI extends EventEmitter {
           );
         }
 
-        //console.log(h);
+        console.log("H >>>> ", h);
 
         if (h.status == 200) {
           this._createWebSocket(request, socket, head, urlData);

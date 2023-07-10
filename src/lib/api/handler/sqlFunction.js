@@ -34,14 +34,16 @@ export const sqlFunction = async (
       } else if (request.method == "POST") {
         // Obtiene los datos del body
         for (let param in request.body) {
-            if (request.body.hasOwnProperty(param)) {
-              const valor = request.body[param];
-              console.log(`Clave: ${param}, Valor: ${valor}`);
-              // @ts-ignore
-              data_bind[param] = valor;
-            }
+          if (request.body.hasOwnProperty(param)) {
+            const valor = request.body[param];
+            console.log(`Clave: ${param}, Valor: ${valor}`);
+            // @ts-ignore
+            data_bind[param] = valor;
           }
+        }
       }
+
+      console.log(config);
 
       let result_query = await sequelize.query(config.query, {
         // @ts-ignore
@@ -50,12 +52,12 @@ export const sqlFunction = async (
         type: QueryTypes.SELECT,
       });
 
-      let data;
+      //let data;
 
-      data = result_query;
+      // data = result_query;
 
       // @ts-ignore
-      response.status(200).json(data);
+      response.status(200).json(result_query);
     } else {
       response
         .status(500)
