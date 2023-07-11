@@ -8,7 +8,7 @@ import { defaultRoles } from "./db/role.js";
 import { defaultMethods } from "./db/method.js";
 import { defaultHandlers } from "./db/handler.js";
 import dbRestAPI from "./db/sequelize.js";
-import { Application } from "./db/models.js";
+import { Application, prefixTableName } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getApiHandler } from "./db/app.js";
 import systemRoutes from "./server/router/system.js";
@@ -101,13 +101,25 @@ export class ServerAPI extends EventEmitter {
     }
 
     // Controlar para que este path sea solo accesible de forma local
-    this.app.post(this._path_api_hooks, validateToken, async (req, res) => {
-      if (req.body && req.body.model) {
-        res.status(200).json(req.body);
-        let path = "/ws/api/hooks/" + req.body.model;
-        this.broadcastByPath(path, req.body);
+    this.app.post(this._path_api_hooks, async (req, res) => {
+      let clientIP = req.ip;
+      if (clientIP === "127.0.0.1" || clientIP === "::1") {
+        if (req.body && req.body.model) {
+          res.status(200).json(req.body);
+          let path = this._path_ws_hooks + "/" + req.body.model;
+
+          console.log("WS HOOKS >>>>> ", path);
+
+          if (req.body.model == prefixTableName("application")) {
+            this._cacheApi.clear();
+          }
+
+          this.broadcastByPath(path, req.body);
+        } else {
+          res.status(404).json(req.body);
+        }
       } else {
-        res.status(404).json(req.body);
+        res.status(403).json({});
       }
     });
 
@@ -130,7 +142,7 @@ export class ServerAPI extends EventEmitter {
           console.log("HHHHHH >>>> ", h);
 
           if (h.status == 200) {
-              runHandler(req, res, h.params, this._getFunctions(app));
+            runHandler(req, res, h.params, this._getFunctions(app));
           } else {
             res.status(h.status).json({
               // @ts-ignore

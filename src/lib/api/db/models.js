@@ -22,7 +22,7 @@ export function prefixTableName(table_name) {
  * @param {string} modelName
  */
 async function hookUpsert(modelName) {
-  //  console.log("---------------------> Options", options, typeof options.model);
+    console.log("---------------------> hookUpsert", modelName);
   await uF.post("", { model: modelName, date: new Date() });
   //  console.log(await data.json());
 }

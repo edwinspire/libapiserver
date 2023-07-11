@@ -66,7 +66,7 @@
     <div slot="message">
       <div class="content is-small">
         <h2>Parameters</h2>
-        Url to make the request. The operation is similar to a proxy
+        Configuration parameters used by sequelize, visit <a href="https://sequelize.org/">https://sequelize.org/</a> for more information.
       </div>
     </div>
   </EditorCode>
