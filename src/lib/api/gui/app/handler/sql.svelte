@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { Tab } from "@edwinspire/svelte-components";
   import EditorCode from "./editorCode.svelte";
   import EditorCode2 from "./editorCode.svelte";
 
@@ -12,12 +13,12 @@
    */
   let fnEditorCode;
 
+  let tabList = [{ label: "Query", isActive: true }, { label: "Config Connection" }, {label: 'App Parameters'}];
+
   /**
    * @type {EditorCode}
    */
   let fnEditorCode2;
-  let instrucionsParams = "";
-  let instrucionsQuery = "";
   let params_code = "{}";
   let query_code = "SELECT 1+1;";
   $: code, ParseCode();
@@ -44,7 +45,6 @@
     //fnEditorCode.apply();
     let p = fnEditorCode.getCode();
     let q = fnEditorCode2.getCode();
-
     try {
       let c = JSON.parse(p);
       c.query = q;
@@ -61,24 +61,35 @@
   });
 </script>
 
-<div>
-  <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode}>
-    <div slot="message">
-      <div class="content is-small">
-        <h2>Parameters</h2>
-        Configuration parameters used by sequelize, visit <a href="https://sequelize.org/">https://sequelize.org/</a> for more information.
-      </div>
-    </div>
-  </EditorCode>
-</div>
+<Tab bind:tabs={tabList}>
+  <div class={tabList[0].isActive?'':'is-hidden'}>
+    <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
+      ><div slot="message">
+        <div class="content is-small">
+          Query to be executed. The parameters must have a name like<span
+            style="font-style: oblique">$nameparameter</span
+          >
+          which bind to the values ​​you send in the request.
+          <div>
+            For more information you can consult the <a
+              href="https://sequelize.org/docs/v6/core-concepts/raw-queries/#bind-parameter"
+              >sequelize</a
+            > documentation.
+          </div>
+        </div>
+      </div></EditorCode2
+    >
+  </div>
 
-<div>
-  <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
-    ><div slot="message">
-      <div class="content is-small">
-        <h2>Query</h2>
-        Url to make the request. The operation is similar to a proxy
+  <div class={tabList[1].isActive?'':'is-hidden'}>
+    <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode}>
+      <div slot="message">
+        <div class="content is-small">
+          Configuration parameters used by sequelize, visit<a
+            href="https://sequelize.org/">https://sequelize.org/</a
+          > for more information.
+        </div>
       </div>
-    </div></EditorCode2
-  >
-</div>
+    </EditorCode>
+  </div>
+</Tab>
