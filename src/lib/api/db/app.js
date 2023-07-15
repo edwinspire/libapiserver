@@ -141,21 +141,6 @@ export function getApiHandler(
                               for (let i = 0; i < props.length; i++) {
                                 const prop = props[i];
 
-                                /*
-                                console.log(
-                                  prop + ": " + appData.vars[prop],
-                                  returnHandler.params.code
-                                );
-                                */
-
-                                console.log(
-                                  "1>>>>",
-                                  returnHandler.params.code,
-                                  prop,
-                                  appData.vars[prop],
-                                  typeof appData.vars[prop]
-                                );
-
                                 switch (typeof appData.vars[prop]) {
                                   case "string":
                                     returnHandler.params.code =
@@ -178,14 +163,13 @@ export function getApiHandler(
                                       );
                                     break;
                                 }
-
-                                console.log("2>>>>", returnHandler.params.code);
                               }
                             }
 
                             if (returnHandler.params.handler == "JS") {
                               returnHandler.params.jsFn = createFunction(
-                                returnHandler.params.code
+                                returnHandler.params.code,
+                                appData.vars
                               );
                             }
                             returnHandler.message = "";
@@ -352,6 +336,19 @@ export const defaultApps = async () => {
                   prd: {},
                   qa: {},
                   version: "0.01",
+                },
+                {
+                  dev: {
+                    GET: {
+                      code: "$_RETURN_DATA_ = $_VARS_APP;",
+                      enabled: true,
+                      handler: "JS",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.02",
                 },
               ],
             },

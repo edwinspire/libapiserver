@@ -1,13 +1,26 @@
 // @ts-ignore
 import uFetch from "@edwinspire/universal-fetch";
 
-export const createFunction = (/** @type {string} */ code) => {
+export const createFunction = (
+  /** @type {string} */ code,
+  /** @type {string} */ app_vars
+) => {
+  let app_vars_string = "";
+
+  if (app_vars && typeof app_vars === "object") {
+    app_vars_string = `const $_VARS_APP = ${JSON.stringify(app_vars, null, 2)}`;
+  }
+
   let codefunction = `
+${app_vars_string}  
 const {$_REQUEST_, $_UFETCH_} = $_VARS_;
 let $_RETURN_DATA_ = {};
 ${code}
 return $_RETURN_DATA_;
 `;
+
+console.log(codefunction);
+
   return new Function("$_VARS_", codefunction);
 };
 

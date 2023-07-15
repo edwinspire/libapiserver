@@ -140,7 +140,7 @@ export class ServerAPI extends EventEmitter {
             req.headers["api-token"]
           );
 
-          console.log("HHHHHH >>>> ", h);
+         // console.log("HHHHHH >>>> ", h);
 
           if (h.status == 200) {
             runHandler(req, res, h.params, this._getFunctions(app));

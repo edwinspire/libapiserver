@@ -1,12 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import SelectHandlers from "../../widgets/Select.svelte";
-  // @ts-ignore
-  import uFetch from "@edwinspire/universal-fetch";
-  import { userStore, listFunctionStore } from "../../utils";
-  //  import EditorCode from "./editorCode.svelte";
+  import { listFunctionStore } from "../../utils";
 
-  let uF = new uFetch();
   /**
    * @type {any[]}
    */
