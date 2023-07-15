@@ -6,17 +6,17 @@ export const sqlFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
-    let config = JSON.parse(method.code);
+    let paramsSQL = JSON.parse(method.code);
 
-    console.log("Config sqlFunction", config, request.method);
+    console.log("Config sqlFunction", paramsSQL, request.method);
 
     // Verificar las configuraciones minimas
-    if (config && config.options && config.query) {
+    if (paramsSQL && paramsSQL.config.options && paramsSQL.query) {
       const sequelize = new Sequelize(
-        config.database,
-        config.username,
-        config.password,
-        config.options
+        paramsSQL.config.database,
+        paramsSQL.config.username,
+        paramsSQL.config.password,
+        paramsSQL.config.options
       );
 
       let data_bind = {};
@@ -43,9 +43,9 @@ export const sqlFunction = async (
         }
       }
 
-      console.log(config);
+//      console.log(config);
 
-      let result_query = await sequelize.query(config.query, {
+      let result_query = await sequelize.query(paramsSQL.query, {
         // @ts-ignore
         bind: data_bind,
         // @ts-ignore

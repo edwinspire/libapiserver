@@ -152,7 +152,8 @@ export function getApiHandler(
                                   "1>>>>",
                                   returnHandler.params.code,
                                   prop,
-                                  appData.vars[prop]
+                                  appData.vars[prop],
+                                  typeof appData.vars[prop]
                                 );
 
                                 switch (typeof appData.vars[prop]) {
@@ -164,6 +165,12 @@ export function getApiHandler(
                                       );
                                     break;
                                   case "object":
+                                    returnHandler.params.code =
+                                      returnHandler.params.code.replace(
+                                        '"' + prop + '"',
+                                        JSON.stringify(appData.vars[prop])
+                                      );
+
                                     returnHandler.params.code =
                                       returnHandler.params.code.replace(
                                         prop,
@@ -367,7 +374,7 @@ export const defaultApps = async () => {
                 {
                   dev: {
                     GET: {
-                      code: '$_VAR_SOAP_TEST',
+                      code: '"$_VAR_SOAP_TEST"',
                       enabled: true,
                       handler: "SOAP",
                       public: true,
@@ -376,7 +383,7 @@ export const defaultApps = async () => {
                   prd: {},
                   qa: {},
                   version: "0.02",
-                }
+                },
               ],
             },
             {
@@ -385,7 +392,7 @@ export const defaultApps = async () => {
                 {
                   dev: {
                     GET: {
-                      code: '{\n  "database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  },\n  "query": "SELECT 1097 AS test_sql;"\n}',
+                      code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},  "query": "SELECT 1097 AS test_sql;"\n}',
                       enabled: true,
                       handler: "SQL",
                       public: true,
@@ -398,7 +405,7 @@ export const defaultApps = async () => {
                 {
                   dev: {
                     GET: {
-                      code: '{\n  "database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  },\n  "query": "SELECT $name as nombre;"\n}',
+                      code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},\n  "query": "SELECT $name as nombre;"\n}',
                       enabled: true,
                       handler: "SQL",
                       public: true,
@@ -411,7 +418,7 @@ export const defaultApps = async () => {
                 {
                   dev: {
                     GET: {
-                      code: '{\n  "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "192.168.240.8",\n    "port": 5433,\n    "dialect": "postgres"\n  },\n  "query": "SELECT NOW();"\n}',
+                      code: '{"config": { "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "132.128.241.18",\n    "port": 5432,\n    "dialect": "postgres"\n  }}, "query": "SELECT NOW();"\n}',
                       enabled: true,
                       handler: "SQL",
                       public: true,
@@ -424,7 +431,7 @@ export const defaultApps = async () => {
                 {
                   dev: {
                     GET: {
-                      code: '{\n  "database": "msdb",\n  "username": "sa",\n  "password": "sqlfarma",\n  "options": {\n    "host": "192.168.238.38",\n    "dialect": "mssql",\n    "encrypt": false\n  },\n  "query": "SELECT\\n    job_id AS [Job ID],\\n    name AS [Job Name],\\n    enabled AS [Is Enabled]\\nFROM\\n    msdb.dbo.sysjobs;"\n}',
+                      code: '{"config": { "database": "msdb",\n  "username": "sa",\n  "password": "sqlkarma",\n  "options": {\n    "host": "192.168.138.30",\n    "dialect": "mssql",\n    "encrypt": false\n  }}, "query": "SELECT\\n    job_id AS [Job ID],\\n    name AS [Job Name],\\n    enabled AS [Is Enabled]\\nFROM\\n    msdb.dbo.sysjobs;"\n}',
                       enabled: true,
                       handler: "SQL",
                       public: true,
@@ -433,6 +440,20 @@ export const defaultApps = async () => {
                   prd: {},
                   qa: {},
                   version: 0.04,
+                },
+
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "config": "$_VAR_SQLITE",\n  "query": "SELECT $name as nombre, strftime(\'%Y-%m-%d %H-%M-%S\',\'now\') AS dt;"\n}',
+                      enabled: true,
+                      handler: "SQL",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: 0.05,
                 },
               ],
             },
@@ -446,14 +467,23 @@ export const defaultApps = async () => {
       $_VAR_DEMO_1: 10,
       $_VAR_DEMO_2: { host: "google.com", var1: { a: 10, b: { casti: 3 } } },
       $_VAR_FETCH: "https://api.github.com/users/auth0",
+      $_VAR_SQLITE: {
+        database: "memory",
+        username: "",
+        password: "",
+        options: {
+          host: "localhost",
+          dialect: "sqlite",
+        },
+      },
       $_VAR_SOAP_TEST: {
-        "wsdl": "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",
-        "FunctionName": "NumberToDollars",
-        "BasicAuthSecurity": {
-          "User": "any",
-          "Password": "any"
-        }
-      }
+        wsdl: "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",
+        FunctionName: "NumberToDollars",
+        BasicAuthSecurity: {
+          User: "any",
+          Password: "any",
+        },
+      },
     };
 
     try {

@@ -35,10 +35,14 @@
       if (params && params.query) {
         query_code = params.query;
         // @ts-ignore
-        delete params.query;
+        // delete params.query;
       }
 
-      params_code = JSON.stringify(params);
+      if (params && params.config) {
+        params_code = JSON.stringify(params.config);
+      }
+
+      //params_code = JSON.stringify(params);
     } catch (error) {
       params_code = "{}";
       query_code = "SELECT 1;";
