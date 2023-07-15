@@ -148,7 +148,12 @@ export function getApiHandler(
                                 );
                                 */
 
-                                console.log("1>>>>", returnHandler.params.code, prop, appData.vars[prop]);
+                                console.log(
+                                  "1>>>>",
+                                  returnHandler.params.code,
+                                  prop,
+                                  appData.vars[prop]
+                                );
 
                                 switch (typeof appData.vars[prop]) {
                                   case "string":
@@ -310,6 +315,19 @@ export const defaultApps = async () => {
                   qa: {},
                   version: "0.01",
                 },
+                {
+                  dev: {
+                    GET: {
+                      code: "$_VAR_FETCH",
+                      enabled: true,
+                      handler: "FETCH",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.02",
+                },
               ],
             },
             {
@@ -412,8 +430,9 @@ export const defaultApps = async () => {
     };
 
     let varsDemo = {
-      $_VAR_DEMO_1: "var string",
-      $_VAR_DEMO_2: { host: "google.com" },
+      $_VAR_DEMO_1: 10,
+      $_VAR_DEMO_2: { host: "google.com", var1: { a: 10, b: { casti: 3 } } },
+      $_VAR_FETCH: "https://api.github.com/users/auth0",
     };
 
     try {
