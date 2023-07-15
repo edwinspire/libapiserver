@@ -8,8 +8,6 @@
   import { sql } from "@codemirror/lang-sql";
   import { json } from "@codemirror/lang-json";
 
-  //import { linter } from "@codemirror/lint";
-
   const languageConf = new Compartment();
 
   /**
@@ -33,7 +31,7 @@
   // Obtener los cambios del código
   export function getCode() {
     let c = FormatJson(editor.state.doc.toString());
-    console.warn('>>> getCode >>>>>>>', editor.state.doc, c, editor.state.doc.toString());
+    //console.warn('>>> getCode >>>>>>>', editor.state.doc, c, editor.state.doc.toString());
     return c;
   }
 
@@ -43,8 +41,6 @@
     }
 
     let c = FormatJson(code);
-    
-    console.log("setCode >>> ", code, c, lang, editor);
 
     if (editor) {
       const transaction = editor.state.update({
@@ -89,8 +85,6 @@
       ];
     }
 
-    //    console.log("onMount: ", code, internalCode);
-
     editor = new EditorView({
       doc: internalCode,
       extensions: extensions,
@@ -100,14 +94,6 @@
 
   onMount(() => {
     createEditor();
-    /*
-      editor.contentDOM.addEventListener("input", () => {
-        console.log("Contenido actualizado:");
-      });
-      */
-
-    // console.log(editor.contentDOM);
-    //  setCode();
   });
 </script>
 
