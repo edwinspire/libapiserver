@@ -8,7 +8,7 @@ export const getAppById = async (
 ) => {
   try {
     const app = await Application.findByPk(idapp, {
-      attributes: ["idapp", "app", "rowkey", "data"],
+      attributes: ["idapp", "app", "data", "vars"],
     });
     return app;
   } catch (error) {
@@ -132,6 +132,45 @@ export function getApiHandler(
                               returnHandler.params
                             );
                             */
+
+                            if (
+                              appData.vars &&
+                              typeof appData.vars === "object"
+                            ) {
+                              const props = Object.keys(appData.vars);
+                              for (let i = 0; i < props.length; i++) {
+                                const prop = props[i];
+
+                                /*
+                                console.log(
+                                  prop + ": " + appData.vars[prop],
+                                  returnHandler.params.code
+                                );
+                                */
+
+                                console.log("1>>>>", returnHandler.params.code, prop, appData.vars[prop]);
+
+                                switch (typeof appData.vars[prop]) {
+                                  case "string":
+                                    returnHandler.params.code =
+                                      returnHandler.params.code.replace(
+                                        prop,
+                                        appData.vars[prop]
+                                      );
+                                    break;
+                                  case "object":
+                                    returnHandler.params.code =
+                                      returnHandler.params.code.replace(
+                                        prop,
+                                        JSON.stringify(appData.vars[prop])
+                                      );
+                                    break;
+                                }
+
+                                console.log("2>>>>", returnHandler.params.code);
+                              }
+                            }
+
                             if (returnHandler.params.handler == "JS") {
                               returnHandler.params.jsFn = createFunction(
                                 returnHandler.params.code
@@ -195,3 +234,202 @@ export function getApiHandler(
 
   return returnHandler;
 }
+
+export const defaultApps = async () => {
+  try {
+    console.log(" defaultApps >>>>>> ");
+
+    let appDemo = {
+      enabled: true,
+      namespaces: [
+        {
+          names: [
+            {
+              name: "test_functions",
+              versions: [
+                {
+                  dev: {
+                    GET: {
+                      code: "fnPublicAdd",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                    POST: {
+                      code: "fnPublicDemo",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                  },
+                  prd: {
+                    GET: {
+                      code: "fnPublicAdd",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                    POST: {
+                      code: "fnPublicDemo",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                  },
+                  qa: {
+                    GET: {
+                      code: "fnPublicAdd",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                    POST: {
+                      code: "fnPublicDemo",
+                      enabled: true,
+                      handler: "FUNCTION",
+                      public: true,
+                    },
+                  },
+                  version: "0.01",
+                },
+              ],
+            },
+            {
+              name: "test_fetch",
+              versions: [
+                {
+                  dev: {
+                    GET: {
+                      code: "https://api.github.com/users/edwinspire",
+                      enabled: true,
+                      handler: "FETCH",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.01",
+                },
+              ],
+            },
+            {
+              name: "test_javascript",
+              versions: [
+                {
+                  dev: {
+                    GET: {
+                      code: "$_RETURN_DATA_ = {name: $_REQUEST_.query.name};",
+                      enabled: true,
+                      handler: "JS",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.01",
+                },
+              ],
+            },
+            {
+              name: "test_soap",
+              versions: [
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "wsdl": "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",\n  "FunctionName": "NumberToDollars",\n  "BasicAuthSecurity": {\n    "User": "any",\n    "Password": "any"\n  }\n}',
+                      enabled: true,
+                      handler: "SOAP",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.01",
+                },
+              ],
+            },
+            {
+              name: "test_sql",
+              versions: [
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  },\n  "query": "SELECT 1097 AS test_sql;"\n}',
+                      enabled: true,
+                      handler: "SQL",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: "0.01",
+                },
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  },\n  "query": "SELECT $name as nombre;"\n}',
+                      enabled: true,
+                      handler: "SQL",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: 0.02,
+                },
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "192.168.240.8",\n    "port": 5433,\n    "dialect": "postgres"\n  },\n  "query": "SELECT NOW();"\n}',
+                      enabled: true,
+                      handler: "SQL",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: 0.03,
+                },
+                {
+                  dev: {
+                    GET: {
+                      code: '{\n  "database": "msdb",\n  "username": "sa",\n  "password": "sqlfarma",\n  "options": {\n    "host": "192.168.238.38",\n    "dialect": "mssql",\n    "encrypt": false\n  },\n  "query": "SELECT\\n    job_id AS [Job ID],\\n    name AS [Job Name],\\n    enabled AS [Is Enabled]\\nFROM\\n    msdb.dbo.sysjobs;"\n}',
+                      enabled: true,
+                      handler: "SQL",
+                      public: true,
+                    },
+                  },
+                  prd: {},
+                  qa: {},
+                  version: 0.04,
+                },
+              ],
+            },
+          ],
+          namespace: "main",
+        },
+      ],
+    };
+
+    let varsDemo = {
+      $_VAR_DEMO_1: "var string",
+      $_VAR_DEMO_2: { host: "google.com" },
+    };
+
+    try {
+      await Application.upsert({
+        idapp: 1,
+        app: "demo",
+        data: appDemo,
+        vars: varsDemo,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    return;
+  } catch (error) {
+    console.error("Example error:", error);
+    return;
+  }
+};

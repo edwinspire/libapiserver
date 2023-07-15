@@ -11,7 +11,7 @@
   } from "@edwinspire/svelte-components";
   import { onMount } from "svelte";
   import { createEventDispatcher } from "svelte";
-  import { userStore, getListFunction } from "../utils.js";
+  import { userStore, getListFunction, listAppVars } from "../utils.js";
   import CellMethods from "./cellMethods.svelte";
   import MethodDialog from "./method.svelte";
   import { AppToTable, TableToApp } from "../../db/utils.js";
@@ -125,8 +125,9 @@
         //console.log(app);
         if (app) {
           appDataTable = AppToTable(app);
+          listAppVars.set(app.vars);
           //console.log("appDataTable = ", appDataTable);
-          console.log(app);
+          //console.log(app);
           // @ts-ignore
           getListFunction($userStore.token, app.app);
         }

@@ -22,7 +22,7 @@ export function prefixTableName(table_name) {
  * @param {string} modelName
  */
 async function hookUpsert(modelName) {
-    console.log("---------------------> hookUpsert", modelName);
+  console.log("---------------------> hookUpsert", modelName);
   await uF.post("", { model: modelName, date: new Date() });
   //  console.log(await data.json());
 }
@@ -255,6 +255,9 @@ export const Application = dbsequelize.define(
     data: {
       type: DataTypes.JSON,
     },
+    vars: {
+      type: DataTypes.JSON,
+    },
   },
   {
     freezeTableName: true,
@@ -288,6 +291,14 @@ export const Application = dbsequelize.define(
   }
 );
 
+User.belongsTo(Role, {
+  foreignKey: "idrole",
+  targetKey: "idrole",
+  as: 'role'
+});
+
+/*
 // Define la relación entre User y Role
-User.belongsTo(Role, { foreignKey: "idrole", as: "role" });
-Role.hasMany(User, { foreignKey: "idrole", as: "users1" });
+User.belongsTo(Role, { foreignKey: "idrole" });
+Role.hasMany(User, { foreignKey: "idrole" });
+*/

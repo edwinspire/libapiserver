@@ -3,6 +3,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import express from "express";
 import { createServer } from "http";
 import { EventEmitter } from "node:events";
+import { defaultApps } from "./db/app.js";
 import { defaultUser } from "./db/user.js";
 import { defaultRoles } from "./db/role.js";
 import { defaultMethods } from "./db/method.js";
@@ -53,7 +54,7 @@ export class ServerAPI extends EventEmitter {
     this._path_ws_hooks = PATH_WS_HOOKS || "/system/ws/hooks";
     this.buildDB(buildDB);
 
-    defaultUser();
+    //    defaultUser();
 
     this.app = express();
     this._httpServer = createServer(this.app);
@@ -314,10 +315,10 @@ export class ServerAPI extends EventEmitter {
       try {
         const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
         if (!this._cacheApi.has(apiPath)) {
-          console.log(">>>> NO usa cache", apiPath);
+          
           // Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
           let appData = await Application.findOne({ where: { app: app } });
-
+          console.log(">>>> NO usa cache", apiPath, appData);
           this._cacheApi.set(
             apiPath,
             getApiHandler(
@@ -399,7 +400,7 @@ export class ServerAPI extends EventEmitter {
    */
   buildDB(buildDB) {
     if (buildDB) {
-      dbRestAPI.sync({ alter: true }).then(
+      dbRestAPI.sync({ alter: false }).then(
         async () => {
           console.log("Crea la base de datos");
 
@@ -416,13 +417,19 @@ export class ServerAPI extends EventEmitter {
           }
 
           try {
-            defaultMethods();
+            await defaultMethods();
           } catch (error) {
             console.log(error);
           }
 
           try {
-            defaultHandlers();
+            await defaultHandlers();
+          } catch (error) {
+            console.log(error);
+          }
+
+          try {
+            await defaultApps();
           } catch (error) {
             console.log(error);
           }

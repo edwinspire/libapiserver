@@ -55,6 +55,8 @@ router.post(defaultSystemPath("login"), async (req, res) => {
       EncryptPwd(req.body.password)
     );
 
+//console.log(user);
+
     if (user) {
       let u = { ...user.dataValues };
 
@@ -80,6 +82,7 @@ router.post(defaultSystemPath("login"), async (req, res) => {
       res.status(401).json(customError(2));
     }
   } catch (error) {
+    console.log(error);
     // @ts-ignore
     res.status(500).json({ error: error.message });
   }

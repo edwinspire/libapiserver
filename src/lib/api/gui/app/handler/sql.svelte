@@ -3,6 +3,7 @@
   import { Tab } from "@edwinspire/svelte-components";
   import EditorCode from "./editorCode.svelte";
   import EditorCode2 from "./editorCode.svelte";
+  import Vars from "../vars.svelte";
 
   /**
    * @type {any}
@@ -13,7 +14,11 @@
    */
   let fnEditorCode;
 
-  let tabList = [{ label: "Query", isActive: true }, { label: "Config Connection" }, {label: 'App Parameters'}];
+  let tabList = [
+    { label: "Query", isActive: true },
+    { label: "Config Connection" },
+    { label: "App Variables" },
+  ];
 
   /**
    * @type {EditorCode}
@@ -62,7 +67,7 @@
 </script>
 
 <Tab bind:tabs={tabList}>
-  <div class={tabList[0].isActive?'':'is-hidden'}>
+  <div class={tabList[0].isActive ? "" : "is-hidden"}>
     <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
       ><div slot="message">
         <div class="content is-small">
@@ -81,7 +86,7 @@
     >
   </div>
 
-  <div class={tabList[1].isActive?'':'is-hidden'}>
+  <div class={tabList[1].isActive ? "" : "is-hidden"}>
     <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode}>
       <div slot="message">
         <div class="content is-small">
@@ -91,5 +96,9 @@
         </div>
       </div>
     </EditorCode>
+  </div>
+
+  <div class={tabList[2].isActive ? "" : "is-hidden"}>
+    <Vars />
   </div>
 </Tab>

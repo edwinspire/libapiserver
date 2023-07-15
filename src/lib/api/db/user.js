@@ -74,6 +74,7 @@ export const getUserByCredentials = async (username, password) => {
         model: Role,
         as: "role",
         attributes: ["role", "type", "enabled", "attrs"],
+        required: true,
       },
     ],
   });

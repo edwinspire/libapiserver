@@ -7,6 +7,8 @@ export const userStore = writable({});
 export const listMethodStore = writable({});
 export const listHandlerStore = writable({});
 export const listFunctionStore = writable({});
+export const listAppVars = writable({});
+
 
 export const getListFunction = async (/** @type {string} */ token, /** @type {string} */ appName) => {
   let f = new uFetch();
