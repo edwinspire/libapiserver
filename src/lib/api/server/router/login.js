@@ -55,7 +55,7 @@ router.post(defaultSystemPath("login"), async (req, res) => {
       EncryptPwd(req.body.password)
     );
 
-//console.log(user);
+console.log(user);
 
     if (user) {
       let u = { ...user.dataValues };

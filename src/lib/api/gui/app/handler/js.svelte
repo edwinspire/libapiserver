@@ -7,11 +7,6 @@
 
   export let code;
   let fnEditorCode;
-  let instrucions = `// Predefined variables<br/>
-      let RETURN_DATA = {};  // Variable that returns the return of the function<br/>
-      let $_UFETCH_ = {}; // Instance of the uFetch class<br>
-  let $_REQUEST_ = {}; // Represents the HTTP request received by the server. Contains information about the request made by the client, such as URL parameters, headers, body data, and more.<br>
-  `;
 
   let tabList = [
     { label: "Parameters", isActive: true },
@@ -28,7 +23,7 @@
 
 <Tab bind:tabs={tabList}>
   <div class={tabList[0].isActive ? "" : "is-hidden"}>
-    <EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions}>
+    <EditorCode lang="js" bind:code bind:this={fnEditorCode}>
       <div slot="message">
         <div class="content is-small">
           <h3>Predefined variables</h3>

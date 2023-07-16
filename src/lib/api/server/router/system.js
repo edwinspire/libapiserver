@@ -4,6 +4,7 @@ import loginRoutes from "./login.js";
 import handlersRoutes from "./handler.js";
 import methodsRoutes from "./method.js";
 import usersRoutes from "./user.js";
+import rolesRoutes from "./role.js";
 
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.use(loginRoutes);
 router.use(handlersRoutes);
 router.use(methodsRoutes);
 router.use(usersRoutes);
+router.use(rolesRoutes);
 
 export default router;

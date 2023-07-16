@@ -14,6 +14,7 @@
   //import CellMethods from " ./cellMethods.svelte";
   //import MethodDialog from "./method.svelte";
   import { AppToTable, TableToApp } from "../../db/utils.js";
+  import CellAttrs from "../app/cellMethodsAttrs.svelte";
 
   let uf = new uFetch();
   let methodList = [];
@@ -53,6 +54,20 @@
 
       if (mtds && Array.isArray(mtds) && mtds.length > 0) {
         for (let i = 0; i < mtds.length; i++) {
+          console.log(">>>>>>> mtds[i].method >>>>>", mtds[i].method);
+
+          // @ts-ignore
+          if (!columns[mtds[i].method]) {
+            // @ts-ignore
+            columns[mtds[i].method] = {
+              label: mtds[i].label,
+              decorator: { component: CellAttrs },
+            };
+          }
+
+          // @ts-ignore
+          //columns[mtds[i].method].decorator.component = CellAttrs;
+
           // @ts-ignore
           result[mtds[i].label] = {
             consume: false,
@@ -63,7 +78,7 @@
             upgrade: false,
           };
         }
-        //console.log('>>x> mtds', mtds);
+        console.log(">> COLUMNS > ", columns);
         return result;
       } else {
         return result;

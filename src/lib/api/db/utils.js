@@ -44,7 +44,7 @@ export function AppToTable(json) {
     }
   }
 
-  console.log("AppToTable = ", result);
+  //console.log("AppToTable = ", result);
   return result;
 }
 

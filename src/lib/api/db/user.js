@@ -1,4 +1,5 @@
 import { User, Role } from "./models.js";
+import { getRoleById } from "./role.js";
 import { EncryptPwd } from "../server/utils.js";
 
 export const upsertUser = async (
@@ -58,7 +59,7 @@ export const deleteUser = async (
  * @param {string} password
  */
 export const getUserByCredentials = async (username, password) => {
-  return await User.findOne({
+  let dataUser = await User.findOne({
     where: { username: username, password: password },
     attributes: [
       "iduser",
@@ -69,15 +70,24 @@ export const getUserByCredentials = async (username, password) => {
       "email",
       "idrole",
     ],
-    include: [
-      {
-        model: Role,
-        as: "role",
-        attributes: ["role", "type", "enabled", "attrs"],
-        required: true,
-      },
-    ],
   });
+
+  if (dataUser) {
+    dataUser.dataValues.role = await getRoleById(
+      dataUser?.dataValues.idrole,
+      true
+    );
+
+    /*
+    if (dataUser.dataValues.role) {
+      if (!dataUser.dataValues.role.dataValues.enabled) {
+        dataUser.dataValues.role = {};
+      }
+    }
+    */
+  }
+
+  return dataUser;
 };
 
 // Usage examples
