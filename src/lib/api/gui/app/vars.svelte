@@ -1,9 +1,9 @@
 <script>
   // @ts-nocheck
-
   import { onMount } from "svelte";
   import { listAppVars } from "../utils";
   import EditorCode from "./handler/editorCode.svelte";
+  import CodeHTML from "../widgets/codeHTML.svelte";
 
   // export let vars = {};
   export let editable = false;
@@ -28,20 +28,8 @@
     {:else}
       <details>
         <summary><strong>{varKey}</strong></summary>
-        <div class="margin_code">
-          <code>
-            {@html JSON.stringify(Datavars[varKey], null, 4)
-              .replace(/\n/g, "<br/>")
-              .replace(/ /g, "&nbsp;")}
-          </code>
-        </div>
+        <CodeHTML bind:jsonObject={Datavars[varKey]} />
       </details>
     {/if}
   {/each}
 </div>
-
-<style>
-  .margin_code {
-    margin-left: 2em;
-  }
-</style>

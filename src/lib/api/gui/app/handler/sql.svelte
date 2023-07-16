@@ -17,7 +17,7 @@
 
   let tabList = [
     { label: "Query", isActive: true },
-    { label: "Config Connection" },
+    { label: "Connection Parameters" },
     { label: "App Variables" },
   ];
 
@@ -72,7 +72,7 @@
     <EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
       ><div slot="message">
         <div class="content is-small">
-          Query to be executed. The parameters must have a name like<span
+          Query to be executed. The parameters must have a name like <span
             style="font-style: oblique">$nameparameter</span
           >
           which bind to the values ​​you send in the request.
@@ -91,7 +91,7 @@
     <EditorCode lang="json" bind:code={params_code} bind:this={fnEditorCode}>
       <div slot="message">
         <div class="content is-small">
-          Configuration parameters used by sequelize, visit<a
+          Configuration parameters used by sequelize, visit <a
             href="https://sequelize.org/">https://sequelize.org/</a
           > for more information.
         </div>

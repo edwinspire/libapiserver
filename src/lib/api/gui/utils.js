@@ -10,6 +10,12 @@ export const listFunctionStore = writable({});
 export const listAppVars = writable({});
 
 
+export const formatJsonForHtmlCode = (/** @type {any} */ json)=>{
+ return JSON.stringify(json, null, 2)
+  .replace(/\n/g, "<br/>")
+  .replace(/ /g, "&nbsp;")
+}
+
 export const getListFunction = async (/** @type {string} */ token, /** @type {string} */ appName) => {
   let f = new uFetch();
   f.addHeader("api-token", token);
