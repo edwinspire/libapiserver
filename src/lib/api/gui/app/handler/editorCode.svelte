@@ -97,8 +97,10 @@
   });
 </script>
 
-{#if $$slots.message}
-  <slot name="message" />
-{/if}
-
-<div class="box" bind:this={txta} />
+<div class="box">
+  {#if $$slots.message}
+    <slot name="message" />
+  {/if}
+  <br />
+  <div bind:this={txta} />
+</div>

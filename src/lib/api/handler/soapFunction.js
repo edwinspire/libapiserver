@@ -7,7 +7,7 @@ export const soapFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
-    console.log('method.code -----> ', method.code);
+//    console.log('method.code -----> ', method.code);
 
     let SOAPParameters = JSON.parse(method.code);
 

@@ -5,7 +5,7 @@
   import EditorCode from "./editorCode.svelte";
   import { Tab } from "@edwinspire/svelte-components";
   import Vars from "../vars.svelte";
-  import { formatJsonForHtmlCode } from "../../utils";
+  import CodeHTML from "../../widgets/codeHTML.svelte";
 
   /**
    * @type {any}
@@ -22,19 +22,15 @@
    * @type {EditorCode}
    */
   let fnEditorCode;
-  let jsonParams = JSON.stringify(
-    {
-      wsdl: "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",
-      FunctionName: "NumberToDollars",
-      BasicAuthSecurity: {
-        User: "any",
-        Password: "any",
-      },
-      RequestArgs: {},
+  let jsonParams = {
+    wsdl: "https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL",
+    FunctionName: "NumberToDollars",
+    BasicAuthSecurity: {
+      User: "any",
+      Password: "any",
     },
-    null,
-    2
-  );
+    RequestArgs: {},
+  };
 
   export function getCode() {
     //fnEditorCode.apply();
@@ -48,34 +44,42 @@
 
 <Tab bind:tabs={tabList}>
   <div class={tabList[0].isActive ? "" : "is-hidden"}>
-    <EditorCode lang="json" bind:code bind:this={fnEditorCode} />
+    <EditorCode lang="json" bind:code bind:this={fnEditorCode}>
+      <div slot="message">Service connection parameters.</div>
+    </EditorCode>
   </div>
   <div class={tabList[1].isActive ? "" : "is-hidden"}>
     Enter the parameters in json format like the following example:
-    <code>
-      {@html formatJsonForHtmlCode(jsonParams)}
-    </code>
+    <CodeHTML bind:jsonObject={jsonParams} />
+    <div style="margin-top: 1em;">
+      The variables with the following:
+      <ul class="list_params">
+        <li>
+          <strong>wsdl:</strong> url where the wsdl is located.
+        </li>
 
-    The variables with the following:
-    <ul>
-      <li>
-        <strong>wsdl:</strong> url where the wsdl is located.
-      </li>
-
-      <li>
-        <strong>FunctionName:</strong> Function or method to call.
-      </li>
-      <li>
-        <strong>BasicAuthSecurity:</strong> Only if required.
-      </li>
-      <li>
-        <strong>RequestArgs:</strong> Better not define it. Internally, the variables
-        that must be sent when consuming the endpoint are assigned.
-      </li>
-    </ul>
+        <li>
+          <strong>FunctionName:</strong> Function or method to call.
+        </li>
+        <li>
+          <strong>BasicAuthSecurity:</strong> Only if required.
+        </li>
+        <li>
+          <strong>RequestArgs:</strong> Better not define it. Internally, the variables
+          that must be sent when consuming the endpoint are assigned.
+        </li>
+      </ul>
+    </div>
   </div>
 
   <div class={tabList[2].isActive ? "" : "is-hidden"}>
     <Vars />
   </div>
 </Tab>
+
+<style>
+  .list_params {
+    margin-left: 2em;
+    list-style: disc;
+  }
+</style>

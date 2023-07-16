@@ -22,5 +22,6 @@
     border-color: #fff #fafafa #fff #4c63c8;
     border-style: solid;
     border-width: 1px;
+    padding-left: 1em;
   }
 </style>
