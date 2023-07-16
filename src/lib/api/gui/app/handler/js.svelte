@@ -23,7 +23,7 @@
 <EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions}>
   <div slot="message">
     <div class="content is-small">
-      <h2>Predefined variables</h2>
+      <h3>Predefined variables</h3>
       <ul>
         <li>
           <strong>$_RETURN_DATA_:</strong> Variable that returns the return of the
