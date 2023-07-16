@@ -1,8 +1,9 @@
 <script>
   // @ts-nocheck
-
   import { onMount } from "svelte";
   import EditorCode from "./editorCode.svelte";
+  import { Tab } from "@edwinspire/svelte-components";
+  import Vars from "../vars.svelte";
 
   export let code;
   let fnEditorCode;
@@ -12,6 +13,11 @@
   let $_REQUEST_ = {}; // Represents the HTTP request received by the server. Contains information about the request made by the client, such as URL parameters, headers, body data, and more.<br>
   `;
 
+  let tabList = [
+    { label: "Parameters", isActive: true },
+    { label: "App Variables" },
+  ];
+
   export function getCode() {
     //    console.log(">> getCode en JS.SVELTE ", );
     return fnEditorCode.getCode();
@@ -20,22 +26,30 @@
   onMount(() => {});
 </script>
 
-<EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions}>
-  <div slot="message">
-    <div class="content is-small">
-      <h3>Predefined variables</h3>
-      <ul>
-        <li>
-          <strong>$_RETURN_DATA_:</strong> Variable that returns the return of the
-          function
-        </li>
-        <li><strong>$_UFETCH_:</strong> Instance of the uFetch class</li>
-        <li>
-          <strong>$_REQUEST_</strong> Represents the HTTP request received by the
-          server. Contains information about the request made by the client, such
-          as URL parameters, headers, body data, and more.
-        </li>
-      </ul>
-    </div>
+<Tab bind:tabs={tabList}>
+  <div class={tabList[0].isActive ? "" : "is-hidden"}>
+    <EditorCode lang="js" bind:code bind:this={fnEditorCode} {instrucions}>
+      <div slot="message">
+        <div class="content is-small">
+          <h3>Predefined variables</h3>
+          <ul>
+            <li>
+              <strong>$_RETURN_DATA_:</strong> Variable that returns the return of
+              the function
+            </li>
+            <li><strong>$_UFETCH_:</strong> Instance of the uFetch class</li>
+            <li>
+              <strong>$_REQUEST_</strong> Represents the HTTP request received by
+              the server. Contains information about the request made by the client,
+              such as URL parameters, headers, body data, and more.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </EditorCode>
   </div>
-</EditorCode>
+
+  <div class={tabList[1].isActive ? "" : "is-hidden"}>
+    <Vars />
+  </div>
+</Tab>
