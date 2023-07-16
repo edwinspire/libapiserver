@@ -1,4 +1,5 @@
 <script>
+  // @ts-nocheck
   import { onMount } from "svelte";
   import { Tab } from "@edwinspire/svelte-components";
   import Vars from "../vars.svelte";
@@ -39,7 +40,6 @@
       if (params && params.config) {
         params_code = JSON.stringify(params.config);
       }
-
     } catch (error) {
       params_code = "{}";
       query_code = "SELECT 1;";
