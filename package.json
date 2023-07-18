@@ -48,6 +48,7 @@
 		"@fontsource/fira-mono": "^4.5.0",
 		"@observablehq/plot": "^0.6.8",
 		"@sveltejs/adapter-node": "^1.0.0-next.86",
+		"aedes": "^0.49.0",
 		"bulma": "^0.9.4",
 		"codemirror": "^6.0.1",
 		"cookie": "^0.4.1",
@@ -60,6 +61,6 @@
 		"soap": "^1.0.0",
 		"sqlite3": "^5.1.6",
 		"tedious": "^16.1.0",
-		"ws": "^8.8.1"
+		"ws": "^8.13.0"
 	}
 }

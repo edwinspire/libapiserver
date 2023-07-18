@@ -1,5 +1,5 @@
 import "dotenv/config";
-import WebSocket, { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer, createWebSocketStream } from "ws";
 import express from "express";
 import { createServer } from "http";
 import { EventEmitter } from "node:events";
@@ -13,8 +13,9 @@ import { Application, prefixTableName } from "./db/models.js";
 import { runHandler } from "./handler/handler.js";
 import { getApiHandler } from "./db/app.js";
 import systemRoutes from "./server/router/system.js";
-//import uFetch from "@edwinspire/universal-fetch";
 import { validateToken, defaultSystemPath } from "../api/server/utils.js";
+
+import aedes from "aedes";
 
 import * as fnSystem from "./server/functions/system.js";
 import * as fnPublic from "./server/functions/public.js";
@@ -30,6 +31,9 @@ const {
   PATH_WS_HOOKS,
 } = process.env;
 
+// Crear instancia de Aedes (broker MQTT)
+//const broker = new aedes();
+//const aedesBroker = new aedes();
 // constructor(httpServer, root_path, authentication_callback) {
 
 export class ServerAPI extends EventEmitter {
@@ -59,7 +63,100 @@ export class ServerAPI extends EventEmitter {
     this.app = express();
     this._httpServer = createServer(this.app);
 
-    this._upgrade();
+    const wss = new WebSocketServer({
+      server: this._httpServer,
+      verifyClient: (info, cb) => {
+        console.log("<<< verifyClient >>>", info.req.headers, info.req.url);
+        cb(true);
+      },
+    });
+
+    wss.on("connection", function (ws) {
+      console.log(">> WS connection >>", ws.protocol, ws.url);
+
+      if (ws.protocol == "mqtt") {
+        const stream = createWebSocketStream(ws);
+        const aedesBroker = new aedes({
+          preConnect: function (client, packet, callback) {
+            console.log("preConnect >>>>> ", client);
+            callback(null, true);
+          },
+          authenticate: function (client, username, password, callback) {
+            console.log(
+              "MQTT authenticate",
+              String(username),
+              String(password)
+            );
+
+            if (username === "demo") {
+              callback(null, true);
+            } else {
+              const error = new Error();
+              error.returnCode = 4;
+              callback(error, false);
+            }
+          },
+        }).handle(stream);
+
+        /*
+ aedesBroker.preConnect = function(client, packet, callback) {
+  console.log('preConnect >>>>> ');
+  callback(null, client.conn.remoteAddress === '::1') 
+}
+*/
+
+        /*
+ aedesBroker.authenticate = function (client, username, password, callback) {
+  
+  console.log('aedesBroker.authenticate ', username, password);
+  callback(null, true)
+}
+*/
+
+        setInterval(() => {
+          const message = {
+            topic: "prueba/top",
+            payload: `{"ok": 890, "id": ${new Date()}`, // El payload debe ser un Buffer o un String
+            qos: 0, // Calidad de servicio (0, 1 o 2)
+            retain: false, // Retener el mensaje en el broker
+            dup: false, // Duplicar el mensaje (solo para QoS > 0)
+          };
+
+          aedesBroker.publish(message, () => {
+            console.log(
+              `Mensaje publicado en el tema "${message.topic}": ${message.payload}`
+            );
+          });
+        }, 5000);
+
+        aedesBroker.on("error", () => {});
+
+        /*
+  const id = setInterval(function () {
+    ws.send(JSON.stringify(process.memoryUsage()), function () {
+      //
+      // Ignore errors.
+      //
+    });
+  }, 100);
+*/
+      }
+
+      ws.on("message", (m) => {
+        console.log("WS Message: ", String(m));
+      });
+
+      //    console.log("started client interval");
+
+      ws.on("error", console.error);
+
+      ws.on("close", function () {
+        console.log("stopping client interval");
+        //      clearInterval(id);
+      });
+    });
+
+    //this._upgrade();
 
     this.app.use(express.json()); // Agrega esta línea
 
@@ -140,7 +237,7 @@ export class ServerAPI extends EventEmitter {
             req.headers["api-token"]
           );
 
-         // console.log("HHHHHH >>>> ", h);
+          // console.log("HHHHHH >>>> ", h);
 
           if (h.status == 200) {
             runHandler(req, res, h.params, this._getFunctions(app));
@@ -242,7 +339,7 @@ export class ServerAPI extends EventEmitter {
     // @ts-ignore
     let wscreated = this._ws_paths.find((w) => w.path === url_data.pathname);
 
-    //      console.log(url_data.pathname, wscreated);
+    //     console.log(url_data.pathname, wscreated);
 
     if (wscreated) {
       this._wshandleUpgrade(
@@ -254,8 +351,14 @@ export class ServerAPI extends EventEmitter {
       );
     } else {
       let WSServer = new WebSocketServer({ noServer: true });
-      WSServer.on("connection", (socketc) => {
-        console.log("Client connected to ws " + url_data.pathname);
+
+      WSServer.on("connection", function connection(ws) {
+        console.log(">>>> CONEXION ");
+        ws.on("error", console.error);
+
+        ws.on("message", function message(data) {
+          console.log("received: %s", data);
+        });
       });
 
       this._wshandleUpgrade(WSServer, request, socket, head, url_data);
@@ -277,12 +380,21 @@ export class ServerAPI extends EventEmitter {
   _wshandleUpgrade(wsServer, request, socket, head, url_data) {
     wsServer.handleUpgrade(request, socket, head, (socketc) => {
       socketc.on("message", (message) => {
+        console.log("message: ", String(message));
         this.emit("ws_message", {
           socket: socketc,
           message: message,
           url: url_data,
         });
       });
+      /*
+      const stream = WebSocket.createWebSocketStream(socketc);
+      const aedesBroker = new aedes();
+      aedesBroker.handle(stream);
+      aedesBroker.on("client", (m) => {
+        console.log(m);
+      });
+      */
 
       this.emit("ws_client_connection", { socket: socketc, url: url_data });
       //wsServer.emit("ws_connection", socketc, request);
@@ -315,7 +427,6 @@ export class ServerAPI extends EventEmitter {
       try {
         const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
         if (!this._cacheApi.has(apiPath)) {
-          
           // Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
           let appData = await Application.findOne({ where: { app: app } });
           console.log(">>>> NO usa cache", apiPath, appData);
@@ -333,7 +444,7 @@ export class ServerAPI extends EventEmitter {
             )
           );
         }
-//console.log();
+        //console.log();
         return this._cacheApi.get(apiPath);
       } catch (error) {
         // @ts-ignore
@@ -380,7 +491,7 @@ export class ServerAPI extends EventEmitter {
           );
         }
 
-        console.log("H >>>> ", h);
+        console.log("H >>>> ", h, urlData);
 
         if (h.status == 200) {
           this._createWebSocket(request, socket, head, urlData);

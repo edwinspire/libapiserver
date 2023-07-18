@@ -301,6 +301,12 @@ export const defaultApps = async () => {
                       handler: "FETCH",
                       public: true,
                     },
+                    WS: {
+                      code: "",
+                      enabled: true,
+                      handler: "FETCH",
+                      public: true,
+                    },
                   },
                   prd: {},
                   qa: {},
