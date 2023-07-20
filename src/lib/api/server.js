@@ -29,12 +29,8 @@ const {
   PATH_API_RESPONSE_TIME,
   PATH_API_HOOKS,
   PATH_WS_HOOKS,
+  MQTT_ENABLED,
 } = process.env;
-
-// Crear instancia de Aedes (broker MQTT)
-//const broker = new aedes();
-//const aedesBroker = new aedes();
-// constructor(httpServer, root_path, authentication_callback) {
 
 export class ServerAPI extends EventEmitter {
   /**
@@ -63,100 +59,7 @@ export class ServerAPI extends EventEmitter {
     this.app = express();
     this._httpServer = createServer(this.app);
 
-    const wss = new WebSocketServer({
-      server: this._httpServer,
-      verifyClient: (info, cb) => {
-        console.log("<<< verifyClient >>>", info.req.headers, info.req.url);
-        cb(true);
-      },
-    });
-
-    wss.on("connection", function (ws) {
-      console.log(">> WS connection >>", ws.protocol, ws.url);
-
-      if (ws.protocol == "mqtt") {
-        const stream = createWebSocketStream(ws);
-        const aedesBroker = new aedes({
-          preConnect: function (client, packet, callback) {
-            console.log("preConnect >>>>> ", client);
-            callback(null, true);
-          },
-          authenticate: function (client, username, password, callback) {
-            console.log(
-              "MQTT authenticate",
-              String(username),
-              String(password)
-            );
-
-            if (username === "demo") {
-              callback(null, true);
-            } else {
-              const error = new Error();
-              error.returnCode = 4;
-              callback(error, false);
-            }
-          },
-        }).handle(stream);
-
-        /*
- aedesBroker.preConnect = function(client, packet, callback) {
-  console.log('preConnect >>>>> ');
-  callback(null, client.conn.remoteAddress === '::1') 
-}
-*/
-
-        /*
- aedesBroker.authenticate = function (client, username, password, callback) {
-  
-  console.log('aedesBroker.authenticate ', username, password);
-  callback(null, true)
-}
-*/
-
-        setInterval(() => {
-          const message = {
-            topic: "prueba/top",
-            payload: `{"ok": 890, "id": ${new Date()}`, // El payload debe ser un Buffer o un String
-            qos: 0, // Calidad de servicio (0, 1 o 2)
-            retain: false, // Retener el mensaje en el broker
-            dup: false, // Duplicar el mensaje (solo para QoS > 0)
-          };
-
-          aedesBroker.publish(message, () => {
-            console.log(
-              `Mensaje publicado en el tema "${message.topic}": ${message.payload}`
-            );
-          });
-        }, 5000);
-
-        aedesBroker.on("error", () => {});
-
-        /*
-  const id = setInterval(function () {
-    ws.send(JSON.stringify(process.memoryUsage()), function () {
-      //
-      // Ignore errors.
-      //
-    });
-  }, 100);
-*/
-      }
-
-      ws.on("message", (m) => {
-        console.log("WS Message: ", String(m));
-      });
-
-      //    console.log("started client interval");
-
-      ws.on("error", console.error);
-
-      ws.on("close", function () {
-        console.log("stopping client interval");
-        //      clearInterval(id);
-      });
-    });
-
-    //this._upgrade();
+    this._upgrade();
 
     this.app.use(express.json()); // Agrega esta línea
 
@@ -350,16 +253,88 @@ export class ServerAPI extends EventEmitter {
         url_data
       );
     } else {
-      let WSServer = new WebSocketServer({ noServer: true });
-
-      WSServer.on("connection", function connection(ws) {
-        console.log(">>>> CONEXION ");
-        ws.on("error", console.error);
-
-        ws.on("message", function message(data) {
-          console.log("received: %s", data);
-        });
+      const WSServer = new WebSocketServer({
+        //server: this._httpServer,
+        noServer: true,
+        verifyClient: (info, cb) => {
+          console.log("<<< verifyClient >>>", info.req.url);
+          cb(true);
+        },
       });
+
+      WSServer.on("connection",  (ws, req)=> {
+        console.log(
+          ">> WS connection >>",
+ 
+ req.headers, WSServer, WSServer.clients.size);
+
+        if (ws.protocol == "mqtt" && MQTT_ENABLED == "true") {
+          
+          
+         let wsp = this._ws_paths.find((p)=>{p.path == WSServer.path});
+          
+          const stream = createWebSocketStream(ws);
+
+          const aedesBroker = new aedes({
+            preConnect: function (client, packet, callback) {
+              console.log("preConnect >>>>> ");
+              callback(null, true);
+            },
+            authenticate: function (client, username, password, callback) {
+              console.log(
+                "MQTT authenticate",
+                String(username),
+                String(password)
+              );
+
+              if (username === "demo") {
+                callback(null, true);
+              } else {
+                const error = new Error();
+                error.returnCode = 4;
+                callback(error, false);
+              }
+            },
+          }).handle(stream);
+
+
+          setInterval(() => {
+            const message = {
+              topic: "prueba/top",
+              payload: `{"ok": 890, "id": ${new Date()}`, // El payload debe ser un Buffer o un String
+              qos: 0, // Calidad de servicio (0, 1 o 2)
+              retain: false, // Retener el mensaje en el broker
+              dup: false, // Duplicar el mensaje (solo para QoS > 0)
+            };
+
+            aedesBroker.publish(message, () => {
+              console.log(
+                `Mensaje publicado en el tema "${message.topic}": ${message.payload} ${aedesBroker.id}`
+              );
+            });
+          }, 5000);
+
+          aedesBroker.on("error", () => {});
+        } else {
+          ws.on("message", (m) => {
+            console.log("WS Message: ", String(m));
+            //ws.emit("message", m);
+          });
+
+          //    console.log("started client interval");
+
+          ws.on("error", console.error);
+
+          ws.on("close", function () {
+            console.log("stopping client interval");
+            //      clearInterval(id);
+          });
+        }
+      });
+
+      /*
+      let WSServer = new WebSocketServer({ noServer: true });
+*/
 
       this._wshandleUpgrade(WSServer, request, socket, head, url_data);
       // Agrega el path a la lista
@@ -378,25 +353,9 @@ export class ServerAPI extends EventEmitter {
    * @param {URL} url_data
    */
   _wshandleUpgrade(wsServer, request, socket, head, url_data) {
-    wsServer.handleUpgrade(request, socket, head, (socketc) => {
-      socketc.on("message", (message) => {
-        console.log("message: ", String(message));
-        this.emit("ws_message", {
-          socket: socketc,
-          message: message,
-          url: url_data,
-        });
-      });
-      /*
-      const stream = WebSocket.createWebSocketStream(socketc);
-      const aedesBroker = new aedes();
-      aedesBroker.handle(stream);
-      aedesBroker.on("client", (m) => {
-        console.log(m);
-      });
-      */
+    wsServer.handleUpgrade(request, socket, head, function done(ws) {
+      wsServer.emit("connection", ws, request);
 
-      this.emit("ws_client_connection", { socket: socketc, url: url_data });
       //wsServer.emit("ws_connection", socketc, request);
     });
   }
@@ -459,6 +418,8 @@ export class ServerAPI extends EventEmitter {
     this._httpServer.on("upgrade", async (request, socket, head) => {
       // @ts-ignore
       let urlData = this._url(request.url);
+
+      //console.log(' _upgrade ');
 
       //"/api/:app/:namespace/:name/:version/:environment",
       const parts = urlData.pathname ? urlData.pathname.split("/") : [];
