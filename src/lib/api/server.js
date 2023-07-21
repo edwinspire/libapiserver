@@ -15,7 +15,9 @@ import { getApiHandler } from "./db/app.js";
 import systemRoutes from "./server/router/system.js";
 import { validateToken, defaultSystemPath } from "../api/server/utils.js";
 
-import aedes from "aedes";
+// @ts-ignore
+import websocket from "websocket-stream";
+import aedesMod from "aedes";
 
 import * as fnSystem from "./server/functions/system.js";
 import * as fnPublic from "./server/functions/public.js";
@@ -55,11 +57,38 @@ export class ServerAPI extends EventEmitter {
     this.buildDB(buildDB);
 
     //    defaultUser();
-
+    const aedes = new aedesMod();
     this.app = express();
-    this._httpServer = createServer(this.app);
 
-    this._upgrade();
+    this._httpServer = createServer(this.app);
+    this._wsServer = websocket.createServer(
+      {
+        server: this._httpServer,
+
+        verifyClient: (
+          /** @type {{ req: { url: any; }; }} */ info,
+          /** @type {(arg0: boolean) => void} */ cb
+        ) => {
+          console.log("<<< verifyClient >>>", info.req.url);
+          cb(true);
+        },
+      },
+      aedes.handle
+    );
+
+    this._wsServer.on("connection", (m) => {
+      console.log(this._wsServer.clients);
+
+      m.on("message", (c) => {
+      try {
+        console.log(c);
+        m.send(Date.now());
+      
+      } catch (error) {
+      console.log(error)  
+      }
+      });
+    });
 
     this.app.use(express.json()); // Agrega esta línea
 
@@ -231,135 +260,6 @@ export class ServerAPI extends EventEmitter {
     return new URL("http://localhost" + url);
   }
 
-  // Crea el websocket en el servidor
-  /**
-   * @param {any} request
-   * @param {any} socket
-   * @param {any} head
-   * @param {URL} url_data
-   */
-  _createWebSocket(request, socket, head, url_data) {
-    // @ts-ignore
-    let wscreated = this._ws_paths.find((w) => w.path === url_data.pathname);
-
-    //     console.log(url_data.pathname, wscreated);
-
-    if (wscreated) {
-      this._wshandleUpgrade(
-        wscreated.WebSocket,
-        request,
-        socket,
-        head,
-        url_data
-      );
-    } else {
-      const WSServer = new WebSocketServer({
-        //server: this._httpServer,
-        noServer: true,
-        verifyClient: (info, cb) => {
-          console.log("<<< verifyClient >>>", info.req.url);
-          cb(true);
-        },
-      });
-
-      WSServer.on("connection",  (ws, req)=> {
-        console.log(
-          ">> WS connection >>",
- 
- req.headers, WSServer, WSServer.clients.size);
-
-        if (ws.protocol == "mqtt" && MQTT_ENABLED == "true") {
-          
-          
-         let wsp = this._ws_paths.find((p)=>{p.path == WSServer.path});
-          
-          const stream = createWebSocketStream(ws);
-
-          const aedesBroker = new aedes({
-            preConnect: function (client, packet, callback) {
-              console.log("preConnect >>>>> ");
-              callback(null, true);
-            },
-            authenticate: function (client, username, password, callback) {
-              console.log(
-                "MQTT authenticate",
-                String(username),
-                String(password)
-              );
-
-              if (username === "demo") {
-                callback(null, true);
-              } else {
-                const error = new Error();
-                error.returnCode = 4;
-                callback(error, false);
-              }
-            },
-          }).handle(stream);
-
-
-          setInterval(() => {
-            const message = {
-              topic: "prueba/top",
-              payload: `{"ok": 890, "id": ${new Date()}`, // El payload debe ser un Buffer o un String
-              qos: 0, // Calidad de servicio (0, 1 o 2)
-              retain: false, // Retener el mensaje en el broker
-              dup: false, // Duplicar el mensaje (solo para QoS > 0)
-            };
-
-            aedesBroker.publish(message, () => {
-              console.log(
-                `Mensaje publicado en el tema "${message.topic}": ${message.payload} ${aedesBroker.id}`
-              );
-            });
-          }, 5000);
-
-          aedesBroker.on("error", () => {});
-        } else {
-          ws.on("message", (m) => {
-            console.log("WS Message: ", String(m));
-            //ws.emit("message", m);
-          });
-
-          //    console.log("started client interval");
-
-          ws.on("error", console.error);
-
-          ws.on("close", function () {
-            console.log("stopping client interval");
-            //      clearInterval(id);
-          });
-        }
-      });
-
-      /*
-      let WSServer = new WebSocketServer({ noServer: true });
-*/
-
-      this._wshandleUpgrade(WSServer, request, socket, head, url_data);
-      // Agrega el path a la lista
-      this._ws_paths.push({
-        path: url_data.pathname,
-        WebSocket: WSServer,
-      });
-    }
-  }
-
-  /**
-   * @param {WebSocket.Server<WebSocket.WebSocket>} wsServer
-   * @param {any} request
-   * @param {any} socket
-   * @param {any} head
-   * @param {URL} url_data
-   */
-  _wshandleUpgrade(wsServer, request, socket, head, url_data) {
-    wsServer.handleUpgrade(request, socket, head, function done(ws) {
-      wsServer.emit("connection", ws, request);
-
-      //wsServer.emit("ws_connection", socketc, request);
-    });
-  }
-
   /**
    * @param {string} app
    * @param {string} namespace
@@ -412,59 +312,6 @@ export class ServerAPI extends EventEmitter {
     } else {
       return { message: "Not found", status: 404, params: undefined };
     }
-  }
-
-  _upgrade() {
-    this._httpServer.on("upgrade", async (request, socket, head) => {
-      // @ts-ignore
-      let urlData = this._url(request.url);
-
-      //console.log(' _upgrade ');
-
-      //"/api/:app/:namespace/:name/:version/:environment",
-      const parts = urlData.pathname ? urlData.pathname.split("/") : [];
-
-      //const api = parts[0];
-      const app = parts[2];
-      const namespace = parts[3];
-      const name = parts[4];
-      const version = parts[5];
-      const environment = parts[6];
-
-      let token =
-        request.headers["api-token"] || urlData.searchParams.get("api-token");
-
-      //console.log(token, parts);
-
-      try {
-        let h = { status: 404, message: "?" };
-        if (this._path_ws_api_response_time == urlData.pathname) {
-          h = { status: 200, message: "System" };
-        } else {
-          h = await this._getApiHandler(
-            app,
-            namespace,
-            name,
-            version,
-            environment,
-            "WS",
-            token
-          );
-        }
-
-        console.log("H >>>> ", h, urlData);
-
-        if (h.status == 200) {
-          this._createWebSocket(request, socket, head, urlData);
-        } else {
-          socket.write(`HTTP/1.1 ${h.status} Not Found\r\n\r\n`);
-          socket.destroy();
-        }
-      } catch (error) {
-        socket.write("HTTP/1.1 505 Not Found\r\n\r\n");
-        socket.destroy();
-      }
-    });
   }
 
   /**
@@ -583,14 +430,6 @@ export class ServerAPI extends EventEmitter {
   };
 
   listen() {
-    /*
-    const routes = this.app._router.stack
-      .filter((layer) => layer.route)
-      .map((layer) => layer.route.path);
-
-    console.log(routes);
-*/
-
     let g = this._getNameFunctions("system");
     console.log(g);
 

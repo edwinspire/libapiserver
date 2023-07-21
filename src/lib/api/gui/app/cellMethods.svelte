@@ -8,6 +8,7 @@
   import CustomFn from "./handler/customFunction.svelte";
   import { DialogModal } from "@edwinspire/svelte-components";
   import MethodDialog from "./method.svelte";
+//  import { Handler } from "$lib/api/db/models";
 
   let showMethod = false;
 
@@ -46,7 +47,8 @@
     DELETE: "tag is-danger",
     PUT: "tag is-warning",
     PATCH: "tag is-link",
-    HEADER: "tag is-primary",
+    WS: "tag is-success is-light",
+    MQTT: "tag is-warning  is-light",
   };
 </script>
 
@@ -89,6 +91,7 @@
             <span
               class={classMap[method] || "tag is-dark"}
               on:click={() => {
+                //alert(method);
                 methodSelected = method;
                 showMethod = true;
               }}>{method}</span
@@ -96,7 +99,9 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-missing-attribute -->
             <a
-              class="tag is-dark"
+              class={value[method].handler == "NA"
+                ? "tag is-dark has-text-grey"
+                : "tag is-dark"}
               on:click={() => {
                 ///
                 methodSelected = method;
@@ -139,7 +144,7 @@
   </div>
 </td>
 
-{#if value && methodSelected.length > 2}
+{#if value && methodSelected.length > 1}
   <MethodDialog
     method={methodSelected}
     bind:handler={value[methodSelected].handler}
@@ -149,6 +154,9 @@
     title={`Method ${methodSelected}`}
     on:ok={(e) => {
       console.log(e);
+      if (methodSelected == "WS" || methodSelected == "MQTT") {
+        value[methodSelected].handler = "NA";
+      }
       //      value = e.detail;
       showMethod = false;
       // value = value;

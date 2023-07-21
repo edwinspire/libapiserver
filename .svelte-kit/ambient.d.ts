@@ -33,6 +33,7 @@ declare module '$env/static/private' {
 	export const EXPOSE_DEV_API: string;
 	export const EXPOSE_QA_API: string;
 	export const EXPOSE_PROD_API: string;
+	export const MQTT_ENABLED: string;
 	export const ACLOCAL_PATH: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
@@ -114,7 +115,6 @@ declare module '$env/static/private' {
 	export const PSModulePath: string;
 	export const PUBLIC: string;
 	export const PWD: string;
-	export const SESSIONNAME: string;
 	export const SHELL: string;
 	export const SHLVL: string;
 	export const SNC_LIB: string;
@@ -140,6 +140,7 @@ declare module '$env/static/private' {
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const WINDIR: string;
 	export const _: string;
+	export const __COMPAT_LAYER: string;
 }
 
 /**
@@ -176,6 +177,7 @@ declare module '$env/dynamic/private' {
 		EXPOSE_DEV_API: string;
 		EXPOSE_QA_API: string;
 		EXPOSE_PROD_API: string;
+		MQTT_ENABLED: string;
 		ACLOCAL_PATH: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
@@ -257,7 +259,6 @@ declare module '$env/dynamic/private' {
 		PSModulePath: string;
 		PUBLIC: string;
 		PWD: string;
-		SESSIONNAME: string;
 		SHELL: string;
 		SHLVL: string;
 		SNC_LIB: string;
@@ -283,6 +284,7 @@ declare module '$env/dynamic/private' {
 		VSCODE_GIT_IPC_HANDLE: string;
 		WINDIR: string;
 		_: string;
+		__COMPAT_LAYER: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: string]: string | undefined;
 	}

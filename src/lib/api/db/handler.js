@@ -20,7 +20,8 @@ export const defaultHandlers = () => {
       { id: "JS", text: `JS`, description:  'Run basic Javascript code.' },
       { id: "SOAP", text: `SOAP`, description:  'Useful for consuming SOAP services.' },
       { id: "SQL", text: `SQL`, description:  'Make SQL queries to different databases.' },
-      { id: "FUNCTION", text: `FUNCTION`, description:  'Calls custom functions written on the server.' }
+      { id: "FUNCTION", text: `FUNCTION`, description:  'Calls custom functions written on the server.' },
+      { id: "NA", text: `NOAPPLY`, description:  'Not apply' }
     ];
 
     handlers.forEach(async (h) => {

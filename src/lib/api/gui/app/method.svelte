@@ -84,17 +84,19 @@
       </div>
     </div>
 
-    <div class="field is-horizontal">
-      <div class="field-label is-normal">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="label is-small">Handler</label>
-      </div>
-      <div class="field-body">
-        <div class="field is-narrow">
-          <SelectHandlers bind:options={handlers} bind:option={handler} />
+    {#if method !== "WS" && method !== "MQTT"}
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="label is-small">Handler</label>
+        </div>
+        <div class="field-body">
+          <div class="field is-narrow">
+            <SelectHandlers bind:options={handlers} bind:option={handler} />
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
 
     <div class="field is-horizontal">
       <div class="field-label">
