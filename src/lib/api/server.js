@@ -1,5 +1,5 @@
 import "dotenv/config";
-import WebSocket, { WebSocketServer, createWebSocketStream } from "ws";
+//import WebSocket, { WebSocketServer, createWebSocketStream } from "ws";
 import express from "express";
 import { createServer } from "http";
 import { EventEmitter } from "node:events";
@@ -43,9 +43,6 @@ export class ServerAPI extends EventEmitter {
   constructor(buildDB, handlerExternal, customRouter) {
     super();
 
-    /**
-     * @type {{ path: string; WebSocket: WebSocket.Server<WebSocket.WebSocket>; }[]}
-     */
     this._ws_paths = [];
     //this._cacheFn = {};
     this._cacheApi = new Map();
@@ -76,19 +73,7 @@ export class ServerAPI extends EventEmitter {
       aedes.handle
     );
 
-    this._wsServer.on("connection", (m) => {
-      console.log(this._wsServer.clients);
-
-      m.on("message", (c) => {
-      try {
-        console.log(c);
-        m.send(Date.now());
-      
-      } catch (error) {
-      console.log(error)  
-      }
-      });
-    });
+   
 
     this.app.use(express.json()); // Agrega esta línea
 
