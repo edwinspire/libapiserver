@@ -1,6 +1,6 @@
 import { User, Role } from "./models.js";
 import { getRoleById } from "./role.js";
-import { EncryptPwd } from "../server/utils.js";
+import { EncryptPwd, GenToken, customError } from "../server/utils.js";
 
 export const upsertUser = async (
   /** @type {import("sequelize").Optional<any, string>} */ userData
@@ -118,3 +118,42 @@ export const defaultUser = async () => {
     return;
   }
 };
+
+
+/**
+ * @param {string} username
+ * @param {string} password
+ */
+export async function login(username, password) {
+  try {
+    let user = await getUserByCredentials(username||'', EncryptPwd(password||''));
+
+    if (user) {
+      let u = { ...user.dataValues };
+
+      // Envía el Token en el Header
+      let token = GenToken({
+        username: u.username,
+        role: u.idrole,
+      });
+
+      await user.update({ token: token, last_login: new Date() });
+      await user.save();
+
+      return {
+        login: true,
+        username: u.username,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        role: u.role.dataValues,
+        token: token,
+      };
+    } else {
+      return customError(2);
+    }
+  } catch (error) {
+    return error;
+  }
+}
+
+

@@ -1,6 +1,6 @@
 import express from "express";
 import { User } from "../../db/models.js";
-import { getUserByCredentials } from "../../db/user.js";
+import { getUserByCredentials, login } from "../../db/user.js";
 import {
   EncryptPwd,
   GenToken,
@@ -50,36 +50,16 @@ router.post(defaultSystemPath("logout"), validateToken, async (req, res) => {
 
 router.post(defaultSystemPath("login"), async (req, res) => {
   try {
-    let user = await getUserByCredentials(
-      req.body.username,
-      EncryptPwd(req.body.password)
-    );
+    let user = await login(req.body.username, req.body.password);
 
-//console.log(user);
+    console.log(user);
 
-    if (user) {
-      let u = { ...user.dataValues };
+    res.set("api-token", user.token);
 
-      // Envía el Token en el Header
-      let token = GenToken({
-        username: u.username,
-        role: u.idrole,
-      });
-      res.set("api-token", token);
-
-      await user.update({ token: token, last_login: new Date() });
-      await user.save();
-
-      res.status(200).json({
-        login: true,
-        username: u.username,
-        first_name: u.first_name,
-        last_name: u.last_name,
-        role: u.role.dataValues,
-        token: token,
-      });
+    if (user.login) {
+      res.status(200).json(user);
     } else {
-      res.status(401).json(customError(2));
+      res.status(401).json(user);
     }
   } catch (error) {
     console.log(error);
