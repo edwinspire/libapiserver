@@ -10,7 +10,11 @@ import { Application, prefixTableName } from './db/models.js';
 import { runHandler } from './handler/handler.js';
 import { getApiHandler } from './db/app.js';
 import systemRoutes from './server/router/system.js';
-import { validateToken, defaultSystemPath } from '../api/server/utils.js';
+import {
+	validateToken,
+	defaultSystemPath,
+	getUserPasswordTokenFromRequest
+} from '../api/server/utils.js';
 
 import aedesMod from 'aedes';
 import http from 'http';
@@ -45,8 +49,8 @@ export class ServerAPI extends EventEmitter {
 		super();
 
 		/**
-     * @type {any[]}
-     */
+		 * @type {any[]}
+		 */
 		this._ws_paths = [];
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
@@ -81,7 +85,7 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
-			console.log('>----------------------> ', request.headers);
+			console.log('>----------------------> ', request.headers, socket);
 
 			if (request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
@@ -92,31 +96,32 @@ export class ServerAPI extends EventEmitter {
 					this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 				});
 			} else {
-				let reqUrl = new URL(`http://localhost${request.url}`);
-				
-				//
-				//let { app, namespace, name, version, environment } = req.params;
+				// let reqUrl = new URL(`http://localhost${request.url}`);
 
-			try {
-				let h = await this._getApiHandler(
-					app,
-					namespace,
-					name,
-					version,
-					environment,
-					req.method,
-					req.headers['api-token']
-				);
+				let parts = request.url?.split('/');
 
+				console.log(request, parts);
 
+				try {
+					// app, namespace, name, version, environment, method
 					// @ts-ignore
-					let u = await login(reqUrl.searchParams.params.get('username'), reqUrl.searchParams.get('password'));
+					let h = await this._getApiHandler(parts[2], parts[3], parts[4], parts[5], parts[6], 'WS');
 
-					console.log(u);
+					console.log(h);
 
-					if (!u.login) {
-						// Si el cliente no está autenticado, responder con un error 401 Unauthorized
-						socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+					if (h.status == 200) {
+						let dataAuth = getUserPasswordTokenFromRequest(request);
+
+						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
+
+						if (!auth) {
+							// Si el cliente no está autenticado, responder con un error 401 Unauthorized
+							socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+							socket.destroy();
+							return;
+						}
+					} else {
+						socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
 						socket.destroy();
 						return;
 					}
@@ -224,20 +229,23 @@ export class ServerAPI extends EventEmitter {
 			let { app, namespace, name, version, environment } = req.params;
 
 			try {
-				let h = await this._getApiHandler(
-					app,
-					namespace,
-					name,
-					version,
-					environment,
-					req.method,
-					req.headers['api-token']
-				);
+				let h = await this._getApiHandler(app, namespace, name, version, environment, req.method);
+				// req.headers['api-token']
 
 				// console.log("HHHHHH >>>> ", h);
 
 				if (h.status == 200) {
-					runHandler(req, res, h.params, this._getFunctions(app));
+					let dataAuth = getUserPasswordTokenFromRequest(req);
+
+					let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
+
+					if (auth) {
+						runHandler(req, res, h.params, this._getFunctions(app));
+					} else {
+						res.status(401).json({
+							error: 'Requires authentication'
+						});
+					}
 				} else {
 					res.status(h.status).json({
 						// @ts-ignore
@@ -331,11 +339,8 @@ export class ServerAPI extends EventEmitter {
 	 * @param {string} version
 	 * @param {string} environment
 	 * @param {string} method
-	 * @param {string | string[] | undefined | null} token
-	 * @param {string} username
-	 * @param {string} password
 	 */
-	async _getApiHandler(app, namespace, name, version, environment, method, token) {
+	async _getApiHandler(app, namespace, name, version, environment, method) {
 		if (
 			(environment == 'qa' && EXPOSE_QA_API === 'true') ||
 			(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
@@ -349,12 +354,13 @@ export class ServerAPI extends EventEmitter {
 					console.log('>>>> NO usa cache', apiPath, appData);
 					this._cacheApi.set(
 						apiPath,
-						getApiHandler(appData, app, namespace, name, version, environment, method, token, username, password)
+						getApiHandler(appData, app, namespace, name, version, environment, method)
 					);
 				}
 				//console.log();
 				return this._cacheApi.get(apiPath);
 			} catch (error) {
+				console.trace(error);
 				// @ts-ignore
 				return { message: error.message, status: 505, params: undefined };
 			}

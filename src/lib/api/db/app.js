@@ -1,6 +1,7 @@
 import { Application } from './models.js';
 import { checkToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
+import { defaultUser, login } from './user.js';
 
 // READ
 export const getAppById = async (/** @type {import("sequelize").Identifier} */ idapp) => {
@@ -53,9 +54,8 @@ export const upsertApp = async (
  * @param {string} version
  * @param {string} environment
  * @param {string} method
- * @param {string | undefined | string[] | null} token
  */
-export function getApiHandler(appData, app, namespace, name, version, environment, method, token) {
+export function getApiHandler(appData, app, namespace, name, version, environment, method) {
 	let returnHandler = {};
 	try {
 		// @ts-ignore
@@ -106,52 +106,89 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 												if (v[environment][method].enabled) {
 													//  && (v[environment][req.method].enabled   && checkToken(token))
 
-													if (
+													/*
 														v[environment][method].public ||
 														(!v[environment][method].public && checkToken(token))
-													) {
-														//runHandler(req, res, v[environment][method]);
-														returnHandler.params = v[environment][method];
-							
-														if (appData.vars && typeof appData.vars === 'object') {
-															const props = Object.keys(appData.vars);
-															for (let i = 0; i < props.length; i++) {
-																const prop = props[i];
+													*/
+													returnHandler.params = v[environment][method];
 
-																switch (typeof appData.vars[prop]) {
-																	case 'string':
-																		returnHandler.params.code = returnHandler.params.code.replace(
-																			prop,
-																			appData.vars[prop]
-																		);
-																		break;
-																	case 'object':
-																		returnHandler.params.code = returnHandler.params.code.replace(
-																			'"' + prop + '"',
-																			JSON.stringify(appData.vars[prop])
-																		);
+													console.log('returnHandler.params >>>> ', returnHandler);
 
-																		returnHandler.params.code = returnHandler.params.code.replace(
-																			prop,
-																			JSON.stringify(appData.vars[prop])
-																		);
-																		break;
-																}
+													if (returnHandler.params.public) {
+														returnHandler.authentication = async (
+															/** @type {string} */ token,
+															/** @type {string} */ username,
+															/** @type {string} */ password
+														) => {
+															return true;
+														};
+													} else {
+														returnHandler.authentication = async (
+															/** @type {string} */ token,
+															/** @type {string} */ username,
+															/** @type {string} */ password
+														) => {
+															let authenticated = false;
+
+															if (
+																returnHandler.params.tokenAuthentication &&
+																token &&
+																checkToken(token)
+															) {
+																authenticated = true;
+															}
+
+															if (
+																!authenticated &&
+																returnHandler.params.userAuthentication &&
+																username &&
+																password
+															) {
+																let u = await login(username, password);
+																authenticated = u.login;
+															}
+
+															return authenticated;
+														};
+													}
+
+													returnHandler.params.code = returnHandler.params.code || '';
+
+													if (appData.vars && typeof appData.vars === 'object') {
+														const props = Object.keys(appData.vars);
+														for (let i = 0; i < props.length; i++) {
+															const prop = props[i];
+
+															switch (typeof appData.vars[prop]) {
+																case 'string':
+																	returnHandler.params.code = returnHandler.params.code.replace(
+																		prop,
+																		appData.vars[prop]
+																	);
+																	break;
+																case 'object':
+																	returnHandler.params.code = returnHandler.params.code.replace(
+																		'"' + prop + '"',
+																		JSON.stringify(appData.vars[prop])
+																	);
+
+																	returnHandler.params.code = returnHandler.params.code.replace(
+																		prop,
+																		JSON.stringify(appData.vars[prop])
+																	);
+																	break;
 															}
 														}
-
-														if (returnHandler.params.handler == 'JS') {
-															returnHandler.params.jsFn = createFunction(
-																returnHandler.params.code,
-																appData.vars
-															);
-														}
-														returnHandler.message = '';
-														returnHandler.status = 200;
-													} else {
-														returnHandler.message = `Valid Token required`;
-														returnHandler.status = 403;
 													}
+
+													if (returnHandler.params.handler == 'JS') {
+														returnHandler.params.jsFn = createFunction(
+															returnHandler.params.code,
+															appData.vars
+														);
+													}
+													returnHandler.message = '';
+													returnHandler.status = 200;
 												} else {
 													returnHandler.message = `Method ${method} Unabled`;
 													returnHandler.status = 404;
@@ -200,6 +237,7 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 		// @ts-ignore
 		returnHandler.message = error.message;
 		returnHandler.status = 505;
+		console.trace(error);
 	}
 
 	return returnHandler;
