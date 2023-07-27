@@ -44,6 +44,9 @@ export class ServerAPI extends EventEmitter {
 	constructor(buildDB, handlerExternal, customRouter) {
 		super();
 
+		/**
+     * @type {any[]}
+     */
 		this._ws_paths = [];
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
@@ -70,7 +73,7 @@ export class ServerAPI extends EventEmitter {
 		});
 		this.app = express();
 
-		console.log(WebSocket);
+		//console.log(WebSocket);
 
 		this._httpServer = http.createServer(this.app);
 		this._wsServer = new WebSocket.Server({
@@ -89,10 +92,25 @@ export class ServerAPI extends EventEmitter {
 					this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 				});
 			} else {
-				let params = new URL(`http://localhost${request.url}`).searchParams;
-				try {
+				let reqUrl = new URL(`http://localhost${request.url}`);
+				
+				//
+				//let { app, namespace, name, version, environment } = req.params;
+
+			try {
+				let h = await this._getApiHandler(
+					app,
+					namespace,
+					name,
+					version,
+					environment,
+					req.method,
+					req.headers['api-token']
+				);
+
+
 					// @ts-ignore
-					let u = await login(params.get('username'), params.get('password'));
+					let u = await login(reqUrl.searchParams.params.get('username'), reqUrl.searchParams.get('password'));
 
 					console.log(u);
 
@@ -314,6 +332,8 @@ export class ServerAPI extends EventEmitter {
 	 * @param {string} environment
 	 * @param {string} method
 	 * @param {string | string[] | undefined | null} token
+	 * @param {string} username
+	 * @param {string} password
 	 */
 	async _getApiHandler(app, namespace, name, version, environment, method, token) {
 		if (
@@ -329,7 +349,7 @@ export class ServerAPI extends EventEmitter {
 					console.log('>>>> NO usa cache', apiPath, appData);
 					this._cacheApi.set(
 						apiPath,
-						getApiHandler(appData, app, namespace, name, version, environment, method, token)
+						getApiHandler(appData, app, namespace, name, version, environment, method, token, username, password)
 					);
 				}
 				//console.log();

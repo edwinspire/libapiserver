@@ -622,12 +622,15 @@
 
                                       if (methodValidation(value.method)) {
                                         if (!version.dev[value.method]) {
-                                          version.dev[value.method] = {
+                                          version.dev[value.method] = value.data;
+                                          /*
+                                          {
                                             code: "",
                                             enabled: value.enabled,
                                             handler: value.handler,
                                             public: value.public,
                                           };
+                                          */
                                         } else {
                                           alert(
                                             "The Method " +

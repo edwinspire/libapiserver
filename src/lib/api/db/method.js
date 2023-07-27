@@ -23,8 +23,7 @@ export const defaultMethods = () => {
       { id: "PATCH", text: `PATCH` },
       { id: "POST", text: `POST` },
       { id: "PUT", text: `PUT` },
-      { id: "WS", text: `WS` },
-      { id: "MQTT", text: `MQTT` },
+      { id: "WS", text: `WS` }
     ];
 
     methods.forEach(async (m) => {

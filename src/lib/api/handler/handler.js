@@ -11,17 +11,7 @@ import { customFunction } from "./customFunction.js";
  * @param {{ [x: string]: (arg0: { method?: any; headers: any; body: any; query: any; }, arg1: { status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }) => void; }} appFunctions
  */
 export function runHandler(request, response, method, appFunctions) {
-  // let f = getFnHandler(method.handler, method.code);
-
-  /*
-  if (f) {
-    // @ts-ignore
-    f(request, response, method, appFunctions);
-  } else {
-    response.status(404).json(`handler ${method.handler} not valid`);
-  }
-*/
-
+  
   switch (method.handler) {
     case "JS":
       jsFunction(request, response, method);
