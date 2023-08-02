@@ -501,8 +501,8 @@ export const defaultApps = async () => {
 											enabled: true,
 											handler: 'NA',
 											public: true,
-											userAuthentication: false,
-											tokenAuthentication: false,
+											subscribe: true,
+											publish: true,
 											broadcast: false
 										}
 									},

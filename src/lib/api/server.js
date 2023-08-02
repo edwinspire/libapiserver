@@ -65,34 +65,52 @@ export class ServerAPI extends EventEmitter {
 
 		//    defaultUser();
 		const aedes = new aedesMod({
-			authorizePublish: (client, packet, callback) => {
-				// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
+			authorizePublish: async (client, packet, callback) => {
+				let parts = packet.topic.split('/');
+
 				// @ts-ignore
-				const username = client.username;
+				if (parts[7] == client.APIServer.username) {
+					try {
+						// @ts-ignore
+						let h = await this._getApiHandler(
+							parts[2],
+							parts[3],
+							parts[4],
+							parts[5],
+							parts[6],
+							'MQTT'
+						);
+						//console.log(h);
+						if (h.status == 200 && h.params.publish) {
+							// @ts-ignore
+							const r = this._cacheRoles.get(client.APIServer.role.idrole);
 
-				// Verificar si el cliente tiene permiso para publicar en el tópico
-				const tienePermisoPublicar = true; //tuFuncionParaVerificarPermisoPublicar(username, packet.topic);
-
-				// Si tiene permiso, llama al callback sin ningún argumento
-				if (tienePermisoPublicar) {
-					callback();
+							if (this._checkAuthorization(packet.topic, 'MQTT', r)) {
+								callback();
+							} else {
+								callback(new Error('You dont have authorization.'));
+							}
+						} else {
+							callback(new Error(h.message));
+						}
+					} catch (error) {
+						// @ts-ignore
+						callback(new Error(error.message));
+					}
 				} else {
-					// Si no tiene permiso, llama al callback con un Error
-					callback(new Error('No tienes permiso para publicar en este tópico'));
+					callback(new Error('You can only subscribe to a topic under your username.'));
 				}
 			},
 			authorizeSubscribe: async (client, subscription, callback) => {
 				if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
 					callback(null, subscription);
 				} else {
-					const r = this._cacheRoles.get(client.APIServer.role.idrole);
+					// @ts-ignore
 					let parts = subscription.topic.split('/');
 
-					console.log('authorizeSubscribe >> ', client.APIServer, subscription.topic, parts);
-
+					// @ts-ignore
 					if (parts[7] == client.APIServer.username) {
 						try {
-							// app, namespace, name, version, environment, method
 							// @ts-ignore
 							let h = await this._getApiHandler(
 								parts[2],
@@ -102,44 +120,27 @@ export class ServerAPI extends EventEmitter {
 								parts[6],
 								'MQTT'
 							);
-							console.log(h);
-							if (h.status == 200) {
-								//					if ((r.enabled && r.attrs) || (r.enabled && r.type == 1)) {
+							//console.log(h);
+							if (h.status == 200 && h.params.subscribe) {
+								// @ts-ignore
+								const r = this._cacheRoles.get(client.APIServer.role.idrole);
 
-								callback(null, subscription);
+								if (this._checkAuthorization(subscription.topic, 'MQTT', r)) {
+									callback(null, subscription);
+								} else {
+									callback(new Error('You dont have authorization.'));
+								}
 							} else {
 								callback(new Error(h.message));
 							}
 						} catch (error) {
+							// @ts-ignore
 							callback(new Error(error.message));
 						}
 					} else {
 						callback(new Error('You can only subscribe to a topic under your username.'));
 					}
 				}
-
-				// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
-				// @ts-ignore
-
-				// @ts-ignore
-				//const username = client.username;
-
-				// Verificar si el cliente tiene permiso para suscribirse al tópico
-				//const tienePermisoSuscribirse = true;
-				/*tuFuncionParaVerificarPermisoSuscribirse(
-					username,
-					subscription.topic
-				);
-				*/
-				/*
-				// Si tiene permiso, llama al callback sin ningún argumento
-				if (tienePermisoSuscribirse) {
-					callback(null, subscription);
-				} else {
-					// Si no tiene permiso, llama al callback con un Error
-					callback(new Error('No tienes permiso para suscribirte a este tópico'));
-				}
-				*/
 			},
 			authenticate: async (client, username, password, callback) => {
 				try {
@@ -388,6 +389,11 @@ export class ServerAPI extends EventEmitter {
 		this._httpServer.setTimeout(rto); // Para 5 minutos
 	}
 
+	/**
+	 * @param {{ username: any; }} client
+	 * @param {any} packet
+	 * @param {any} callback
+	 */
 	_authorizePublish(client, packet, callback) {
 		// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
 		const username = client.username;
@@ -402,6 +408,15 @@ export class ServerAPI extends EventEmitter {
 			// Si no tiene permiso, llama al callback con un Error
 			callback(new Error('No tienes permiso para publicar en este tópico'));
 		}
+	}
+
+	/**
+	 * @param {string} path
+	 * @param {string} method
+	 * @param {any} role
+	 */
+	_checkAuthorization(path, method, role) {
+		return true;
 	}
 
 	/**
