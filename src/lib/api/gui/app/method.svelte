@@ -128,7 +128,7 @@
 			</div>
 		</div>
 
-		{#if !data.public}
+		{#if !data.public && method !== 'MQTT'}
 			<div class="field is-horizontal">
 				<div class="field-label">
 					<!-- svelte-ignore a11y-label-has-associated-control -->

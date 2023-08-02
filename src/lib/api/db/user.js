@@ -135,6 +135,7 @@ export async function login(username, password) {
       let token = GenToken({
         username: u.username,
         role: u.idrole,
+        date: new Date() // Para que se genere siempre un token diferente
       });
 
       await user.update({ token: token, last_login: new Date() });

@@ -53,6 +53,7 @@
 		"soap": "^1.0.0",
 		"sqlite3": "^5.1.6",
 		"tedious": "^16.1.0",
+		"uuid": "^9.0.0",
 		"websocket-stream": "^5.5.2"
 	}
 }

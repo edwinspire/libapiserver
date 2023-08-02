@@ -112,7 +112,7 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 													*/
 													returnHandler.params = v[environment][method];
 
-													console.log('returnHandler.params >>>> ', returnHandler);
+													//console.log('returnHandler.params >>>> ', returnHandler);
 
 													if (returnHandler.params.public) {
 														returnHandler.authentication = async (
@@ -484,6 +484,26 @@ export const defaultApps = async () => {
 											userAuthentication: false,
 											tokenAuthentication: false,
 											broadcast: true
+										}
+									},
+									qa: {},
+									prd: {}
+								}
+							]
+						},
+						{
+							name: 'test_mqtt',
+							versions: [
+								{
+									version: '0.01',
+									dev: {
+										MQTT: {
+											enabled: true,
+											handler: 'NA',
+											public: true,
+											userAuthentication: false,
+											tokenAuthentication: false,
+											broadcast: false
 										}
 									},
 									qa: {},

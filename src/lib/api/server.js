@@ -24,6 +24,7 @@ import websocketStream from 'websocket-stream';
 
 import * as fnSystem from './server/functions/system.js';
 import * as fnPublic from './server/functions/public.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const {
 	PORT,
@@ -54,6 +55,7 @@ export class ServerAPI extends EventEmitter {
 		this._ws_paths = [];
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
+		this._cacheRoles = new Map();
 		this._fn = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
@@ -63,12 +65,96 @@ export class ServerAPI extends EventEmitter {
 
 		//    defaultUser();
 		const aedes = new aedesMod({
+			authorizePublish: (client, packet, callback) => {
+				// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
+				// @ts-ignore
+				const username = client.username;
+
+				// Verificar si el cliente tiene permiso para publicar en el tópico
+				const tienePermisoPublicar = true; //tuFuncionParaVerificarPermisoPublicar(username, packet.topic);
+
+				// Si tiene permiso, llama al callback sin ningún argumento
+				if (tienePermisoPublicar) {
+					callback();
+				} else {
+					// Si no tiene permiso, llama al callback con un Error
+					callback(new Error('No tienes permiso para publicar en este tópico'));
+				}
+			},
+			authorizeSubscribe: async (client, subscription, callback) => {
+				if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
+					callback(null, subscription);
+				} else {
+					const r = this._cacheRoles.get(client.APIServer.role.idrole);
+					let parts = subscription.topic.split('/');
+
+					console.log('authorizeSubscribe >> ', client.APIServer, subscription.topic, parts);
+
+					if (parts[7] == client.APIServer.username) {
+						try {
+							// app, namespace, name, version, environment, method
+							// @ts-ignore
+							let h = await this._getApiHandler(
+								parts[2],
+								parts[3],
+								parts[4],
+								parts[5],
+								parts[6],
+								'MQTT'
+							);
+							console.log(h);
+							if (h.status == 200) {
+								//					if ((r.enabled && r.attrs) || (r.enabled && r.type == 1)) {
+
+								callback(null, subscription);
+							} else {
+								callback(new Error(h.message));
+							}
+						} catch (error) {
+							callback(new Error(error.message));
+						}
+					} else {
+						callback(new Error('You can only subscribe to a topic under your username.'));
+					}
+				}
+
+				// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
+				// @ts-ignore
+
+				// @ts-ignore
+				//const username = client.username;
+
+				// Verificar si el cliente tiene permiso para suscribirse al tópico
+				//const tienePermisoSuscribirse = true;
+				/*tuFuncionParaVerificarPermisoSuscribirse(
+					username,
+					subscription.topic
+				);
+				*/
+				/*
+				// Si tiene permiso, llama al callback sin ningún argumento
+				if (tienePermisoSuscribirse) {
+					callback(null, subscription);
+				} else {
+					// Si no tiene permiso, llama al callback con un Error
+					callback(new Error('No tienes permiso para suscribirte a este tópico'));
+				}
+				*/
+			},
 			authenticate: async (client, username, password, callback) => {
 				try {
 					// @ts-ignore
 					let u = await login(username, password);
-					console.log(u);
-					callback(null, u.login);
+					if (u.login) {
+						this._cacheRoles.set(u.role.idrole, u.role);
+					}
+					//console.log(u);
+					// @ts-ignore
+					client.APIServer = {
+						username: u.username,
+						role: { idrole: u.role.idrole }
+					};
+					callback(null, u.login && u.role.enabled);
 				} catch (error) {
 					console.log(error);
 					callback(null, false);
@@ -85,7 +171,7 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
-			console.log('>----------------------> ', request.headers, socket);
+			//console.log('>----------------------> ', request.headers, socket);
 
 			if (request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
@@ -96,24 +182,23 @@ export class ServerAPI extends EventEmitter {
 					this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 				});
 			} else {
-				// let reqUrl = new URL(`http://localhost${request.url}`);
+				let reqUrl = new URL(`http://localhost${request.url}`);
 
-				let parts = request.url?.split('/');
+				let parts = reqUrl.pathname.split('/');
 
-				console.log(request, parts);
+				//console.log(' XXX> request', request);
 
 				try {
 					// app, namespace, name, version, environment, method
 					// @ts-ignore
 					let h = await this._getApiHandler(parts[2], parts[3], parts[4], parts[5], parts[6], 'WS');
-
-					console.log(h);
+					//console.log('<>>>>> h >>>>', h);
 
 					if (h.status == 200) {
-						let dataAuth = getUserPasswordTokenFromRequest(request);
-
-						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
-
+						// TODO implementar autenticación
+						//						let dataAuth = getUserPasswordTokenFromRequest(request);
+						//						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
+						let auth = true;
 						if (!auth) {
 							// Si el cliente no está autenticado, responder con un error 401 Unauthorized
 							socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
@@ -129,6 +214,10 @@ export class ServerAPI extends EventEmitter {
 					// Si el cliente está autenticado, permitir la conexión WebSocket
 					// @ts-ignore
 					this._wsServer.handleUpgrade(request, socket, head, (ws) => {
+						// @ts-ignore
+						ws.APIServer = { uuid: uuidv4(), path: reqUrl.pathname, broadcast: h.params.broadcast };
+
+						//						console.log('<ws >>> ', ws, h);
 						//req.hola = "Mundo";
 						// @ts-ignore
 						this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
@@ -158,6 +247,31 @@ export class ServerAPI extends EventEmitter {
 
 					// Manejar la conexión con aedes
 					aedes.handle(wsStream);
+				} else {
+					// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
+					// @ts-ignore
+					if (ws.APIServer.broadcast) {
+						ws.on(
+							'message',
+							(
+								/** @type {string | number | readonly any[] | Buffer | Uint8Array | DataView | ArrayBufferView | ArrayBuffer | SharedArrayBuffer | readonly number[] | { valueOf(): ArrayBuffer; } | { valueOf(): SharedArrayBuffer; } | { valueOf(): Uint8Array; } | { //this._cacheFn = {};
+							valueOf(): readonly number[]; } | { valueOf(): string; } | { [Symbol.toPrimitive](hint: string): string; }} */ data,
+								/** @type {any} */ isBinary
+							) => {
+								console.log(`Received message ${data}`);
+
+								this._wsServer.clients.forEach((clientws) => {
+									if (
+										clientws.readyState === WebSocket.OPEN &&
+										// @ts-ignore
+										ws.APIServer.uuid != clientws.APIServer.uuid
+									) {
+										clientws.send(data, { binary: isBinary });
+									}
+								});
+							}
+						);
+					}
 				}
 			}
 		);
@@ -272,6 +386,22 @@ export class ServerAPI extends EventEmitter {
 		}
 		console.log('EXPRESSJS_SERVER_TIMEOUT: ' + EXPRESSJS_SERVER_TIMEOUT);
 		this._httpServer.setTimeout(rto); // Para 5 minutos
+	}
+
+	_authorizePublish(client, packet, callback) {
+		// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
+		const username = client.username;
+
+		// Verificar si el cliente tiene permiso para publicar en el tópico
+		const tienePermisoPublicar = true; //tuFuncionParaVerificarPermisoPublicar(username, packet.topic);
+
+		// Si tiene permiso, llama al callback sin ningún argumento
+		if (tienePermisoPublicar) {
+			callback();
+		} else {
+			// Si no tiene permiso, llama al callback con un Error
+			callback(new Error('No tienes permiso para publicar en este tópico'));
+		}
 	}
 
 	/**
