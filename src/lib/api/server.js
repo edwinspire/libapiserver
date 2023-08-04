@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { EventEmitter } from 'node:events';
 import { defaultApps } from './db/app.js';
 import { defaultUser, login } from './db/user.js';
-import { defaultRoles } from './db/role.js';
+import { defaultRoles, getRoleById } from './db/role.js';
 import { defaultMethods } from './db/method.js';
 import { defaultHandlers } from './db/handler.js';
 import dbRestAPI from './db/sequelize.js';
@@ -83,9 +83,10 @@ export class ServerAPI extends EventEmitter {
 						//console.log(h);
 						if (h.status == 200 && h.params.publish) {
 							// @ts-ignore
-							const r = this._cacheRoles.get(client.APIServer.role.idrole);
-
-							if (this._checkAuthorization(packet.topic, 'MQTT', r)) {
+							if (
+								// @ts-ignore
+								await this._checkAuthorization(packet.topic, 'MQTT', client.APIServer.role.idrole)
+							) {
 								callback();
 							} else {
 								callback(new Error('You dont have authorization.'));
@@ -123,9 +124,14 @@ export class ServerAPI extends EventEmitter {
 							//console.log(h);
 							if (h.status == 200 && h.params.subscribe) {
 								// @ts-ignore
-								const r = this._cacheRoles.get(client.APIServer.role.idrole);
-
-								if (this._checkAuthorization(subscription.topic, 'MQTT', r)) {
+								if (
+									await this._checkAuthorization(
+										subscription.topic,
+										'MQTT',
+										// @ts-ignore
+										client.APIServer.role.idrole
+									)
+								) {
 									callback(null, subscription);
 								} else {
 									callback(new Error('You dont have authorization.'));
@@ -172,7 +178,7 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
-			//console.log('>----------------------> ', request.headers, socket);
+			//	console.log('>----------------------> ', request.client);
 
 			if (request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
@@ -199,8 +205,8 @@ export class ServerAPI extends EventEmitter {
 						// TODO implementar autenticación
 						//						let dataAuth = getUserPasswordTokenFromRequest(request);
 						//						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
-						let auth = true;
-						if (!auth) {
+
+						if (!this._checkAuthorization(reqUrl.pathname, 'WS', '')) {
 							// Si el cliente no está autenticado, responder con un error 401 Unauthorized
 							socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
 							socket.destroy();
@@ -237,7 +243,7 @@ export class ServerAPI extends EventEmitter {
 			(
 				/** @type {{ protocol: string; on: (arg0: string, arg1: (c: any) => void) => void; send: (arg0: number) => void; }} */ ws
 			) => {
-				console.log('>>>>>>>>>>>>>>>>> WS connection.', ws.protocol);
+				console.log('>>>>>>>>>>>>>>>>> WS connection.', ws);
 				//ws.close(1003, "ok");
 				if (ws.protocol == 'mqtt') {
 					// Convertir la conexión WebSocket a websocket-stream
@@ -262,7 +268,10 @@ export class ServerAPI extends EventEmitter {
 								console.log(`Received message ${data}`);
 
 								this._wsServer.clients.forEach((clientws) => {
+									console.log('>> clientws >> ', clientws);
+
 									if (
+										clientws.protocol != 'mqtt' &&
 										clientws.readyState === WebSocket.OPEN &&
 										// @ts-ignore
 										ws.APIServer.uuid != clientws.APIServer.uuid
@@ -281,6 +290,8 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.use((req, res, next) => {
 			const startTime = new Date().getTime();
+
+			//console.log('\n\n\n >>> XXXX >>> ', req);
 
 			// Emit time
 			res.on('finish', () => {
@@ -413,10 +424,44 @@ export class ServerAPI extends EventEmitter {
 	/**
 	 * @param {string} path
 	 * @param {string} method
-	 * @param {any} role
+	 * @param {number} idrole
 	 */
-	_checkAuthorization(path, method, role) {
-		return true;
+	async _checkAuthorization(path, method, idrole) {
+		let url_parts = path.split('/').slice(0, 7);
+		let env_part = url_parts[6] || '@';
+		let url = url_parts.slice(0, 6).join('/') + '/[environment]';
+		let endpoint;
+		let role = this._cacheRoles.get(idrole);
+
+		if (!role) {
+			console.log(' > _checkAuthorization > No está en cache!');
+			role = await getRoleById(idrole, true);
+			this._cacheRoles.set(idrole, role);
+		}
+
+		console.log(
+			'>>>> _checkAuthorization >>> ',
+			path,
+			method,
+			idrole,
+			url_parts,
+			url,
+			env_part
+			//endpoint,
+		);
+
+		if (role && role.attrs && role.attrs.endpoints) {
+			endpoint = role.attrs.endpoints.find(
+				(/** @type {{ url: string; enabled: any; }} */ element) =>
+					element.url == url && element.enabled
+			);
+		}
+
+		if (!endpoint || !endpoint.methods) {
+			return false;
+		}
+
+		return endpoint.methods[method || '@'][env_part];
 	}
 
 	/**
