@@ -37,14 +37,15 @@ export function checkToken(token) {
 export function validateToken(req, res, next) {
 	// Obtener el token del encabezado de autorización
 	// @ts-ignore
-	const token = req.headers['api-token'];
+	//const token = req.headers['api-token'];
+	let dataAuth = getUserPasswordTokenFromRequest(req);
 
 	// Verificar si se proporcionó un token
-	if (!token) {
+	if (!dataAuth.token) {
 		return res.status(401).json({ error: 'Token not found' });
 	}
 
-	let data = checkToken(token);
+	let data = checkToken(dataAuth.token);
 
 	if (data) {
 		next();
@@ -102,14 +103,20 @@ export function tokenVerify(token) {
  */
 export function getUserPasswordTokenFromRequest(req) {
 	const authHeader = req.headers.authorization;
-	let token = req.headers['api-token'];
-	if (!authHeader) {
-		return { username: '', password: '', token: token };
+
+	let username,
+		token,
+		password;
+
+	if (authHeader && authHeader.startsWith('Basic')) {
+		const encodedCredentials = authHeader.split(' ')[1];
+		const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
+		[username, password] = decodedCredentials.split(':');
 	}
 
-	const encodedCredentials = authHeader.split(' ')[1];
-	const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
-	const [username, password] = decodedCredentials.split(':');
+	if (authHeader && authHeader.startsWith('Bearer')) {
+		token = authHeader.split(' ')[1];
+	}
 
 	return { username: username, password: password, token: token };
 }

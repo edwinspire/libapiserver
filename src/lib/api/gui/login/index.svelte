@@ -9,6 +9,7 @@
 
   let username = "";
   let password = "";
+  // @ts-ignore
   let uf = new uFetch();
 
   /**
@@ -24,6 +25,7 @@
     // Lógica de autenticación aquí
 
     try {
+      // @ts-ignore
       let user = await uf.post("/system/main/login", { username, password });
       let data = await user.json();
       console.log(data);

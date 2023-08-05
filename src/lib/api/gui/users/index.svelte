@@ -34,13 +34,13 @@
 		name: { hidden: true },
 		version: { hidden: true },
 		description: { hidden: true },
-    methods: {decorator: {component: CellAttrs}}
+		methods: { decorator: { component: CellAttrs } }
 	};
 
 	userStore.subscribe((value) => {
 		console.log('tokenStore ->>>>', value);
 		// @ts-ignore
-		uf.addHeader('api-token', value.token);
+		uf.setBearerAuthorization(value.token);
 	});
 
 	async function getApps() {
@@ -51,7 +51,7 @@
 
 			let apps_res = await uf.get('/system/main/role/1');
 			let data = await apps_res.json();
-      appDataTable = data.attrs.endpoints;
+			appDataTable = data.attrs.endpoints;
 			console.log(data);
 		} catch (error) {
 			// @ts-ignore
