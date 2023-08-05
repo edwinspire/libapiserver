@@ -26,7 +26,8 @@
 		public: true,
 		userAuthentication: false,
 		tokenAuthentication: false,
-		broadcast: false
+		broadcast: false,
+		description: ''
 	};
 
 	export let Show = false;
@@ -179,5 +180,13 @@
 				</div>
 			</div>
 		{/if}
+
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label is-small">Description</label>
+			<div class="control">
+				<textarea class="textarea is-small" placeholder="Textarea" bind:value={data.description} />
+			</div>
+		</div>
 	</div>
 </DialogModal>

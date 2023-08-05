@@ -1,6 +1,6 @@
 const { createHmac } = await import('node:crypto');
 import { v4 as uuidv4 } from 'uuid';
-
+import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
 
 const { JWT_KEY, EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
@@ -98,7 +98,7 @@ export function tokenVerify(token) {
 }
 
 /**
- * @param {import("express-serve-static-core").Request<{ app: string; } & { namespace: string; } & { name: string; } & { version: string; } & { environment: string; }, any, any, import("qs").ParsedQs, Record<string, any>>} req
+ * @param {any} req
  */
 export function getUserPasswordTokenFromRequest(req) {
 	const authHeader = req.headers.authorization;
@@ -180,4 +180,13 @@ export async function HTTPOnUpgrade(wsServer, _getApiHandler, request, socket, h
 			return;
 		}
 	}
+}
+
+/**
+ * @param {any} socket
+ */
+export function websocketUnauthorized(socket) {
+	// Si el cliente no está autenticado, responder con un error 401 Unauthorized
+	socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+	socket.destroy();
 }

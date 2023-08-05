@@ -123,32 +123,29 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 															return true;
 														};
 													} else {
+														// @ts-ignore
 														returnHandler.authentication = async (
 															/** @type {string} */ token,
 															/** @type {string} */ username,
 															/** @type {string} */ password
 														) => {
-															let authenticated = false;
+															let dataUser = undefined;
 
-															if (
-																returnHandler.params.tokenAuthentication &&
-																token &&
-																checkToken(token)
-															) {
-																authenticated = true;
+															if (returnHandler.params.tokenAuthentication && token) {
+																dataUser = checkToken(token);
 															}
 
 															if (
-																!authenticated &&
+																!dataUser &&
 																returnHandler.params.userAuthentication &&
 																username &&
 																password
 															) {
 																let u = await login(username, password);
-																authenticated = u.login;
+																dataUser = u && u.login ? checkToken(u.token) : false;
 															}
 
-															return authenticated;
+															return dataUser;
 														};
 													}
 
@@ -483,7 +480,38 @@ export const defaultApps = async () => {
 											public: true,
 											userAuthentication: false,
 											tokenAuthentication: false,
+											broadcast: true,
+											description: 'Public WebSocket'
+										}
+									},
+									qa: {},
+									prd: {}
+								},
+								{
+									version: '0.02',
+									dev: {
+										WS: {
+											enabled: true,
+											handler: 'NA',
+											public: false,
+											userAuthentication: true,
+											tokenAuthentication: false,
 											broadcast: true
+										}
+									},
+									qa: {},
+									prd: {}
+								},
+								{
+									version: '0.03',
+									dev: {
+										WS: {
+											enabled: true,
+											handler: 'NA',
+											public: false,
+											userAuthentication: false,
+											tokenAuthentication: true,
+											broadcast: false
 										}
 									},
 									qa: {},

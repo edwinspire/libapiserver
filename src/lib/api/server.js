@@ -13,7 +13,8 @@ import systemRoutes from './server/router/system.js';
 import {
 	validateToken,
 	defaultSystemPath,
-	getUserPasswordTokenFromRequest
+	getUserPasswordTokenFromRequest,
+	websocketUnauthorized
 } from '../api/server/utils.js';
 
 import aedesMod from 'aedes';
@@ -38,7 +39,7 @@ const {
 	MQTT_ENABLED
 } = process.env;
 
-console.log('>>>>', WebSocket);
+//console.log('>>>>', WebSocket);
 
 export class ServerAPI extends EventEmitter {
 	/**
@@ -168,6 +169,17 @@ export class ServerAPI extends EventEmitter {
 				}
 			}
 		});
+
+		// Manejar eventos de mensaje recibido
+		aedes.on('publish', (packet, client) => {
+			if (packet.cmd === 'publish') {
+				console.log(`Mensaje recibido en el tópico: ${packet.topic}`);
+				console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
+				this.emit('mqtt_publish', { packet, client });
+			}
+			
+		});
+
 		this.app = express();
 
 		//console.log(WebSocket);
@@ -193,23 +205,21 @@ export class ServerAPI extends EventEmitter {
 
 				let parts = reqUrl.pathname.split('/');
 
-				//console.log(' XXX> request', request);
-
 				try {
 					// app, namespace, name, version, environment, method
 					// @ts-ignore
 					let h = await this._getApiHandler(parts[2], parts[3], parts[4], parts[5], parts[6], 'WS');
-					//console.log('<>>>>> h >>>>', h);
 
 					if (h.status == 200) {
-						// TODO implementar autenticación
-						//						let dataAuth = getUserPasswordTokenFromRequest(request);
-						//						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
-
-						if (!this._checkAuthorization(reqUrl.pathname, 'WS', '')) {
-							// Si el cliente no está autenticado, responder con un error 401 Unauthorized
-							socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-							socket.destroy();
+						let dataUser = getUserPasswordTokenFromRequest(request);
+						let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
+						if (auth) {
+							if (!this._checkAuthorization(reqUrl.pathname, 'WS', auth.role)) {
+								websocketUnauthorized(socket);
+								return;
+							}
+						} else {
+							websocketUnauthorized(socket);
 							return;
 						}
 					} else {
@@ -224,14 +234,11 @@ export class ServerAPI extends EventEmitter {
 						// @ts-ignore
 						ws.APIServer = { uuid: uuidv4(), path: reqUrl.pathname, broadcast: h.params.broadcast };
 
-						//						console.log('<ws >>> ', ws, h);
-						//req.hola = "Mundo";
 						// @ts-ignore
 						this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 					});
 				} catch (error) {
-					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-					socket.destroy();
+					websocketUnauthorized(socket);
 					console.log(error);
 					return;
 				}
@@ -241,34 +248,37 @@ export class ServerAPI extends EventEmitter {
 		this._wsServer.on(
 			'connection',
 			(
-				/** @type {{ protocol: string; on: (arg0: string, arg1: (c: any) => void) => void; send: (arg0: number) => void; }} */ ws
+				/** @type {{ protocol: string; on: (arg0: string, arg1: (c: any) => void) => void; send: (arg0: number) => void; }} */ ws,
+				req
 			) => {
-				console.log('>>>>>>>>>>>>>>>>> WS connection.', ws);
+				//	console.log('>>>>>>>>>>>>>>>>> WS connection.', req);
 				//ws.close(1003, "ok");
 				if (ws.protocol == 'mqtt') {
 					// Convertir la conexión WebSocket a websocket-stream
 					// @ts-ignore
 					const wsStream = websocketStream(ws, {
-						binary: false // Cambia a true si necesitas soporte para datos binarios
+						binary: true // Cambia a true si necesitas soporte para datos binarios
 					});
 
 					// Manejar la conexión con aedes
 					aedes.handle(wsStream);
 				} else {
-					// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
-					// @ts-ignore
-					if (ws.APIServer.broadcast) {
-						ws.on(
-							'message',
-							(
-								/** @type {string | number | readonly any[] | Buffer | Uint8Array | DataView | ArrayBufferView | ArrayBuffer | SharedArrayBuffer | readonly number[] | { valueOf(): ArrayBuffer; } | { valueOf(): SharedArrayBuffer; } | { valueOf(): Uint8Array; } | { //this._cacheFn = {};
-							valueOf(): readonly number[]; } | { valueOf(): string; } | { [Symbol.toPrimitive](hint: string): string; }} */ data,
-								/** @type {any} */ isBinary
-							) => {
-								console.log(`Received message ${data}`);
+					ws.on(
+						'message',
+						(
+							/** @type {string | number | readonly any[] | Buffer | Uint8Array | DataView | ArrayBufferView | ArrayBuffer | SharedArrayBuffer | readonly number[] | { valueOf(): ArrayBuffer; } | { valueOf(): SharedArrayBuffer; } | { valueOf(): Uint8Array; } | { //this._cacheFn = {};
+						valueOf(): readonly number[]; } | { valueOf(): string; } | { [Symbol.toPrimitive](hint: string): string; }} */ data,
+							/** @type {any} */ isBinary
+						) => {
+							//console.log(`Received message ${data}`);
 
+							this.emit('websocket_message', { data, isBinary, ws });
+
+							// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
+							// @ts-ignore
+							if (ws.APIServer.broadcast) {
 								this._wsServer.clients.forEach((clientws) => {
-									console.log('>> clientws >> ', clientws);
+									//	console.log('>> clientws >> ', clientws);
 
 									if (
 										clientws.protocol != 'mqtt' &&
@@ -280,8 +290,8 @@ export class ServerAPI extends EventEmitter {
 									}
 								});
 							}
-						);
-					}
+						}
+					);
 				}
 			}
 		);
@@ -315,7 +325,7 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.get(defaultSystemPath('functions'), validateToken, (req, res) => {
 			try {
-				console.log('Functions >>>>>>>');
+				//	console.log('Functions >>>>>>>');
 				// @ts-ignore
 				this._functions(req, res);
 			} catch (error) {
@@ -438,17 +448,6 @@ export class ServerAPI extends EventEmitter {
 			role = await getRoleById(idrole, true);
 			this._cacheRoles.set(idrole, role);
 		}
-
-		console.log(
-			'>>>> _checkAuthorization >>> ',
-			path,
-			method,
-			idrole,
-			url_parts,
-			url,
-			env_part
-			//endpoint,
-		);
 
 		if (role && role.attrs && role.attrs.endpoints) {
 			endpoint = role.attrs.endpoints.find(
