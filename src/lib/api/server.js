@@ -64,51 +64,14 @@ export class ServerAPI extends EventEmitter {
 		this._path_ws_hooks = PATH_WS_HOOKS || '/system/ws/hooks';
 		this.buildDB(buildDB);
 
-		//    defaultUser();
-		const aedes = new aedesMod({
-			authorizePublish: async (client, packet, callback) => {
-				let parts = packet.topic.split('/');
+		let aedes;
 
-				// @ts-ignore
-				if (parts[7] == client.APIServer.username) {
-					try {
-						// @ts-ignore
-						let h = await this._getApiHandler(
-							parts[2],
-							parts[3],
-							parts[4],
-							parts[5],
-							parts[6],
-							'MQTT'
-						);
-						//console.log(h);
-						if (h.status == 200 && h.params.publish) {
-							// @ts-ignore
-							if (
-								// @ts-ignore
-								await this._checkAuthorization(packet.topic, 'MQTT', client.APIServer.role.idrole)
-							) {
-								callback();
-							} else {
-								callback(new Error('You dont have authorization.'));
-							}
-						} else {
-							callback(new Error(h.message));
-						}
-					} catch (error) {
-						// @ts-ignore
-						callback(new Error(error.message));
-					}
-				} else {
-					callback(new Error('You can only subscribe to a topic under your username.'));
-				}
-			},
-			authorizeSubscribe: async (client, subscription, callback) => {
-				if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
-					callback(null, subscription);
-				} else {
-					// @ts-ignore
-					let parts = subscription.topic.split('/');
+		if (MQTT_ENABLED == "true") {
+
+			//    defaultUser();
+			aedes = new aedesMod({
+				authorizePublish: async (client, packet, callback) => {
+					let parts = packet.topic.split('/');
 
 					// @ts-ignore
 					if (parts[7] == client.APIServer.username) {
@@ -123,17 +86,13 @@ export class ServerAPI extends EventEmitter {
 								'MQTT'
 							);
 							//console.log(h);
-							if (h.status == 200 && h.params.subscribe) {
+							if (h.status == 200 && h.params.publish) {
 								// @ts-ignore
 								if (
-									await this._checkAuthorization(
-										subscription.topic,
-										'MQTT',
-										// @ts-ignore
-										client.APIServer.role.idrole
-									)
+									// @ts-ignore
+									await this._checkAuthorization(packet.topic, 'MQTT', client.APIServer.role.idrole)
 								) {
-									callback(null, subscription);
+									callback();
 								} else {
 									callback(new Error('You dont have authorization.'));
 								}
@@ -147,38 +106,85 @@ export class ServerAPI extends EventEmitter {
 					} else {
 						callback(new Error('You can only subscribe to a topic under your username.'));
 					}
-				}
-			},
-			authenticate: async (client, username, password, callback) => {
-				try {
-					// @ts-ignore
-					let u = await login(username, password);
-					if (u.login) {
-						this._cacheRoles.set(u.role.idrole, u.role);
-					}
-					//console.log(u);
-					// @ts-ignore
-					client.APIServer = {
-						username: u.username,
-						role: { idrole: u.role.idrole }
-					};
-					callback(null, u.login && u.role.enabled);
-				} catch (error) {
-					console.log(error);
-					callback(null, false);
-				}
-			}
-		});
+				},
+				authorizeSubscribe: async (client, subscription, callback) => {
+					if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
+						callback(null, subscription);
+					} else {
+						// @ts-ignore
+						let parts = subscription.topic.split('/');
 
-		// Manejar eventos de mensaje recibido
-		aedes.on('publish', (packet, client) => {
-			if (packet.cmd === 'publish') {
-				console.log(`Mensaje recibido en el tópico: ${packet.topic}`);
-				console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
-				this.emit('mqtt_publish', { packet, client });
-			}
-			
-		});
+						// @ts-ignore
+						if (parts[7] == client.APIServer.username) {
+							try {
+								// @ts-ignore
+								let h = await this._getApiHandler(
+									parts[2],
+									parts[3],
+									parts[4],
+									parts[5],
+									parts[6],
+									'MQTT'
+								);
+								//console.log(h);
+								if (h.status == 200 && h.params.subscribe) {
+									// @ts-ignore
+									if (
+										await this._checkAuthorization(
+											subscription.topic,
+											'MQTT',
+											// @ts-ignore
+											client.APIServer.role.idrole
+										)
+									) {
+										callback(null, subscription);
+									} else {
+										callback(new Error('You dont have authorization.'));
+									}
+								} else {
+									callback(new Error(h.message));
+								}
+							} catch (error) {
+								// @ts-ignore
+								callback(new Error(error.message));
+							}
+						} else {
+							callback(new Error('You can only subscribe to a topic under your username.'));
+						}
+					}
+				},
+				authenticate: async (client, username, password, callback) => {
+					try {
+						// @ts-ignore
+						let u = await login(username, password);
+						if (u.login) {
+							this._cacheRoles.set(u.role.idrole, u.role);
+						}
+						//console.log(u);
+						// @ts-ignore
+						client.APIServer = {
+							username: u.username,
+							role: { idrole: u.role.idrole }
+						};
+						callback(null, u.login && u.role.enabled);
+					} catch (error) {
+						console.log(error);
+						callback(null, false);
+					}
+				}
+			});
+
+			// Manejar eventos de mensaje recibido
+			aedes.on('publish', (packet, client) => {
+				if (packet.cmd === 'publish') {
+					console.log(`Mensaje recibido en el tópico: ${packet.topic}`);
+					console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
+					this.emit('mqtt_publish', { packet, client });
+				}
+
+			});
+
+		}
 
 		this.app = express();
 
@@ -191,8 +197,8 @@ export class ServerAPI extends EventEmitter {
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
 			//	console.log('>----------------------> ', request.client);
-
-			if (request.headers['sec-websocket-protocol'] == 'mqtt') {
+			// if (MQTT_ENABLED == "true") 
+			if (MQTT_ENABLED == "true" && request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
 				// @ts-ignore
 				this._wsServer.handleUpgrade(request, socket, head, (ws) => {
@@ -253,7 +259,8 @@ export class ServerAPI extends EventEmitter {
 			) => {
 				//	console.log('>>>>>>>>>>>>>>>>> WS connection.', req);
 				//ws.close(1003, "ok");
-				if (ws.protocol == 'mqtt') {
+				// @ts-ignore
+				if (MQTT_ENABLED == "true" && aedes && ws.protocol == 'mqtt') {
 					// Convertir la conexión WebSocket a websocket-stream
 					// @ts-ignore
 					const wsStream = websocketStream(ws, {
@@ -642,19 +649,19 @@ export class ServerAPI extends EventEmitter {
 			return Object.keys(f);
 		}
 		/*
-    let d = this._fn.get(appName);
-    let p = this._fn.get("public");
+	let d = this._fn.get(appName);
+	let p = this._fn.get("public");
 
-    //    console.log(appName, d, p);
+	//    console.log(appName, d, p);
 
-    if (d && p) {
-      return Object.keys(p).concat(Object.keys(d)).flat();
-    } else if (d) {
-      return Object.keys(d);
-    } else if (p) {
-      return Object.keys(p);
-    }
-    */
+	if (d && p) {
+	  return Object.keys(p).concat(Object.keys(d)).flat();
+	} else if (d) {
+	  return Object.keys(d);
+	} else if (p) {
+	  return Object.keys(p);
+	}
+	*/
 
 		return [];
 	}
