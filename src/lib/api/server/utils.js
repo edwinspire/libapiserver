@@ -15,7 +15,7 @@ const errors = {
 export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 
-const mqtt_struct_path = '/api/:app/:namespace/:name/:version/:environment/:username/:kkk?';
+const mqtt_struct_path = '/api/:app/:namespace/:name/:version/:environment/:username/:topic*';
 const fn_mqtt_match_url = match(mqtt_struct_path, { decode: decodeURIComponent });
 
 export const path_params = (/** @type {string} */ url) => {

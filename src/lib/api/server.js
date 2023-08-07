@@ -146,7 +146,7 @@ export class ServerAPI extends EventEmitter {
 									'MQTT'
 								);
 
-								console.log(h);
+							//	console.log(h);
 								if (h.status == 200 && h.params.subscribe) {
 									// @ts-ignore
 									if (
