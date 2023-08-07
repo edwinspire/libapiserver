@@ -213,10 +213,6 @@ export class ServerAPI extends EventEmitter {
 				});
 			} else {
 
-				//let reqUrl = new URL(`http://localhost${request.url}`);
-
-				//let parts = reqUrl.pathname.split('/');
-
 				try {
 					let data_url = path_params(request.url);
 
@@ -229,19 +225,24 @@ export class ServerAPI extends EventEmitter {
 						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
 						//						console.log(h);
 						if (h.status == 200) {
-							let dataUser = getUserPasswordTokenFromRequest(request);
-							//							console.log(dataUser);
-							let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
-							//							console.log(auth);
-							if (auth) {
-								if (!this._checkAuthorization(data_url.path, 'WS', auth.role)) {
-									websocketUnauthorized(socket);
-									return;
+
+							if (!h.params.public) {
+
+								let dataUser = getUserPasswordTokenFromRequest(request);
+								//							console.log(dataUser);
+								let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
+								//console.log(h.params, auth);
+								if (auth) {
+									let autho = await this._checkAuthorization(data_url.path, 'WS', auth.role);
+									if (!autho) {
+										console.log('-- websocketUnauthorized');
+										websocketUnauthorized(socket);
+										return;
+									}
 								}
-							} else {
-								websocketUnauthorized(socket);
-								return;
+
 							}
+
 						} else {
 							socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
 							socket.destroy();
@@ -474,7 +475,8 @@ export class ServerAPI extends EventEmitter {
 		let endpoint;
 		let role = this._cacheRoles.get(idrole);
 
-		if (!role) {
+
+		if (!role && idrole && idrole > 0) {
 			console.log(' > _checkAuthorization > No está en cache!', idrole);
 			role = await getRoleById(idrole, true);
 			this._cacheRoles.set(idrole, role);
@@ -487,9 +489,12 @@ export class ServerAPI extends EventEmitter {
 			);
 		}
 
+
 		if (!endpoint || !endpoint.methods) {
 			return false;
 		}
+
+		console.log(' > _checkAuthorization >>>> ', path, method, idrole, role, url, endpoint);
 
 		// @ts-ignore
 		return endpoint.methods[method || '@'][paramsUrl.params.environment];
@@ -572,7 +577,7 @@ export class ServerAPI extends EventEmitter {
 				if (!this._cacheApi.has(apiPath)) {
 					// Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
 					let appData = await Application.findOne({ where: { app: app } });
-					console.log('>>>> NO usa cache', apiPath, appData);
+					console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
 					this._cacheApi.set(
 						apiPath,
 						getApiHandler(appData, app, namespace, name, version, environment, method)
