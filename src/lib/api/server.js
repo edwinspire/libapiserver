@@ -17,7 +17,8 @@ import {
 	websocketUnauthorized,
 	struct_path,
 	path_params,
-	mqtt_path_params
+	mqtt_path_params,
+	path_params_to_url
 } from '../api/server/utils.js';
 
 import aedesMod from 'aedes';
@@ -102,7 +103,7 @@ export class ServerAPI extends EventEmitter {
 								// @ts-ignore
 								if (
 									// @ts-ignore
-									await this._checkAuthorization(packet.topic, 'MQTT', client.APIServer.role.idrole)
+									await this._checkAuthorization(path_params_to_url(dataUrl.params), 'MQTT', client.APIServer.role.idrole)
 								) {
 									callback();
 								} else {
@@ -125,7 +126,7 @@ export class ServerAPI extends EventEmitter {
 					} else {
 
 						let dataUrl = mqtt_path_params(subscription.topic);
-						console.log(subscription.topic, dataUrl);
+						//console.log(subscription.topic, dataUrl, client.APIServer);
 						// @ts-ignore
 						if (dataUrl && dataUrl.params.username == client.APIServer.username) {
 							try {
@@ -145,12 +146,13 @@ export class ServerAPI extends EventEmitter {
 									'MQTT'
 								);
 
-								//console.log(h);
+								console.log(h);
 								if (h.status == 200 && h.params.subscribe) {
 									// @ts-ignore
 									if (
 										await this._checkAuthorization(
-											subscription.topic,
+											// @ts-ignore
+											path_params_to_url(dataUrl.params),
 											'MQTT',
 											// @ts-ignore
 											client.APIServer.role.idrole
@@ -177,7 +179,7 @@ export class ServerAPI extends EventEmitter {
 						// @ts-ignore
 						let u = await login(username, password);
 
-						console.log(u);
+						//console.log(u);
 
 						if (u.login) {
 							this._cacheRoles.set(u.role.idrole, u.role);
@@ -483,6 +485,7 @@ export class ServerAPI extends EventEmitter {
 	 */
 	async _checkAuthorization(path, method, idrole) {
 
+		console.log(path);
 		let paramsUrl = path_params(path);
 
 		//let url_parts = path.split('/').slice(0, 7);
