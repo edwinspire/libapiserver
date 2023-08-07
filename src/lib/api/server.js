@@ -14,7 +14,9 @@ import {
 	validateToken,
 	defaultSystemPath,
 	getUserPasswordTokenFromRequest,
-	websocketUnauthorized
+	websocketUnauthorized,
+	struct_path,
+	path_params
 } from '../api/server/utils.js';
 
 import aedesMod from 'aedes';
@@ -27,6 +29,7 @@ import * as fnSystem from './server/functions/system.js';
 import * as fnPublic from './server/functions/public.js';
 import { v4 as uuidv4 } from 'uuid';
 
+
 const {
 	PORT,
 	EXPRESSJS_SERVER_TIMEOUT,
@@ -38,6 +41,7 @@ const {
 	PATH_WS_HOOKS,
 	MQTT_ENABLED
 } = process.env;
+
 
 //console.log('>>>>', WebSocket);
 
@@ -64,6 +68,7 @@ export class ServerAPI extends EventEmitter {
 		this._path_ws_hooks = PATH_WS_HOOKS || '/system/ws/hooks';
 		this.buildDB(buildDB);
 
+		// @ts-ignore
 		let aedes;
 
 		if (MQTT_ENABLED == "true") {
@@ -207,42 +212,56 @@ export class ServerAPI extends EventEmitter {
 					this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 				});
 			} else {
-				let reqUrl = new URL(`http://localhost${request.url}`);
 
-				let parts = reqUrl.pathname.split('/');
+				//let reqUrl = new URL(`http://localhost${request.url}`);
+
+				//let parts = reqUrl.pathname.split('/');
 
 				try {
-					// app, namespace, name, version, environment, method
-					// @ts-ignore
-					let h = await this._getApiHandler(parts[2], parts[3], parts[4], parts[5], parts[6], 'WS');
+					let data_url = path_params(request.url);
 
-					if (h.status == 200) {
-						let dataUser = getUserPasswordTokenFromRequest(request);
-						let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
-						if (auth) {
-							if (!this._checkAuthorization(reqUrl.pathname, 'WS', auth.role)) {
+					//					console.log('===>>>>>>> ', data_url);
+
+					if (data_url) {
+
+						// app, namespace, name, version, environment, method
+						// @ts-ignore
+						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
+						//						console.log(h);
+						if (h.status == 200) {
+							let dataUser = getUserPasswordTokenFromRequest(request);
+							//							console.log(dataUser);
+							let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
+							//							console.log(auth);
+							if (auth) {
+								if (!this._checkAuthorization(data_url.path, 'WS', auth.role)) {
+									websocketUnauthorized(socket);
+									return;
+								}
+							} else {
 								websocketUnauthorized(socket);
 								return;
 							}
 						} else {
-							websocketUnauthorized(socket);
+							socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
+							socket.destroy();
 							return;
 						}
+
+						// Si el cliente está autenticado, permitir la conexión WebSocket
+						// @ts-ignore
+						this._wsServer.handleUpgrade(request, socket, head, (ws) => {
+							// @ts-ignore
+							ws.APIServer = { uuid: uuidv4(), path: data_url.path, broadcast: h.params.broadcast };
+
+							// @ts-ignore
+							this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
+						});
 					} else {
-						socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
-						socket.destroy();
+						websocketUnauthorized(socket);
 						return;
 					}
 
-					// Si el cliente está autenticado, permitir la conexión WebSocket
-					// @ts-ignore
-					this._wsServer.handleUpgrade(request, socket, head, (ws) => {
-						// @ts-ignore
-						ws.APIServer = { uuid: uuidv4(), path: reqUrl.pathname, broadcast: h.params.broadcast };
-
-						// @ts-ignore
-						this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
-					});
 				} catch (error) {
 					websocketUnauthorized(socket);
 					console.log(error);
@@ -368,7 +387,7 @@ export class ServerAPI extends EventEmitter {
 			}
 		});
 
-		this.app.all('/api/:app/:namespace/:name/:version/:environment', async (req, res) => {
+		this.app.all(struct_path, async (req, res) => {
 			let { app, namespace, name, version, environment } = req.params;
 
 			try {
@@ -444,14 +463,19 @@ export class ServerAPI extends EventEmitter {
 	 * @param {number} idrole
 	 */
 	async _checkAuthorization(path, method, idrole) {
-		let url_parts = path.split('/').slice(0, 7);
-		let env_part = url_parts[6] || '@';
-		let url = url_parts.slice(0, 6).join('/') + '/[environment]';
+
+		let paramsUrl = path_params(path);
+
+		//let url_parts = path.split('/').slice(0, 7);
+		//let env_part = url_parts[6] || '@';
+		//let url = url_parts.slice(0, 6).join('/') + '/[environment]';
+		// @ts-ignore
+		let url = path.replace(paramsUrl.params.environment, '[environment]');
 		let endpoint;
 		let role = this._cacheRoles.get(idrole);
 
 		if (!role) {
-			console.log(' > _checkAuthorization > No está en cache!');
+			console.log(' > _checkAuthorization > No está en cache!', idrole);
 			role = await getRoleById(idrole, true);
 			this._cacheRoles.set(idrole, role);
 		}
@@ -467,7 +491,8 @@ export class ServerAPI extends EventEmitter {
 			return false;
 		}
 
-		return endpoint.methods[method || '@'][env_part];
+		// @ts-ignore
+		return endpoint.methods[method || '@'][paramsUrl.params.environment];
 	}
 
 	/**

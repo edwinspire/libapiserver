@@ -2,6 +2,8 @@ const { createHmac } = await import('node:crypto');
 import { v4 as uuidv4 } from 'uuid';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
+import { pathToRegexp, match, parse, compile } from "path-to-regexp";
+
 
 const { JWT_KEY, EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
 
@@ -9,6 +11,15 @@ const errors = {
 	1: { code: 1, message: 'You must enter the same password twice' },
 	2: { code: 2, message: 'Invalid credentials' }
 };
+
+export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
+const fn_match_url = match(struct_path, { decode: decodeURIComponent });
+
+
+export const path_params = (/** @type {string} */ url) => {
+	let reqUrl = new URL(`http://localhost${url}`);
+	return fn_match_url(reqUrl.pathname);
+}
 
 export const defaultSystemPath = (/** @type {string} */ name) => {
 	return '/system/main/' + name;
@@ -121,73 +132,6 @@ export function getUserPasswordTokenFromRequest(req) {
 	return { username: username, password: password, token: token };
 }
 
-/**
- * @param {import("ws").Server<typeof import("ws"), typeof import("http").IncomingMessage>} wsServer
- * @param {import("http").IncomingMessage} request
- * @param {import("stream").Duplex} socket
- * @param {Buffer} head
- * @param {any} _getApiHandler
- */
-export async function HTTPOnUpgrade(wsServer, _getApiHandler, request, socket, head) {
-	console.log('>-------- HTTPOnUpgrade --------------> ', request.headers, socket);
-
-	if (request.headers['sec-websocket-protocol'] == 'mqtt') {
-		// Si el cliente está autenticado, permitir la conexión WebSocket
-		// @ts-ignore
-		wsServer.handleUpgrade(request, socket, head, (ws) => {
-			//req.hola = "Mundo";
-			// @ts-ignore
-			wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
-		});
-	} else {
-		let reqUrl = new URL(`http://localhost${request.url}`);
-
-		let parts = reqUrl.pathname.split('/');
-
-		//console.log(' XXX> request', request);
-
-		try {
-			// app, namespace, name, version, environment, method
-			// @ts-ignore
-			let h = await _getApiHandler(parts[2], parts[3], parts[4], parts[5], parts[6], 'WS');
-			//console.log('<>>>>> h >>>>', h);
-
-			if (h.status == 200) {
-				// TODO implementar autenticación
-				//						let dataAuth = getUserPasswordTokenFromRequest(request);
-				//						let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
-				let auth = true;
-				if (!auth) {
-					// Si el cliente no está autenticado, responder con un error 401 Unauthorized
-					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-					socket.destroy();
-					return;
-				}
-			} else {
-				socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
-				socket.destroy();
-				return;
-			}
-
-			// Si el cliente está autenticado, permitir la conexión WebSocket
-			// @ts-ignore
-			wsServer.handleUpgrade(request, socket, head, (ws) => {
-				// @ts-ignore
-				ws.APIServer = { uuid: uuidv4(), path: reqUrl.pathname, broadcast: h.params.broadcast };
-
-				//						console.log('<ws >>> ', ws, h);
-				//req.hola = "Mundo";
-				// @ts-ignore
-				wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
-			});
-		} catch (error) {
-			socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-			socket.destroy();
-			console.log(error);
-			return;
-		}
-	}
-}
 
 /**
  * @param {any} socket
