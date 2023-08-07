@@ -16,7 +16,8 @@ import {
 	getUserPasswordTokenFromRequest,
 	websocketUnauthorized,
 	struct_path,
-	path_params
+	path_params,
+	mqtt_path_params
 } from '../api/server/utils.js';
 
 import aedesMod from 'aedes';
@@ -76,18 +77,24 @@ export class ServerAPI extends EventEmitter {
 			//    defaultUser();
 			aedes = new aedesMod({
 				authorizePublish: async (client, packet, callback) => {
-					let parts = packet.topic.split('/');
-
+					//let parts = packet.topic.split('/');
+					let dataUrl = mqtt_path_params(packet.topic);
 					// @ts-ignore
-					if (parts[7] == client.APIServer.username) {
+					if (dataUrl && dataUrl.params.username == client.APIServer.username) {
 						try {
 							// @ts-ignore
+
 							let h = await this._getApiHandler(
-								parts[2],
-								parts[3],
-								parts[4],
-								parts[5],
-								parts[6],
+								// @ts-ignore
+								dataUrl.params.app,
+								// @ts-ignore
+								dataUrl.params.namespace,
+								// @ts-ignore
+								dataUrl.params.name,
+								// @ts-ignore
+								dataUrl.params.version,
+								// @ts-ignore
+								dataUrl.params.environment,
 								'MQTT'
 							);
 							//console.log(h);
@@ -116,21 +123,28 @@ export class ServerAPI extends EventEmitter {
 					if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
 						callback(null, subscription);
 					} else {
-						// @ts-ignore
-						let parts = subscription.topic.split('/');
 
+						let dataUrl = mqtt_path_params(subscription.topic);
+						console.log(subscription.topic, dataUrl);
 						// @ts-ignore
-						if (parts[7] == client.APIServer.username) {
+						if (dataUrl && dataUrl.params.username == client.APIServer.username) {
 							try {
-								// @ts-ignore
+
+
 								let h = await this._getApiHandler(
-									parts[2],
-									parts[3],
-									parts[4],
-									parts[5],
-									parts[6],
+									// @ts-ignore
+									dataUrl.params.app,
+									// @ts-ignore
+									dataUrl.params.namespace,
+									// @ts-ignore
+									dataUrl.params.name,
+									// @ts-ignore
+									dataUrl.params.version,
+									// @ts-ignore
+									dataUrl.params.environment,
 									'MQTT'
 								);
+
 								//console.log(h);
 								if (h.status == 200 && h.params.subscribe) {
 									// @ts-ignore
@@ -162,6 +176,9 @@ export class ServerAPI extends EventEmitter {
 					try {
 						// @ts-ignore
 						let u = await login(username, password);
+
+						console.log(u);
+
 						if (u.login) {
 							this._cacheRoles.set(u.role.idrole, u.role);
 						}
@@ -214,6 +231,7 @@ export class ServerAPI extends EventEmitter {
 			} else {
 
 				try {
+					// @ts-ignore
 					let data_url = path_params(request.url);
 
 					//					console.log('===>>>>>>> ', data_url);
@@ -277,7 +295,7 @@ export class ServerAPI extends EventEmitter {
 				/** @type {{ protocol: string; on: (arg0: string, arg1: (c: any) => void) => void; send: (arg0: number) => void; }} */ ws,
 				req
 			) => {
-				//	console.log('>>>>>>>>>>>>>>>>> WS connection.', req);
+				console.log('>>>>>>>>>>>>>>>>> WS connection.', aedes, MQTT_ENABLED, ws.protocol);
 				//ws.close(1003, "ok");
 				// @ts-ignore
 				if (MQTT_ENABLED == "true" && aedes && ws.protocol == 'mqtt') {

@@ -1,5 +1,5 @@
 const { createHmac } = await import('node:crypto');
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
 import { pathToRegexp, match, parse, compile } from "path-to-regexp";
@@ -15,10 +15,17 @@ const errors = {
 export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 
+const mqtt_struct_path = struct_path+'/:username/*';
+const fn_mqtt_match_url = match(mqtt_struct_path, { decode: decodeURIComponent });
 
 export const path_params = (/** @type {string} */ url) => {
 	let reqUrl = new URL(`http://localhost${url}`);
 	return fn_match_url(reqUrl.pathname);
+}
+
+export const mqtt_path_params = (/** @type {string} */ url) => {
+	let reqUrl = new URL(`http://localhost${url}`);
+	return fn_mqtt_match_url(reqUrl.pathname);
 }
 
 export const defaultSystemPath = (/** @type {string} */ name) => {
