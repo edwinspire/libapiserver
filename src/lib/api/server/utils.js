@@ -2,10 +2,10 @@ const { createHmac } = await import('node:crypto');
 //import { v4 as uuidv4 } from 'uuid';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
-import { pathToRegexp, match, parse, compile } from "path-to-regexp";
+import { match } from "path-to-regexp";
 
 
-const { JWT_KEY, EXPOSE_DEV_API, EXPOSE_QA_API, EXPOSE_PROD_API } = process.env;
+const { JWT_KEY } = process.env;
 
 const errors = {
 	1: { code: 1, message: 'You must enter the same password twice' },

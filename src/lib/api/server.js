@@ -146,7 +146,7 @@ export class ServerAPI extends EventEmitter {
 									'MQTT'
 								);
 
-							//	console.log(h);
+								//	console.log(h);
 								if (h.status == 200 && h.params.subscribe) {
 									// @ts-ignore
 									if (
@@ -297,7 +297,7 @@ export class ServerAPI extends EventEmitter {
 				/** @type {{ protocol: string; on: (arg0: string, arg1: (c: any) => void) => void; send: (arg0: number) => void; }} */ ws,
 				req
 			) => {
-				console.log('>>>>>>>>>>>>>>>>> WS connection.', aedes, MQTT_ENABLED, ws.protocol);
+				//console.log('>>>>>>>>>>>>>>>>> WS connection.', ws);
 				//ws.close(1003, "ok");
 				// @ts-ignore
 				if (MQTT_ENABLED == "true" && aedes && ws.protocol == 'mqtt') {
@@ -310,6 +310,11 @@ export class ServerAPI extends EventEmitter {
 					// Manejar la conexión con aedes
 					aedes.handle(wsStream);
 				} else {
+
+					ws.on('error', (e) => {
+						console.log(e);
+					});
+
 					ws.on(
 						'message',
 						(
@@ -324,19 +329,26 @@ export class ServerAPI extends EventEmitter {
 							// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
 							// @ts-ignore
 							if (ws.APIServer.broadcast) {
-								this._wsServer.clients.forEach((clientws) => {
-									//	console.log('>> clientws >> ', clientws);
 
-									if (
-										clientws.protocol != 'mqtt' &&
-										clientws.readyState === WebSocket.OPEN &&
-										// @ts-ignore
-										ws.APIServer.uuid != clientws.APIServer.uuid
+								console.log(" > Foreach >", this._wsServer.clients.length);
+
+								this._wsServer.clients.forEach((/** @type {{ protocol: any; readyState?: any; send: any; on?: (arg0: string, arg1: (c: any) => void) => void; }} */ clientws) => {
+									//	console.log('>> clientws >> ', clientws);
+									console.log(">> 1");
+									if (ws != clientws && clientws.protocol != 'mqtt' && clientws.readyState === WebSocket.OPEN
+
 									) {
+										console.log(">> 2");
 										clientws.send(data, { binary: isBinary });
+										console.log(">> 3");
 									}
+									console.log(">> 4");
+
+
 								});
 							}
+
+
 						}
 					);
 				}
@@ -485,7 +497,7 @@ export class ServerAPI extends EventEmitter {
 	 */
 	async _checkAuthorization(path, method, idrole) {
 
-		console.log(path);
+		//console.log(path);
 		let paramsUrl = path_params(path);
 
 		//let url_parts = path.split('/').slice(0, 7);
@@ -515,7 +527,7 @@ export class ServerAPI extends EventEmitter {
 			return false;
 		}
 
-		console.log(' > _checkAuthorization >>>> ', path, method, idrole, role, url, endpoint);
+		//console.log(' > _checkAuthorization >>>> ', path, method, idrole, role, url, endpoint);
 
 		// @ts-ignore
 		return endpoint.methods[method || '@'][paramsUrl.params.environment];
