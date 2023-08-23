@@ -31,7 +31,7 @@
 
   function ParseCode() {
     try {
-      let params = JSON.parse(code);
+      let params = JSON.parse(code||{});
 
       if (params && params.query) {
         query_code = params.query;

@@ -250,6 +250,7 @@ declare module '$env/static/private' {
 	export const npm_config_init_module: string;
 	export const npm_config_parseable: string;
 	export const PWD: string;
+	export const npm_package_dependencies_path_to_regexp: string;
 	export const npm_config_globalignorefile: string;
 	export const npm_execpath: string;
 	export const CLUTTER_IM_MODULE: string;
@@ -526,6 +527,7 @@ declare module '$env/dynamic/private' {
 		npm_config_init_module: string;
 		npm_config_parseable: string;
 		PWD: string;
+		npm_package_dependencies_path_to_regexp: string;
 		npm_config_globalignorefile: string;
 		npm_execpath: string;
 		CLUTTER_IM_MODULE: string;
