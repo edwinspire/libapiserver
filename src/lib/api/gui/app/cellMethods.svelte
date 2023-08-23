@@ -102,8 +102,13 @@
 						<a
 							class={value[method].handler == 'NA' ? 'tag is-dark has-text-grey' : 'tag is-dark'}
 							on:click={() => {
+								console.log('value[method]', value[method], method);
+								if (!value[method].code) {
+									value[method].code = '';
+								}
 								if (value[method].handler != 'NA') {
 									methodSelected = method;
+
 									showCode = true;
 								}
 							}}>{value[method].handler}</a
