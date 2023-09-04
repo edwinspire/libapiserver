@@ -53,10 +53,14 @@ export function AppToTable(json) {
  * @param {any[]} objeto
  */
 export function TableToApp(objeto) {
+  
+  console.log('TableToApp(objeto): ', objeto);
+  
   let nuevoObjeto = {
     idapp: objeto[0].idapp,
     app: objeto[0].app,
     rowkey: objeto[0].rowkey,
+    vars: objeto[0].vars,
     data: {
       description: objeto[0].description,
       enabled: objeto[0].enabled || false,

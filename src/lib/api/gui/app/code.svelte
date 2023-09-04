@@ -51,7 +51,7 @@
     } else if (method.handler == "fetch") {
       method.code = fnFetchCode.getCode();
     }
-    console.log(method.code);
+  //  console.log(method.code);
     showCode = false;
   }}
 >

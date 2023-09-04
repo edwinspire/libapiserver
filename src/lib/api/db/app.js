@@ -151,10 +151,14 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 
 													returnHandler.params.code = returnHandler.params.code || '';
 
+console.log('typeof appData.vars: ', appData.vars , typeof appData.vars === 'object', returnHandler.params.code);
+
 													if (appData.vars && typeof appData.vars === 'object') {
 														const props = Object.keys(appData.vars);
 														for (let i = 0; i < props.length; i++) {
 															const prop = props[i];
+
+console.log('typeof appData.vars[prop]: ', appData.vars[prop], typeof appData.vars[prop]);
 
 															switch (typeof appData.vars[prop]) {
 																case 'string':

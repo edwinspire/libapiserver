@@ -50,13 +50,24 @@
 	export function getCode() {
 		//fnEditorCode.apply();
 		let p = fnEditorCode.getCode();
-		let q = fnEditorCode2.getCode();
+		let query = fnEditorCode2.getCode();
+		let conf = {};		let outcode = {};
+
 		try {
-			let c = JSON.parse(p);
-			c.query = q;
-			return JSON.stringify(c, null, 2);
+			conf = JSON.parse(p);
+			//return JSON.stringify(c, null, 2);
 		} catch (error) {
-			console.error('No se pudo parsear', error);
+			console.error('No se pudo parsear getCode', error);
+			conf = p;
+			//return code;
+		}
+
+		try {
+			outcode.config = conf;
+			outcode.query = query;
+			return JSON.stringify(outcode, null, 2);
+		} catch (error) {
+			console.log(error);
 			return code;
 		}
 	}
