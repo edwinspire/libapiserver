@@ -45,7 +45,7 @@ try {
 
 	server.appendAppFunction(
 		'demo',
-		'fnTest',
+		'Test',
 		(
 		/** @type {any} */ req,
 		/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: import("sequelize").Model<any, any>[]): void; new (): any; }; }; }} */ res, data

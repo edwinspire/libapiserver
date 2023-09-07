@@ -540,7 +540,7 @@ export class ServerAPI extends EventEmitter {
 	 */
 	appendAppFunction(appname, functionName, Function) {
 		if (appname != 'system') {
-			this._appendAppFunction(appname, functionName, Function);
+			this._appendAppFunction(appname, "fn"+functionName, Function);
 		} else {
 			throw 'system not allow';
 		}
