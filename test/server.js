@@ -48,11 +48,14 @@ try {
 		'fnTest',
 		(
 		/** @type {any} */ req,
-		/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: import("sequelize").Model<any, any>[]): void; new (): any; }; }; }} */ res
+		/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: import("sequelize").Model<any, any>[]): void; new (): any; }; }; }} */ res, data
 		) => {
+
+
+
 			try {
 				// @ts-ignore
-				res.status(200).json({ function: 'Demo personalizada por el usuario' });
+				res.status(200).json({ function: 'Demo personalizada por el usuario', data });
 			} catch (error) {
 				// @ts-ignore
 				res.status(500).json({ error: error.message });
