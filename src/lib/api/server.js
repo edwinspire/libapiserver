@@ -249,6 +249,8 @@ export class ServerAPI extends EventEmitter {
 							if (!h.params.public) {
 
 								let dataUser = getUserPasswordTokenFromRequest(request);
+								// @ts-ignore
+								request.APIServer = {authorization: dataUser};
 								//							console.log(dataUser);
 								let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
 								//console.log(h.params, auth);
@@ -278,6 +280,7 @@ export class ServerAPI extends EventEmitter {
 							// @ts-ignore
 							this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 						});
+
 					} else {
 						websocketUnauthorized(socket);
 						return;
