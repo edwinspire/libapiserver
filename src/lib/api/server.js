@@ -251,7 +251,7 @@ export class ServerAPI extends EventEmitter {
 								let dataUser = getUserPasswordTokenFromRequest(request);
 								// @ts-ignore
 								request.APIServer = {authorization: dataUser};
-								//							console.log(dataUser);
+														console.log('------------------------------------------> dataUser', dataUser);
 								let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
 								//console.log(h.params, auth);
 								if (auth) {
