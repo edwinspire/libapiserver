@@ -201,8 +201,8 @@ export class ServerAPI extends EventEmitter {
 			// Manejar eventos de mensaje recibido
 			aedes.on('publish', (packet, client) => {
 				if (packet.cmd === 'publish') {
-					console.log(`Mensaje recibido en el tópico: ${packet.topic}`);
-					console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
+					//console.log(`Mensaje recibido en el tópico: ${packet.topic}`);
+					//console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
 					this.emit('mqtt_publish', { packet, client });
 				}
 
@@ -257,7 +257,7 @@ export class ServerAPI extends EventEmitter {
 								if (auth) {
 									let autho = await this._checkAuthorization(data_url.path, 'WS', auth.role);
 									if (!autho) {
-										console.log('-- websocketUnauthorized');
+										//console.log('-- websocketUnauthorized');
 										websocketUnauthorized(socket);
 										return;
 									}
@@ -333,19 +333,19 @@ export class ServerAPI extends EventEmitter {
 							// @ts-ignore
 							if (ws.APIServer.broadcast) {
 
-								console.log(" > Foreach >", this._wsServer.clients.length);
+								// console.log(" > Foreach >", this._wsServer.clients.length);
 
 								this._wsServer.clients.forEach((/** @type {{ protocol: any; readyState?: any; send: any; on?: (arg0: string, arg1: (c: any) => void) => void; }} */ clientws) => {
 									//	console.log('>> clientws >> ', clientws);
-									console.log(">> 1");
+								//	console.log(">> 1");
 									if (ws != clientws && clientws.protocol != 'mqtt' && clientws.readyState === WebSocket.OPEN
 
 									) {
-										console.log(">> 2");
+								//		console.log(">> 2");
 										clientws.send(data, { binary: isBinary });
-										console.log(">> 3");
+									//	console.log(">> 3");
 									}
-									console.log(">> 4");
+								//	console.log(">> 4");
 
 
 								});
@@ -513,7 +513,7 @@ export class ServerAPI extends EventEmitter {
 
 
 		if (!role && idrole && idrole > 0) {
-			console.log(' > _checkAuthorization > No está en cache!', idrole);
+			// console.log(' > _checkAuthorization > No está en cache!', idrole);
 			role = await getRoleById(idrole, true);
 			this._cacheRoles.set(idrole, role);
 		}
@@ -613,7 +613,7 @@ export class ServerAPI extends EventEmitter {
 				if (!this._cacheApi.has(apiPath)) {
 					// Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
 					let appData = await Application.findOne({ where: { app: app } });
-					console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
+				//	console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
 					this._cacheApi.set(
 						apiPath,
 						getApiHandler(appData, app, namespace, name, version, environment, method)
@@ -692,9 +692,11 @@ export class ServerAPI extends EventEmitter {
 
 		this._appendAppFunction('system', 'fnGetFunctions', this._functions);
 
+		/*
 		this._fn.forEach((fx) => {
 			console.log(fx);
 		});
+		*/
 	}
 
 	/**
@@ -748,7 +750,7 @@ export class ServerAPI extends EventEmitter {
 
 	listen() {
 		let g = this._getNameFunctions('system');
-		console.log(g);
+		//console.log(g);
 
 		this._httpServer.listen(PORT, () => {
 			console.log('App listening on port ' + PORT);
