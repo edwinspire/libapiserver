@@ -239,7 +239,7 @@ export class ServerAPI extends EventEmitter {
 					//					console.log('===>>>>>>> ', data_url);
 
 					if (data_url) {
-
+						let dataUser = getUserPasswordTokenFromRequest(request);
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
 						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
@@ -248,10 +248,9 @@ export class ServerAPI extends EventEmitter {
 
 							if (!h.params.public) {
 
-								let dataUser = getUserPasswordTokenFromRequest(request);
 								// @ts-ignore
-								request.APIServer = {authorization: dataUser};
-														console.log('------------------------------------------> dataUser', dataUser);
+								//request.APIServer = {authorization: dataUser};
+								console.log('------------------------------------------> dataUser', dataUser);
 								let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
 								//console.log(h.params, auth);
 								if (auth) {
@@ -275,7 +274,7 @@ export class ServerAPI extends EventEmitter {
 						// @ts-ignore
 						this._wsServer.handleUpgrade(request, socket, head, (ws) => {
 							// @ts-ignore
-							ws.APIServer = { uuid: uuidv4(), path: data_url.path, broadcast: h.params.broadcast };
+							ws.APIServer = { uuid: uuidv4(), path: data_url.path, broadcast: h.params.broadcast, authorization: dataUser };
 
 							// @ts-ignore
 							this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
@@ -337,15 +336,15 @@ export class ServerAPI extends EventEmitter {
 
 								this._wsServer.clients.forEach((/** @type {{ protocol: any; readyState?: any; send: any; on?: (arg0: string, arg1: (c: any) => void) => void; }} */ clientws) => {
 									//	console.log('>> clientws >> ', clientws);
-								//	console.log(">> 1");
+									//	console.log(">> 1");
 									if (ws != clientws && clientws.protocol != 'mqtt' && clientws.readyState === WebSocket.OPEN
 
 									) {
-								//		console.log(">> 2");
+										//		console.log(">> 2");
 										clientws.send(data, { binary: isBinary });
-									//	console.log(">> 3");
+										//	console.log(">> 3");
 									}
-								//	console.log(">> 4");
+									//	console.log(">> 4");
 
 
 								});
@@ -543,7 +542,7 @@ export class ServerAPI extends EventEmitter {
 	 */
 	appendAppFunction(appname, functionName, Function) {
 		if (appname != 'system') {
-			this._appendAppFunction(appname, "fn"+functionName, Function);
+			this._appendAppFunction(appname, "fn" + functionName, Function);
 		} else {
 			throw 'system not allow';
 		}
@@ -613,7 +612,7 @@ export class ServerAPI extends EventEmitter {
 				if (!this._cacheApi.has(apiPath)) {
 					// Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
 					let appData = await Application.findOne({ where: { app: app } });
-				//	console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
+					//	console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
 					this._cacheApi.set(
 						apiPath,
 						getApiHandler(appData, app, namespace, name, version, environment, method)
