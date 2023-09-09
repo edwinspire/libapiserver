@@ -240,6 +240,7 @@ export class ServerAPI extends EventEmitter {
 
 					if (data_url) {
 						let dataUser = getUserPasswordTokenFromRequest(request);
+						console.log('--------------->-<>>>>> dataUser', dataUser);
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
 						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
