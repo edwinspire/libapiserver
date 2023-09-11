@@ -220,7 +220,7 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
-			//	console.log('>----------------------> ', request.client);
+			//console.log('>----------------------> ', request, head);
 			// if (MQTT_ENABLED == "true") 
 			if (MQTT_ENABLED == "true" && request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
@@ -240,7 +240,7 @@ export class ServerAPI extends EventEmitter {
 
 					if (data_url) {
 						let dataUser = getUserPasswordTokenFromRequest(request);
-						console.log('--------------->-<>>>>> dataUser', dataUser);
+						//	console.log('--------------->-<>>>>> dataUser', dataUser);
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
 						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
@@ -436,6 +436,7 @@ export class ServerAPI extends EventEmitter {
 					let dataAuth = getUserPasswordTokenFromRequest(req);
 
 					let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
+					console.log(auth);
 
 					if (auth) {
 						runHandler(req, res, h.params, this._getFunctions(app));
@@ -586,6 +587,20 @@ export class ServerAPI extends EventEmitter {
 			});
 		}
 	}
+
+	websocketClients(path) {
+
+		return this._wsServer.clients.map((
+				/** @type {{ readyState: number; send: (arg0: string) => void; }} */ client
+		) => {
+			if (client.readyState === WebSocket.OPEN) {
+				return client;
+			}
+		});
+
+	}
+
+
 
 	/**
 	 * @param {string} url
