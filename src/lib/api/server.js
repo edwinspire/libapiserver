@@ -596,15 +596,18 @@ export class ServerAPI extends EventEmitter {
 	websocketClients(path) {
 		let clients = [];
 
-		for (const client of this._wsServer.clients) {
+		try {
+			for (const client of this._wsServer.clients) {
+				console.log(client);
 
-			console.log(client);
-
-			if (client.readyState === WebSocket.OPEN && client.url.startsWith(path) ) {
-				clients.push(client);
+				// @ts-ignore
+				if (client.readyState === WebSocket.OPEN && client.APIServer.path.startsWith(path)) {
+					clients.push(client);
+				}
 			}
+		} catch (error) {
+			console.trace(error);
 		}
-
 		return clients;
 	}
 
