@@ -31,7 +31,6 @@ import * as fnSystem from './server/functions/system.js';
 import * as fnPublic from './server/functions/public.js';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const {
 	PORT,
 	EXPRESSJS_SERVER_TIMEOUT,
@@ -43,7 +42,6 @@ const {
 	PATH_WS_HOOKS,
 	MQTT_ENABLED
 } = process.env;
-
 
 //console.log('>>>>', WebSocket);
 
@@ -73,8 +71,7 @@ export class ServerAPI extends EventEmitter {
 		// @ts-ignore
 		let aedes;
 
-		if (MQTT_ENABLED == "true") {
-
+		if (MQTT_ENABLED == 'true') {
 			//    defaultUser();
 			aedes = new aedesMod({
 				authorizePublish: async (client, packet, callback) => {
@@ -103,7 +100,11 @@ export class ServerAPI extends EventEmitter {
 								// @ts-ignore
 								if (
 									// @ts-ignore
-									await this._checkAuthorization(path_params_to_url(dataUrl.params), 'MQTT', client.APIServer.role.idrole)
+									await this._checkAuthorization(
+										path_params_to_url(dataUrl.params),
+										'MQTT',
+										client.APIServer.role.idrole
+									)
 								) {
 									callback();
 								} else {
@@ -124,14 +125,11 @@ export class ServerAPI extends EventEmitter {
 					if (subscription.topic == '$SYS/#' || subscription.topic == '#') {
 						callback(null, subscription);
 					} else {
-
 						let dataUrl = mqtt_path_params(subscription.topic);
 						//console.log(subscription.topic, dataUrl, client.APIServer);
 						// @ts-ignore
 						if (dataUrl && dataUrl.params.username == client.APIServer.username) {
 							try {
-
-
 								let h = await this._getApiHandler(
 									// @ts-ignore
 									dataUrl.params.app,
@@ -205,9 +203,7 @@ export class ServerAPI extends EventEmitter {
 					//console.log(`Contenido del mensaje: ${packet.payload.toString()}`);
 					this.emit('mqtt_publish', { packet, client });
 				}
-
 			});
-
 		}
 
 		this.app = express();
@@ -221,8 +217,8 @@ export class ServerAPI extends EventEmitter {
 
 		this._httpServer.on('upgrade', async (request, socket, head) => {
 			//console.log('>----------------------> ', request, head);
-			// if (MQTT_ENABLED == "true") 
-			if (MQTT_ENABLED == "true" && request.headers['sec-websocket-protocol'] == 'mqtt') {
+			// if (MQTT_ENABLED == "true")
+			if (MQTT_ENABLED == 'true' && request.headers['sec-websocket-protocol'] == 'mqtt') {
 				// Si el cliente está autenticado, permitir la conexión WebSocket
 				// @ts-ignore
 				this._wsServer.handleUpgrade(request, socket, head, (ws) => {
@@ -231,7 +227,6 @@ export class ServerAPI extends EventEmitter {
 					this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 				});
 			} else {
-
 				try {
 					// @ts-ignore
 					let data_url = path_params(request.url);
@@ -243,16 +238,25 @@ export class ServerAPI extends EventEmitter {
 						//	console.log('--------------->-<>>>>> dataUser', dataUser);
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
-						let h = await this._getApiHandler(data_url.params.app, data_url.params.namespace, data_url.params.name, data_url.params.version, data_url.params.environment, 'WS');
+						let h = await this._getApiHandler(
+							data_url.params.app,
+							data_url.params.namespace,
+							data_url.params.name,
+							data_url.params.version,
+							data_url.params.environment,
+							'WS'
+						);
 						//						console.log(h);
 						if (h.status == 200) {
-
 							if (!h.params.public) {
-
 								// @ts-ignore
 								//request.APIServer = {authorization: dataUser};
 								console.log('------------------------------------------> dataUser', dataUser);
-								let auth = await h.authentication(dataUser.token, dataUser.username, dataUser.password);
+								let auth = await h.authentication(
+									dataUser.token,
+									dataUser.username,
+									dataUser.password
+								);
 								//console.log(h.params, auth);
 								if (auth) {
 									let autho = await this._checkAuthorization(data_url.path, 'WS', auth.role);
@@ -262,9 +266,7 @@ export class ServerAPI extends EventEmitter {
 										return;
 									}
 								}
-
 							}
-
 						} else {
 							socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
 							socket.destroy();
@@ -275,17 +277,20 @@ export class ServerAPI extends EventEmitter {
 						// @ts-ignore
 						this._wsServer.handleUpgrade(request, socket, head, (ws) => {
 							// @ts-ignore
-							ws.APIServer = { uuid: uuidv4(), path: data_url.path, broadcast: h.params.broadcast, authorization: dataUser };
+							ws.APIServer = {
+								uuid: uuidv4(),
+								path: data_url.path,
+								broadcast: h.params.broadcast,
+								authorization: dataUser
+							};
 
 							// @ts-ignore
 							this._wsServer.emit('connection', ws, request); // Emitir el evento 'connection' para manejar la conexión WebSocket
 						});
-
 					} else {
 						websocketUnauthorized(socket);
 						return;
 					}
-
 				} catch (error) {
 					websocketUnauthorized(socket);
 					console.log(error);
@@ -303,7 +308,7 @@ export class ServerAPI extends EventEmitter {
 				//console.log('>>>>>>>>>>>>>>>>> WS connection.', ws);
 				//ws.close(1003, "ok");
 				// @ts-ignore
-				if (MQTT_ENABLED == "true" && aedes && ws.protocol == 'mqtt') {
+				if (MQTT_ENABLED == 'true' && aedes && ws.protocol == 'mqtt') {
 					// Convertir la conexión WebSocket a websocket-stream
 					// @ts-ignore
 					const wsStream = websocketStream(ws, {
@@ -313,7 +318,6 @@ export class ServerAPI extends EventEmitter {
 					// Manejar la conexión con aedes
 					aedes.handle(wsStream);
 				} else {
-
 					ws.on('error', (e) => {
 						console.log(e);
 					});
@@ -332,26 +336,27 @@ export class ServerAPI extends EventEmitter {
 							// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
 							// @ts-ignore
 							if (ws.APIServer.broadcast) {
-
 								// console.log(" > Foreach >", this._wsServer.clients.length);
 
-								this._wsServer.clients.forEach((/** @type {{ protocol: any; readyState?: any; send: any; on?: (arg0: string, arg1: (c: any) => void) => void; }} */ clientws) => {
-									//	console.log('>> clientws >> ', clientws);
-									//	console.log(">> 1");
-									if (ws != clientws && clientws.protocol != 'mqtt' && clientws.readyState === WebSocket.OPEN
-
-									) {
-										//		console.log(">> 2");
-										clientws.send(data, { binary: isBinary });
-										//	console.log(">> 3");
+								this._wsServer.clients.forEach(
+									(
+										/** @type {{ protocol: any; readyState?: any; send: any; on?: (arg0: string, arg1: (c: any) => void) => void; }} */ clientws
+									) => {
+										//	console.log('>> clientws >> ', clientws);
+										//	console.log(">> 1");
+										if (
+											ws != clientws &&
+											clientws.protocol != 'mqtt' &&
+											clientws.readyState === WebSocket.OPEN
+										) {
+											//		console.log(">> 2");
+											clientws.send(data, { binary: isBinary });
+											//	console.log(">> 3");
+										}
+										//	console.log(">> 4");
 									}
-									//	console.log(">> 4");
-
-
-								});
+								);
 							}
-
-
 						}
 					);
 				}
@@ -500,7 +505,6 @@ export class ServerAPI extends EventEmitter {
 	 * @param {number} idrole
 	 */
 	async _checkAuthorization(path, method, idrole) {
-
 		//console.log(path);
 		let paramsUrl = path_params(path);
 
@@ -511,7 +515,6 @@ export class ServerAPI extends EventEmitter {
 		let url = path.replace(paramsUrl.params.environment, '[environment]');
 		let endpoint;
 		let role = this._cacheRoles.get(idrole);
-
 
 		if (!role && idrole && idrole > 0) {
 			// console.log(' > _checkAuthorization > No está en cache!', idrole);
@@ -525,7 +528,6 @@ export class ServerAPI extends EventEmitter {
 					element.url == url && element.enabled
 			);
 		}
-
 
 		if (!endpoint || !endpoint.methods) {
 			return false;
@@ -544,7 +546,7 @@ export class ServerAPI extends EventEmitter {
 	 */
 	appendAppFunction(appname, functionName, Function) {
 		if (appname != 'system') {
-			this._appendAppFunction(appname, "fn" + functionName, Function);
+			this._appendAppFunction(appname, 'fn' + functionName, Function);
 		} else {
 			throw 'system not allow';
 		}
@@ -588,19 +590,23 @@ export class ServerAPI extends EventEmitter {
 		}
 	}
 
+	/**
+	 * @param {string} path
+	 */
 	websocketClients(path) {
+		let clients = [];
 
-		return this._wsServer.clients.map((
-				/** @type {{ readyState: number; send: (arg0: string) => void; }} */ client
-		) => {
-			if (client.readyState === WebSocket.OPEN) {
-				return client;
+		for (const client of this._wsServer.clients) {
+
+			console.log(client);
+
+			if (client.readyState === WebSocket.OPEN && client.url.startsWith(path) ) {
+				clients.push(client);
 			}
-		});
+		}
 
+		return clients;
 	}
-
-
 
 	/**
 	 * @param {string} url
