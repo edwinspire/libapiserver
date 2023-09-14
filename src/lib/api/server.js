@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { EventEmitter } from 'node:events';
-import { defaultApps } from './db/app.js';
+import { defaultApps, getAppById } from './db/app.js';
 import { defaultUser, login } from './db/user.js';
 import { defaultRoles, getRoleById } from './db/role.js';
 import { defaultMethods } from './db/method.js';
@@ -46,12 +46,8 @@ const {
 //console.log('>>>>', WebSocket);
 
 export class ServerAPI extends EventEmitter {
-	/**
-	 * @param {boolean} buildDB
-	 * @param {any} handlerExternal
-	 * @param {any} customRouter
-	 */
-	constructor(buildDB, handlerExternal, customRouter) {
+
+	constructor(buildDB = false, handlerExternal = undefined, customRouter = undefined) {
 		super();
 
 		/**
@@ -101,8 +97,10 @@ export class ServerAPI extends EventEmitter {
 								if (
 									// @ts-ignore
 									await this._checkAuthorization(
+										// @ts-ignore
 										path_params_to_url(dataUrl.params),
 										'MQTT',
+										// @ts-ignore
 										client.APIServer.role.idrole
 									)
 								) {
@@ -239,10 +237,15 @@ export class ServerAPI extends EventEmitter {
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
 						let h = await this._getApiHandler(
+							// @ts-ignore
 							data_url.params.app,
+							// @ts-ignore
 							data_url.params.namespace,
+							// @ts-ignore
 							data_url.params.name,
+							// @ts-ignore
 							data_url.params.version,
+							// @ts-ignore
 							data_url.params.environment,
 							'WS'
 						);
@@ -598,10 +601,9 @@ export class ServerAPI extends EventEmitter {
 
 		try {
 			for (const client of this._wsServer.clients) {
-				console.log(client);
-
+				
 				// @ts-ignore
-				if (client.readyState === WebSocket.OPEN && client.APIServer.path.startsWith(path)) {
+				if (client.readyState === WebSocket.OPEN && client.APIServer.path == path) {
 					clients.push(client);
 				}
 			}
@@ -653,6 +655,10 @@ export class ServerAPI extends EventEmitter {
 		} else {
 			return { message: 'Not found', status: 404, params: undefined };
 		}
+	}
+
+	getApp(app){
+return Application.
 	}
 
 	/**

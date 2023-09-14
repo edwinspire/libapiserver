@@ -16,6 +16,20 @@ export const getAppById = async (/** @type {import("sequelize").Identifier} */ i
 	}
 };
 
+export const getAppByName = async ( /** @type {String} */ appname) => {
+	try {
+		const app = await Application.findOne({
+			where: { app: appname },
+			attributes: ['idapp', 'app', 'data', 'vars']
+		});
+		return app;
+	} catch (error) {
+		console.error('Error retrieving app:', error);
+		throw error;
+	}
+};
+
+
 export const getAllApps = async () => {
 	try {
 		//const apps = await Application.findAll({ attributes: ["idapp", "app"] });
