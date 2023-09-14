@@ -338,6 +338,7 @@ export class ServerAPI extends EventEmitter {
 							this.emit('websocket_message', { data, isBinary, ws, request: req });
 							// @ts-ignore
 							if(ws.APIServer && ws.APIServer.path){
+								// @ts-ignore
 								console.log('ws.APIServer.path', ws.APIServer.path);
 								// @ts-ignore
 								this.emit(`ws/msg${ws.APIServer.path}`, { data, isBinary, ws, request: req });
