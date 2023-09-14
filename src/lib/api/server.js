@@ -336,6 +336,13 @@ export class ServerAPI extends EventEmitter {
 							//console.log(`Received message ${data}`);
 
 							this.emit('websocket_message', { data, isBinary, ws, request: req });
+							// @ts-ignore
+							if(ws.APIServer && ws.APIServer.path){
+								console.log('ws.APIServer.path', ws.APIServer.path);
+								// @ts-ignore
+								this.emit(`ws${ws.APIServer.path}`, { data, isBinary, ws, request: req });
+							}
+							
 
 							// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
 							// @ts-ignore
