@@ -340,7 +340,7 @@ export class ServerAPI extends EventEmitter {
 							if(ws.APIServer && ws.APIServer.path){
 								console.log('ws.APIServer.path', ws.APIServer.path);
 								// @ts-ignore
-								this.emit(`ws${ws.APIServer.path}`, { data, isBinary, ws, request: req });
+								this.emit(`ws/msg${ws.APIServer.path}`, { data, isBinary, ws, request: req });
 							}
 							
 
