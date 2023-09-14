@@ -1,7 +1,7 @@
 import { Application } from './models.js';
 import { checkToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
-import { defaultUser, login } from './user.js';
+import {  login } from './user.js';
 
 // READ
 export const getAppById = async (/** @type {import("sequelize").Identifier} */ idapp) => {
@@ -47,7 +47,7 @@ export const upsertApp = async (
 	/** @type {undefined} */ transaction
 ) => {
 	try {
-		let [app, create] = await Application.upsert(appData, transaction);
+		let [app] = await Application.upsert(appData, transaction);
 
 		//console.log('XXXX>>> [app, create] ', app, create);
 
@@ -134,6 +134,7 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 															/** @type {string} */ username,
 															/** @type {string} */ password
 														) => {
+															console.log(token, username, password);
 															return true;
 														};
 													} else {

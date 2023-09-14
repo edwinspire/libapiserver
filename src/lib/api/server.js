@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { EventEmitter } from 'node:events';
-import { defaultApps, getAppById } from './db/app.js';
+import { defaultApps, getAppByName } from './db/app.js';
 import { defaultUser, login } from './db/user.js';
 import { defaultRoles, getRoleById } from './db/role.js';
 import { defaultMethods } from './db/method.js';
@@ -282,6 +282,7 @@ export class ServerAPI extends EventEmitter {
 							// @ts-ignore
 							ws.APIServer = {
 								uuid: uuidv4(),
+								// @ts-ignore
 								path: data_url.path,
 								broadcast: h.params.broadcast,
 								authorization: dataUser
@@ -487,10 +488,10 @@ export class ServerAPI extends EventEmitter {
 	 * @param {any} callback
 	 */
 	_authorizePublish(client, packet, callback) {
-		// Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
-		const username = client.username;
+		// TODO: Obtener el nombre de usuario del cliente (puedes implementar tu propia lógica para obtenerlo)
+		// const username = client.username;
 
-		// Verificar si el cliente tiene permiso para publicar en el tópico
+		//TODO: Verificar si el cliente tiene permiso para publicar en el tópico
 		const tienePermisoPublicar = true; //tuFuncionParaVerificarPermisoPublicar(username, packet.topic);
 
 		// Si tiene permiso, llama al callback sin ningún argumento
@@ -601,7 +602,7 @@ export class ServerAPI extends EventEmitter {
 
 		try {
 			for (const client of this._wsServer.clients) {
-				
+
 				// @ts-ignore
 				if (client.readyState === WebSocket.OPEN && client.APIServer.path == path) {
 					clients.push(client);
@@ -657,8 +658,11 @@ export class ServerAPI extends EventEmitter {
 		}
 	}
 
-	getApp(app){
-return Application.
+	/**
+	 * @param {string} app
+	 */
+	async getApp(app) {
+		return await getAppByName(app);
 	}
 
 	/**
@@ -764,22 +768,22 @@ return Application.
 		return [];
 	}
 
-	_functions = async (
+	async _functions(
 		/** @type {{ params: any; body: import("sequelize").Optional<any, string>; }} */ req,
 		/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }} */ res
-	) => {
+	) {
 		try {
 			// @ts-ignore
 			res.status(200).json(this._getNameFunctions(req.query.appName));
 		} catch (error) {
-			console.log(error);
+			console.trace(error);
 			// @ts-ignore
 			res.status(500).json({ error: error.message });
 		}
 	};
 
 	listen() {
-		let g = this._getNameFunctions('system');
+		//let g = this._getNameFunctions('system');
 		//console.log(g);
 
 		this._httpServer.listen(PORT, () => {
