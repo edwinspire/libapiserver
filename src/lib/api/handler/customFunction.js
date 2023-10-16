@@ -23,6 +23,7 @@ export const customFunction = (
         .json({ error: `Function ${method.code} not found.` });
     }
   } catch (error) {
+    console.trace(error, appFunctions, method);
     // @ts-ignore
     response.status(500).json({ error: error.message });
   }
