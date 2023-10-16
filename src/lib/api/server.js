@@ -54,7 +54,8 @@ var config = {
 	configurable: true,
 	value: function () {
 		var alt = {};
-		var storeKey = function (key) {
+		var storeKey = function (/** @type {string | number} */ key) {
+			// @ts-ignore
 			alt[key] = this[key];
 		};
 		Object.getOwnPropertyNames(this).forEach(storeKey, this);
@@ -251,7 +252,7 @@ export class ServerAPI extends EventEmitter {
 								const taskModule = await import(fileModule);
 
 								console.log('Module: ', taskModule);
-								this.appendAppFunction(_app_name, file_app.replace('.js', ''), taskModule);
+								this.appendAppFunction(_app_name, file_app.replace('.js', ''), taskModule.default);
 							}
 						});
 					} catch (error) {
