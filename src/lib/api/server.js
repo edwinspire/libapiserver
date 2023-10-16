@@ -31,6 +31,9 @@ import * as fnSystem from './server/functions/system.js';
 import * as fnPublic from './server/functions/public.js';
 import { v4 as uuidv4 } from 'uuid';
 
+import fs from 'fs';
+import path from 'path';
+
 const {
 	PORT,
 	EXPRESSJS_SERVER_TIMEOUT,
@@ -40,13 +43,31 @@ const {
 	PATH_API_RESPONSE_TIME,
 	PATH_API_HOOKS,
 	PATH_WS_HOOKS,
-	MQTT_ENABLED
+	MQTT_ENABLED,
+	PATH_APP_FUNCTIONS
 } = process.env;
 
 //console.log('>>>>', WebSocket);
 
-export class ServerAPI extends EventEmitter {
+// Este bloque permite convertir un error a String con JSON.stringify
+var config = {
+	configurable: true,
+	value: function () {
+		var alt = {};
+		var storeKey = function (key) {
+			alt[key] = this[key];
+		};
+		Object.getOwnPropertyNames(this).forEach(storeKey, this);
+		return alt;
+	}
+};
+Object.defineProperty(Error.prototype, 'toJSON', config);
 
+let dir_fn = path.join(process.cwd(), PATH_APP_FUNCTIONS || 'fn');
+
+console.log('Esta es la raiz actual: ', import.meta.url, dir_fn);
+
+export class ServerAPI extends EventEmitter {
 	constructor(buildDB = false, handlerExternal = undefined, customRouter = undefined) {
 		super();
 
@@ -204,6 +225,44 @@ export class ServerAPI extends EventEmitter {
 			});
 		}
 
+		try {
+			//////////////////////////
+			fs.readdirSync(dir_fn).forEach(async (_app_name) => {
+				console.log('App Name -> ', _app_name);
+
+				const filePath = path.join(dir_fn, _app_name);
+
+				const stat = fs.statSync(filePath);
+				if (stat.isFile()) {
+					console.log('Es un archivo:', _app_name);
+				} else if (stat.isDirectory()) {
+					console.log('Es un directorio, por lo tanto es el nombre de la app:', filePath);
+					// Buscamos los archivos js para cargarlos como modulos
+					try {
+						fs.readdirSync(filePath).forEach(async (file_app) => {
+							console.log('Load Module -> ', file_app);
+
+							const fileModule = path.join(filePath, file_app);
+							const stat_mod = fs.statSync(fileModule);
+
+							if (stat_mod.isFile() && file_app.endsWith('.js') && file_app.startsWith('fn')) {
+								console.log('Es un archivo:', fileModule);
+
+								const taskModule = await import(fileModule);
+
+								console.log('Module: ', taskModule);
+								this.appendAppFunction(_app_name, file_app.replace('.js', ''), taskModule);
+							}
+						});
+					} catch (error) {
+						console.log(error);
+					}
+				}
+			});
+		} catch (error) {
+			console.log(error);
+		}
+
 		this.app = express();
 
 		//console.log(WebSocket);
@@ -337,13 +396,12 @@ export class ServerAPI extends EventEmitter {
 
 							this.emit('websocket_message', { data, isBinary, ws, request: req });
 							// @ts-ignore
-							if(ws.APIServer && ws.APIServer.path){
+							if (ws.APIServer && ws.APIServer.path) {
 								// @ts-ignore
 								console.log('ws.APIServer.path', ws.APIServer.path);
 								// @ts-ignore
 								this.emit(`ws/msg${ws.APIServer.path}`, { data, isBinary, ws, request: req });
 							}
-							
 
 							// Verificamos si el endpoint tiene habilitado broadcast para capturar los mensajes
 							// @ts-ignore
@@ -557,10 +615,10 @@ export class ServerAPI extends EventEmitter {
 	 * @param {any} Function
 	 */
 	appendAppFunction(appname, functionName, Function) {
-		if (appname != 'system') {
-			this._appendAppFunction(appname, 'fn' + functionName, Function);
+		if (appname != 'system' && functionName.startsWith('fn')) {
+			this._appendAppFunction(appname, functionName, Function);
 		} else {
-			throw 'system not allow';
+			throw 'system not allow or not start with fn';
 		}
 	}
 
@@ -603,22 +661,24 @@ export class ServerAPI extends EventEmitter {
 	}
 
 	/**
-	 * @param {string} path
+	 * @param {string | undefined} path
 	 */
 	websocketClients(path) {
 		let clients = [];
 
-		try {
-			for (const client of this._wsServer.clients) {
-
-				// @ts-ignore
-				if (client.readyState === WebSocket.OPEN && client.APIServer.path == path) {
-					clients.push(client);
+		if (path) {
+			try {
+				for (const client of this._wsServer.clients) {
+					// @ts-ignore
+					if (client.readyState === WebSocket.OPEN && client.APIServer.path == path) {
+						clients.push(client);
+					}
 				}
+			} catch (error) {
+				console.trace(error);
 			}
-		} catch (error) {
-			console.trace(error);
 		}
+
 		return clients;
 	}
 
@@ -729,7 +789,7 @@ export class ServerAPI extends EventEmitter {
 		const entriesP = Object.entries(fnPublic);
 		for (let [fName, fn] of entriesP) {
 			//console.log(prop + ": " + fn);
-			this.appendAppFunction('public', fName, fn);
+			this._appendAppFunction('public', fName, fn);
 		}
 
 		this._appendAppFunction('system', 'fnGetFunctions', this._functions);
@@ -788,7 +848,7 @@ export class ServerAPI extends EventEmitter {
 			// @ts-ignore
 			res.status(500).json({ error: error.message });
 		}
-	};
+	}
 
 	listen() {
 		//let g = this._getNameFunctions('system');
