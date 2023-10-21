@@ -1,4 +1,4 @@
-import { NOW, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import dbsequelize from "./sequelize.js";
 //import {EncryptPwd} from "../server/utils.js";
 // @ts-ignore
@@ -9,7 +9,7 @@ const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
 const urlHooks =
   "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
-const uF = new uFetch(urlHooks);
+const uF = new uFetch(urlHooks, undefined);
 
 /**
  * @param {string} table_name
@@ -358,12 +358,11 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
-      afterCreate: async (user, options) => { },
-      afterUpsert: async (instance, options) => {
+      afterUpsert: async () => {
         // @ts-ignore
         await hookUpsert(prefixTableName("user"));
       },
-      beforeUpdate: (user, options) => {
+      beforeUpdate: (/** @type {{ ts: Date; rowkey: number; }} */ user) => {
         // @ts-ignore
         user.ts = new Date();
         // @ts-ignore
@@ -415,12 +414,10 @@ export const Role = dbsequelize.define(
       },
     ],
     hooks: {
-      afterCreate: async (user, options) => { },
-      afterUpsert: async (instance, options) => {
+      afterUpsert: async () => {
         // @ts-ignore
         await hookUpsert(prefixTableName("role"));
-      },
-      beforeUpdate: (user, options) => { },
+      }
     },
   }
 );
@@ -450,12 +447,10 @@ export const Method = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterCreate: async (user, options) => { },
-      afterUpsert: async (instance, options) => {
+      afterUpsert: async () => {
         // @ts-ignore
         await hookUpsert(prefixTableName("method"));
-      },
-      beforeUpdate: (user, options) => { },
+      }
     },
   }
 );
@@ -489,12 +484,11 @@ export const Handler = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterCreate: async (user, options) => { },
-      afterUpsert: async (instance, options) => {
+
+      afterUpsert: async () => {
         // @ts-ignore
         await hookUpsert(prefixTableName("handler"));
       },
-      beforeUpdate: (user, options) => { },
     },
   }
 );
@@ -536,24 +530,24 @@ export const Application = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterUpsert: async (instance, options) => {
+      afterUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
         // @ts-ignore
         instance.rowkey = 999;
         // @ts-ignore
         console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
         await hookUpsert(prefixTableName("application"));
       },
-      beforeUpdate: (instance, options) => {
+      beforeUpdate: (/** @type {{ rowkey: number; }} */ instance) => {
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
       },
-      beforeUpsert: async (instance, options) => {
+      beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
         console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
         await hookUpsert(prefixTableName("application"));
       },
-      beforeSave: (instance, options) => {
+      beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
         // Acciones a realizar antes de guardar el modelo
         //console.log('Antes de guardar:', instance.fieldName);
         // @ts-ignore
