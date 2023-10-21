@@ -13,17 +13,17 @@ const dbsequelize = new Sequelize(process.env.DATABASE_URL_APIREST, {
 }) // Example for postgres
 
 
-// Connect
-  (async () => {
-
-    try {
-      await dbsequelize.authenticate()
-      console.log('Connection has been established successfully.')
-    } catch (error) {
-      console.error('Unable to connect to the database:', error)
-    }
-
-  })();
 
 
-export default dbsequelize
+export default dbsequelize;
+
+(async () => {
+
+  try {
+    await dbsequelize.authenticate()
+    console.log('Connection has been established successfully.')
+  } catch (error) {
+    console.error('Unable to connect to the database:', error)
+  }
+
+})();
