@@ -362,7 +362,7 @@ export const User = dbsequelize.define(
         // @ts-ignore
         await hookUpsert(prefixTableName("user"));
       },
-      beforeUpdate: (/** @type {{ ts: Date; rowkey: number; }} */ user) => {
+      beforeUpdate: (/** @type {any} */ user) => {
         // @ts-ignore
         user.ts = new Date();
         // @ts-ignore
@@ -530,14 +530,14 @@ export const Application = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
+      afterUpsert: async (/** @type {any} */ instance) => {
         // @ts-ignore
         instance.rowkey = 999;
         // @ts-ignore
         console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
         await hookUpsert(prefixTableName("application"));
       },
-      beforeUpdate: (/** @type {{ rowkey: number; }} */ instance) => {
+      beforeUpdate: (/** @type {any} */ instance) => {
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
       },
