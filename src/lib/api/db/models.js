@@ -28,7 +28,7 @@ async function hookUpsert(modelName) {
 }
 
 
-
+/*
 // Definir el modelo de la tabla
 export const AppModel = dbsequelize.define(
   prefixTableName("app"),
@@ -288,7 +288,7 @@ export const MethodModel = dbsequelize.define(
 // Asociación 
 VersionModel.hasMany(MethodModel, { foreignKey: 'idversion' });
 MethodModel.belongsTo(VersionModel, { foreignKey: 'idversion' });
-
+*/
 
 
 /*
