@@ -34,6 +34,7 @@ declare module '$env/static/private' {
 	export const EXPOSE_QA_API: string;
 	export const EXPOSE_PROD_API: string;
 	export const MQTT_ENABLED: string;
+	export const PATH_APP_FUNCTIONS: string;
 	export const npm_config_cache_lock_stale: string;
 	export const npm_config_ham_it_up: string;
 	export const QT_SCALE_FACTOR: string;
@@ -311,6 +312,7 @@ declare module '$env/dynamic/private' {
 		EXPOSE_QA_API: string;
 		EXPOSE_PROD_API: string;
 		MQTT_ENABLED: string;
+		PATH_APP_FUNCTIONS: string;
 		npm_config_cache_lock_stale: string;
 		npm_config_ham_it_up: string;
 		QT_SCALE_FACTOR: string;

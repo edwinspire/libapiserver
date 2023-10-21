@@ -1,4 +1,4 @@
-import { jsFunction, createFunction } from "./jsFunction.js";
+import { jsFunction } from "./jsFunction.js";
 import { fetchFunction } from "./fetchFunction.js";
 import { soapFunction } from "./soapFunction.js";
 import { sqlFunction } from "./sqlFunction.js";

@@ -1,7 +1,8 @@
-import { Application } from './models.js';
+import { Application, AppModel, NameSpaceModel, VersionModel, MethodModel } from './models.js';
 import { checkToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
-import {  login } from './user.js';
+import { login } from './user.js';
+import { dbsequelize } from "../db/sequelize.js";
 
 // READ
 export const getAppById = async (/** @type {import("sequelize").Identifier} */ idapp) => {
@@ -166,14 +167,14 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 
 													returnHandler.params.code = returnHandler.params.code || '';
 
-console.log('typeof appData.vars: ', appData.vars , typeof appData.vars === 'object', returnHandler.params.code);
+													console.log('typeof appData.vars: ', appData.vars, typeof appData.vars === 'object', returnHandler.params.code);
 
 													if (appData.vars && typeof appData.vars === 'object') {
 														const props = Object.keys(appData.vars);
 														for (let i = 0; i < props.length; i++) {
 															const prop = props[i];
 
-console.log('typeof appData.vars[prop]: ', appData.vars[prop], typeof appData.vars[prop]);
+															console.log('typeof appData.vars[prop]: ', appData.vars[prop], typeof appData.vars[prop]);
 
 															switch (typeof appData.vars[prop]) {
 																case 'string':
@@ -604,3 +605,40 @@ export const defaultApps = async () => {
 		return;
 	}
 };
+
+
+
+
+export const doUpsert = async () => {
+	const transaction = await dbsequelize.transaction();
+	try {
+		const [app, created] = await AppModel.findCreateFind({
+			where: { name: 'nombre_de_la_app' },
+		}, { transaction });
+
+		if (app || created) {
+			const [namespace, createdNamespace] = await NameSpaceModel.findCreateFind({
+				where: { idapp: app.idapp, name: 'nombre_del_namespace' },
+			}, { transaction });
+
+			if (namespace || createdNamespace) {
+				const [version, createdVersion] = await VersionModel.findCreateFind({
+					where: { idnamespace: namespace.idnamespace, version: 0.01 },
+				}, { transaction });
+
+				if (version || createdVersion) {
+					await MethodModel.findCreateFind({
+						where: { idversion: version.idversion, env: 0, method: 0 },
+					}, { transaction });
+				}
+			}
+		}
+
+		await transaction.commit();
+	} catch (error) {
+		await transaction.rollback();
+		throw error;
+	}
+};
+
+

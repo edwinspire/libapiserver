@@ -252,7 +252,14 @@ export class ServerAPI extends EventEmitter {
 								const taskModule = await import(fileModule);
 
 								console.log('Module: ', taskModule);
-								this.appendAppFunction(_app_name, file_app.replace('.js', ''), taskModule.default);
+
+								if (taskModule && taskModule.default) {
+									this._appendAppFunction(
+										_app_name,
+										file_app.replace('.js', ''),
+										taskModule.default
+									);
+								}
 							}
 						});
 					} catch (error) {
@@ -619,25 +626,29 @@ export class ServerAPI extends EventEmitter {
 		if (appname != 'system' && functionName.startsWith('fn')) {
 			this._appendAppFunction(appname, functionName, Function);
 		} else {
-			throw 'system not allow or not start with fn';
+			throw `The app must not be "system" and the function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
 	}
 
 	/**
 	 * @param {string} appname
 	 * @param {string} functionName
-	 * @param {any} Function
+	 * @param {any} fn
 	 */
-	_appendAppFunction(appname, functionName, Function) {
-		if (this._fn.has(appname)) {
-			let fnList = this._fn.get(appname);
-			fnList[functionName] = Function;
-			this._fn.set(appname, fnList);
+	_appendAppFunction(appname, functionName, fn) {
+		if (functionName.startsWith('fn')) {
+			if (this._fn.has(appname)) {
+				let fnList = this._fn.get(appname);
+				fnList[functionName] = fn;
+				this._fn.set(appname, fnList);
+			} else {
+				let f = {};
+				// @ts-ignore
+				f[functionName] = fn;
+				this._fn.set(appname, f);
+			}
 		} else {
-			let f = {};
-			// @ts-ignore
-			f[functionName] = Function;
-			this._fn.set(appname, f);
+			throw `The function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
 	}
 

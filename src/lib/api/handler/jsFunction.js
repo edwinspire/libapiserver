@@ -19,7 +19,7 @@ ${code}
 return $_RETURN_DATA_;
 `;
 
-console.log(codefunction);
+//console.log(codefunction);
 
   return new Function("$_VARS_", codefunction);
 };

@@ -27,6 +27,278 @@ async function hookUpsert(modelName) {
   //  console.log(await data.json());
 }
 
+
+
+// Definir el modelo de la tabla
+export const AppModel = dbsequelize.define(
+  prefixTableName("app"),
+  {
+    idapp: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["name"],
+      },
+    ],
+    hooks: {
+      afterCreate: async (row, options) => { },
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("app"));
+      },
+      beforeUpdate: (row, options) => {
+        // @ts-ignore
+        //user.password = EncryptPwd(user.password);
+        // @ts-ignore
+        row.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+// Definir el modelo de la tabla
+export const NameSpaceModel = dbsequelize.define(
+  prefixTableName("namespace"),
+  {
+    idnamespace: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    idapp: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["idapp", "name"],
+      },
+    ],
+    hooks: {
+      afterCreate: async (row, options) => { },
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("namespace"));
+      },
+      beforeUpdate: (row, options) => {
+        // @ts-ignore
+        //user.password = EncryptPwd(user.password);
+        // @ts-ignore
+        row.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+
+// Asociación entre AppModel y NameSpaceModel
+AppModel.hasMany(NameSpaceModel, { foreignKey: 'idapp' });
+NameSpaceModel.belongsTo(AppModel, { foreignKey: 'idapp' });
+
+
+// Definir el modelo de la tabla
+export const VersionModel = dbsequelize.define(
+  prefixTableName("version"),
+  {
+    idversion: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    idnamespace: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    version: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0.01
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["idnamespace", "version"],
+      },
+    ],
+    hooks: {
+      afterCreate: async (row, options) => { },
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("version"));
+      },
+      beforeUpdate: (row, options) => {
+        // @ts-ignore
+        //user.password = EncryptPwd(user.password);
+        // @ts-ignore
+        row.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+
+// Asociación 
+NameSpaceModel.hasMany(VersionModel, { foreignKey: 'idnamespace' });
+VersionModel.belongsTo(NameSpaceModel, { foreignKey: 'idnamespace' });
+
+
+
+// Definir el modelo de la tabla
+export const MethodModel = dbsequelize.define(
+  prefixTableName("method"),
+  {
+    idmethod: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    idversion: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    env: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0, // 0 dev - 1 qa - 2 prd
+    },
+    is_public: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    method: {
+      type: DataTypes.SMALLINT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    code: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    handler: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["idmethod", "env", "method"],
+      },
+    ],
+    hooks: {
+      afterCreate: async (row, options) => { },
+      afterUpsert: async (instance, options) => {
+        // @ts-ignore
+        await hookUpsert(prefixTableName("method"));
+      },
+      beforeUpdate: (row, options) => {
+        // @ts-ignore
+        //user.password = EncryptPwd(user.password);
+        // @ts-ignore
+        row.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+// Asociación 
+VersionModel.hasMany(MethodModel, { foreignKey: 'idversion' });
+MethodModel.belongsTo(VersionModel, { foreignKey: 'idversion' });
+
+
+
+/*
+// Asociación entre NameSpaceModel y VersionModel
+NameSpaceModel.hasMany(VersionModel, { foreignKey: 'idnamespace' });
+VersionModel.belongsTo(NameSpaceModel, { foreignKey: 'idnamespace' });
+*/
+
+
+
 // Definir el modelo de la tabla 'User'
 export const User = dbsequelize.define(
   prefixTableName("user"),
@@ -86,7 +358,7 @@ export const User = dbsequelize.define(
       },
     ],
     hooks: {
-      afterCreate: async (user, options) => {},
+      afterCreate: async (user, options) => { },
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert(prefixTableName("user"));
@@ -143,12 +415,12 @@ export const Role = dbsequelize.define(
       },
     ],
     hooks: {
-      afterCreate: async (user, options) => {},
+      afterCreate: async (user, options) => { },
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert(prefixTableName("role"));
       },
-      beforeUpdate: (user, options) => {},
+      beforeUpdate: (user, options) => { },
     },
   }
 );
@@ -178,12 +450,12 @@ export const Method = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterCreate: async (user, options) => {},
+      afterCreate: async (user, options) => { },
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert(prefixTableName("method"));
       },
-      beforeUpdate: (user, options) => {},
+      beforeUpdate: (user, options) => { },
     },
   }
 );
@@ -217,12 +489,12 @@ export const Handler = dbsequelize.define(
     timestamps: true,
     indexes: [],
     hooks: {
-      afterCreate: async (user, options) => {},
+      afterCreate: async (user, options) => { },
       afterUpsert: async (instance, options) => {
         // @ts-ignore
         await hookUpsert(prefixTableName("handler"));
       },
-      beforeUpdate: (user, options) => {},
+      beforeUpdate: (user, options) => { },
     },
   }
 );
