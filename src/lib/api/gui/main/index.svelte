@@ -1,32 +1,32 @@
 <script>
-  // @ts-ignore
-  //import uFetch from "@edwinspire/universal-fetch";
+	// @ts-ignore
+	//import uFetch from "@edwinspire/universal-fetch";
 
-  import { onMount } from "svelte";
-  //import { createEventDispatcher } from "svelte";
-  // import { userStore } from "../utils.js";
-  import App from "../app/index.svelte";
-import Users from "../users/index.svelte";
-//  const dispatch = createEventDispatcher();
+	import { onMount } from 'svelte';
+	//import { createEventDispatcher } from "svelte";
+	// import { userStore } from "../utils.js";
+	import App from '../app/index.svelte';
+	import Users from '../users/index.svelte';
+	//  const dispatch = createEventDispatcher();
 
-  //let idappSelected = 0;
-  //let showMethod = false;
+	//let idappSelected = 0;
+	//let showMethod = false;
 
-  /**
-   * @type {{ name: any; value: any; }[]}
-   */
-  //  let options = [];
+	/**
+	 * @type {{ name: any; value: any; }[]}
+	 */
+	//  let options = [];
 
-  /**
-   * @type {any}
-   */
-  let app = {};
+	/**
+	 * @type {any}
+	 */
+	let app = {};
 
-  let mainTab = "app";
+	let mainTab = 'app';
 
-  //let uf = new uFetch();
+	//let uf = new uFetch();
 
-  /*
+	/*
   async function getListApps() {
     // Lógica de autenticación aquí
 
@@ -49,7 +49,7 @@ import Users from "../users/index.svelte";
   }
 */
 
-  /*
+	/*
   userStore.subscribe((value) => {
     console.log("tokenStore >> ", value);
     // @ts-ignore
@@ -57,20 +57,18 @@ import Users from "../users/index.svelte";
   });
 */
 
-  onMount(() => {
-    // uf.addHeader(tokenStore.);
-    // console.log(userStore);
-    // getListApps();
-  });
+	onMount(() => {
+		// uf.addHeader(tokenStore.);
+		// console.log(userStore);
+		// getListApps();
+	});
 </script>
 
 <div class="box">
-  <div class={mainTab == "app" ? "" : "is-hidden"}>
-    <App bind:idapp={app.idapp} />
-  </div>
+	<div class={mainTab == 'app' ? '' : 'is-hidden'}>
+		<App bind:idapp={app.idapp} />
+	</div>
 </div>
-
-<Users></Users>
 
 <style>
 </style>

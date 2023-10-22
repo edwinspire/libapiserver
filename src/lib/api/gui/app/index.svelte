@@ -288,6 +288,42 @@
 				</button>
 			{/if}
 		</span>
+
+		<span slot="r02">
+			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+				<button
+					class="button is-small"
+					on:click={() => {
+						console.log('Download', app);
+
+						// Convertir el objeto JSON a una cadena
+						const jsonString = JSON.stringify(app, null, 2);
+
+						// Crear un Blob con el contenido JSON
+						const blob = new Blob([jsonString], { type: 'application/json' });
+
+						// Crear una URL para el Blob
+						const url = window.URL.createObjectURL(blob);
+
+						// Crear un enlace para descargar el JSON
+						const a = document.createElement('a');
+						a.href = url;
+						a.download = `app_${app.app}.json`;
+
+						// Simular un clic en el enlace para iniciar la descarga
+						a.click();
+
+						// Liberar recursos
+						window.URL.revokeObjectURL(url);
+					}}
+				>
+					<span class="icon is-small">
+						<i class="fa-solid fa-file-export" />
+					</span>
+					<span>Download</span>
+				</button>
+			{/if}
+		</span>
 	</Level>
 
 	{#if app}

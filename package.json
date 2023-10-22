@@ -19,7 +19,7 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-node": "^1.0.0-next.86",
-		"@sveltejs/kit": "^1.20.4",
+		"@sveltejs/kit": "^1.26.0",
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
@@ -37,6 +37,7 @@
 		"@codemirror/lang-json": "^6.0.1",
 		"@codemirror/lang-sql": "^6.5.0",
 		"@codemirror/lint": "^6.2.2",
+		"@edwinspire/sequential-promises": "git+https://github.com/edwinspire/sequential-promises.git",
 		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
 		"@edwinspire/universal-fetch": "github:edwinspire/universal-fetch",
 		"@observablehq/plot": "^0.6.8",

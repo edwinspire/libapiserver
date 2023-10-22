@@ -259,6 +259,7 @@ declare module '$env/static/private' {
 	export const npm_config_cache_lock_retries: string;
 	export const npm_config_searchstaleness: string;
 	export const npm_package_devDependencies__sveltejs_adapter_auto: string;
+	export const npm_package_dependencies__edwinspire_sequential_promises: string;
 	export const npm_config_node_options: string;
 	export const npm_config_save_prefix: string;
 	export const npm_config_scripts_prepend_node_path: string;
@@ -537,6 +538,7 @@ declare module '$env/dynamic/private' {
 		npm_config_cache_lock_retries: string;
 		npm_config_searchstaleness: string;
 		npm_package_devDependencies__sveltejs_adapter_auto: string;
+		npm_package_dependencies__edwinspire_sequential_promises: string;
 		npm_config_node_options: string;
 		npm_config_save_prefix: string;
 		npm_config_scripts_prepend_node_path: string;

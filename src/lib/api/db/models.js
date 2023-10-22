@@ -9,7 +9,7 @@ const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
 const urlHooks =
   "http://localhost:" + PORT + (PATH_API_HOOKS || "/system/api/hooks");
-const uF = new uFetch(urlHooks, undefined);
+const uF = new uFetch(urlHooks);
 
 /**
  * @param {string} table_name
