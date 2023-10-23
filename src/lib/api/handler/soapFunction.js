@@ -10,7 +10,7 @@ export const soapFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
-    console.log('>>>>>>>>>>>>> method.code -----> ', method.code);
+    //console.log('>>>>>>>>>>>>> method.code -----> ', method.code);
 
     let SOAPParameters = JSON.parse(method.code);
 
@@ -41,7 +41,7 @@ export const soapFunction = async (
 const SOAPGenericClient = async (
   /** @type {{ wsdl: string; FunctionName: string | any[]; BasicAuthSecurity: { User: any; Password: any; }; RequestArgs: any; }} */ SOAPParameters
 ) => {
-  console.log("SOAPGenericClient", SOAPParameters);
+ // console.log("SOAPGenericClient", SOAPParameters);
 
   try {
     if (
@@ -58,7 +58,7 @@ const SOAPGenericClient = async (
 
         let client = await soap.createClientAsync(SOAPParameters.wsdl);
 
-console.log('Client >>>>>> SOAP: ', client);
+// console.log('Client >>>>>> SOAP: ', client);
 
         if (
           SOAPParameters.BasicAuthSecurity &&
@@ -77,7 +77,7 @@ console.log('Client >>>>>> SOAP: ', client);
           SOAPParameters.RequestArgs
         );
         let r = await result;
-        console.log("SOAPGenericClient result", r);
+   //     console.log("SOAPGenericClient result", r);
         return r[0];
       } else {
         return { error: "No se ha definido la funcion SOAP" };
@@ -89,26 +89,5 @@ console.log('Client >>>>>> SOAP: ', client);
     console.trace(error);
     // @ts-ignore
     return { error: error.message };
-  }
-};
-
-const DriverGenericSOAP = async (
-  /** @type {{ body: { args: {}; SOAP: any; }; }} */ req,
-  /** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: any): void; new (): any; }; }; }} */ res
-) => {
-  //    let wsdl = pgdata.wsdl || req.body.wsdl || pgdata.SOAP.wsdl || req.body.SOAP.wsdl;
-  let args_data = req.body.args || {};
-  /*
-  let Soapfunction = pgdata.SOAPFunction || pgdata.SOAP.Function || req.body.SOAPFunction || req.body.SOAP.Function || {};
-*/
-  let SOAPParameters = req.body.SOAP || {};
-  SOAPParameters.RequestArgs = args_data;
-
-  try {
-    let soap_response = await SOAPGenericClient(SOAPParameters);
-    res.status(200).json(soap_response);
-  } catch (error) {
-    // @ts-ignore
-    res.status(500).json(error.message);
   }
 };
