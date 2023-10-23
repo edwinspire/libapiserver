@@ -1,5 +1,6 @@
 // @ts-ignore
-import uFetch from "@edwinspire/universal-fetch";
+import $_UFETCH_ from "@edwinspire/universal-fetch";
+import $_SECUENTIAL_PROMISES_ from "@edwinspire/sequential-promises";
 
 export const createFunction = (
   /** @type {string} */ code,
@@ -26,7 +27,7 @@ return $_RETURN_DATA_;
 let codefunction = `
 return async()=>{
   ${app_vars_string}  
-  const {$_REQUEST_, $_UFETCH_} = $_VARS_;
+  const {$_REQUEST_, $_UFETCH_, $_SECUENTIAL_PROMISES_} = $_VARS_;
   let $_RETURN_DATA_ = {};
   ${code}
   return $_RETURN_DATA_;  
@@ -45,7 +46,7 @@ export const jsFunction = async (
 ) => {
   try {
 
-    let $_UFETCH_ = new uFetch();
+//    let $_UFETCH_ = new uFetch();
 
     let f;
 
@@ -58,7 +59,7 @@ export const jsFunction = async (
     }
 
 
-let result_fn = await f({ $_REQUEST_: $_REQUEST_, $_UFETCH_: $_UFETCH_ })();
+let result_fn = await f({ $_REQUEST_: $_REQUEST_, $_UFETCH_: $_UFETCH_, $_SECUENTIAL_PROMISES_: $_SECUENTIAL_PROMISES_ })();
 
 //console.log('result_fn: ====> ', result_fn);
 

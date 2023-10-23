@@ -1,5 +1,8 @@
 //import { uFetch } from "@edwinspire/universal-fetch";
 import soap from "soap";
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 
 export const soapFunction = async (
   /** @type {{ method?: any; headers: any; body: any; query: any; }} */ $_REQUEST_,
@@ -7,7 +10,7 @@ export const soapFunction = async (
   /** @type {{ handler?: string; code: any; }} */ method
 ) => {
   try {
-//    console.log('method.code -----> ', method.code);
+    console.log('>>>>>>>>>>>>> method.code -----> ', method.code);
 
     let SOAPParameters = JSON.parse(method.code);
 
@@ -54,6 +57,8 @@ const SOAPGenericClient = async (
         //         console.log("SOAPGenericClient createClient", wsdl);
 
         let client = await soap.createClientAsync(SOAPParameters.wsdl);
+
+console.log('Client >>>>>> SOAP: ', client);
 
         if (
           SOAPParameters.BasicAuthSecurity &&

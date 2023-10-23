@@ -296,6 +296,15 @@
 					on:click={() => {
 						console.log('Download', app);
 
+						const now = new Date();
+						const year = now.getFullYear();
+						const month = String(now.getMonth() + 1).padStart(2, '0'); // Sumamos 1 al mes ya que en JavaScript los meses van de 0 a 11
+						const day = String(now.getDate()).padStart(2, '0');
+						const hours = String(now.getHours()).padStart(2, '0');
+						const minutes = String(now.getMinutes()).padStart(2, '0');
+
+						//const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+
 						// Convertir el objeto JSON a una cadena
 						const jsonString = JSON.stringify(app, null, 2);
 
@@ -308,7 +317,7 @@
 						// Crear un enlace para descargar el JSON
 						const a = document.createElement('a');
 						a.href = url;
-						a.download = `app_${app.app}.json`;
+						a.download = `app_${app.app}_${year}${month}${day}_${hours}${minutes}.json`;
 
 						// Simular un clic en el enlace para iniciar la descarga
 						a.click();
