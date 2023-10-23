@@ -339,7 +339,7 @@ export const appDemo = {
           ]
         },
         {
-          "name": "test_javascript_two_fetch",
+          "name": "test_javascript_two_fetch_ByBlocks",
           "versions": [
             {
               "version": "0.01",
@@ -352,7 +352,7 @@ export const appDemo = {
                   "tokenAuthentication": false,
                   "broadcast": false,
                   "description": "",
-                  "code": "let uf = new $_UFETCH_();\n// First fetch\nlet r1 = await uf.get('http://localhost:3000/api/demo/main/test_javascript_return_array_objects/v0.01/dev');\nlet r1j = await r1.json();\n\n// Second fetch with Secuential Promise\nlet r2 = await $_SECUENTIAL_PROMISES_.ByBlocks((data)=>{\nreturn data.value1+data.value2;  \n}, r1j, 10);\n\n\n\n$_RETURN_DATA_ = await r2;\n"
+                  "code": "let uf = new $_UFETCH_();\n// First fetch\nlet r1 = await uf.get('http://localhost:3000/api/demo/main/test_javascript_return_array_objects/v0.01/dev');\nlet r1j = await r1.json();\n\n// Second fetch with Secuential Promise\nlet rblock = await $_SECUENTIAL_PROMISES_.ByBlocks(async(data)=>{\nlet val = data.value1+data.value2; \n\nlet r2 = await uf.get('http://localhost:3000/api/demo/main/test_soap/v0.01/dev', {dNum: val});\nlet r2j = await r2.json();\n  \n  return r2j;  \n}, r1j, 2);\n\n\n\n$_RETURN_DATA_ = await rblock;\n"
                 }
               },
               "qa": {},

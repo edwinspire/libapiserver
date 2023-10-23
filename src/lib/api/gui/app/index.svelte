@@ -23,6 +23,8 @@
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
 
+	let uploaded_file;
+
 	$: idapp, getApp();
 
 	let columns = {
@@ -331,6 +333,71 @@
 					</span>
 					<span>Download</span>
 				</button>
+			{/if}
+		</span>
+
+		<span slot="r03">
+			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+				<div class="field has-addons">
+					<p class="control file">
+						<input
+							class="input is-small"
+							type="file"
+							accept=".json"
+							on:change={(event) => {
+								const selectedFile = event.target.files[0]; // Obten el primer archivo seleccionado
+
+								if (!selectedFile) {
+									alert('Por favor, selecciona un archivo JSON válido.');
+									return;
+								}
+
+								const reader = new FileReader();
+
+								// Escucha el evento 'load' que se dispara cuando se ha leído el archivo
+								reader.onload = function (e) {
+									const fileContent = e.target.result; // Aquí tienes el contenido del archivo
+
+									try {
+										uploaded_file = JSON.parse(fileContent);
+										console.log('Contenido del archivo JSON:', uploaded_file);
+
+										// Aquí puedes realizar acciones con los datos JSON, por ejemplo, mostrarlos en la página.
+									} catch (error) {
+										console.error('Error al analizar el archivo JSON:', error);
+									}
+								};
+
+								// Lee el contenido del archivo como texto
+								reader.readAsText(selectedFile);
+							}}
+						/>
+					</p>
+
+					<p class="control">
+						<button
+							class="button is-small"
+							on:click={() => {
+								alert('Ha hecho click');
+
+								if (uploaded_file) {
+									if (confirm('Do you want to replace app data permanently?')) {
+										app = { ...uploaded_file };
+										uploaded_file = null;
+									}
+								} else {
+									alert('Please new select file!');
+								}
+							}}
+						>
+							<span class="icon is-small">
+								<i class="fas fa-align-left" />
+							</span>
+
+							<span> Upload </span>
+						</button>
+					</p>
+				</div>
 			{/if}
 		</span>
 	</Level>
