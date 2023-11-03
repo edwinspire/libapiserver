@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import { EventEmitter } from 'node:events';
 import { defaultApps, getAppByName } from './db/app.js';
 import { defaultUser, login } from './db/user.js';
@@ -33,6 +34,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import fs from 'fs';
 import path from 'path';
+
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
 
 const {
 	PORT,

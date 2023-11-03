@@ -1,8 +1,9 @@
 //import { uFetch } from "@edwinspire/universal-fetch";
 import soap from "soap";
+/*
 import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
-
+*/
 
 export const soapFunction = async (
   /** @type {{ method?: any; headers: any; body: any; query: any; }} */ $_REQUEST_,
