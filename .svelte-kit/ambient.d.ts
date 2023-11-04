@@ -87,6 +87,7 @@ declare module '$env/static/private' {
 	export const npm_config_tag_version_prefix: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const npm_package_scripts_check: string;
+	export const npm_package_dependencies_mysql2: string;
 	export const npm_config_cache_max: string;
 	export const npm_config_timing: string;
 	export const npm_config_userconfig: string;
@@ -119,6 +120,7 @@ declare module '$env/static/private' {
 	export const PULSE_SCRIPT: string;
 	export const npm_package_scripts_dev: string;
 	export const npm_package_devDependencies_prettier: string;
+	export const npm_package_dependencies_pg_hstore: string;
 	export const npm_config_audit: string;
 	export const npm_config_cidr: string;
 	export const npm_config_onload_script: string;
@@ -212,6 +214,7 @@ declare module '$env/static/private' {
 	export const npm_config_link: string;
 	export const SHELL: string;
 	export const npm_package_version: string;
+	export const npm_package_dependencies_oracledb: string;
 	export const npm_config_access: string;
 	export const npm_config_also: string;
 	export const npm_config_save: string;
@@ -267,6 +270,7 @@ declare module '$env/static/private' {
 	export const npm_package_scripts_preview: string;
 	export const npm_package_devDependencies_prettier_plugin_svelte: string;
 	export const npm_package_dependencies_jsonwebtoken: string;
+	export const npm_package_dependencies_mariadb: string;
 	export const npm_config_group: string;
 	export const npm_config_init_author_email: string;
 	export const npm_config_searchexclude: string;
@@ -366,6 +370,7 @@ declare module '$env/dynamic/private' {
 		npm_config_tag_version_prefix: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		npm_package_scripts_check: string;
+		npm_package_dependencies_mysql2: string;
 		npm_config_cache_max: string;
 		npm_config_timing: string;
 		npm_config_userconfig: string;
@@ -398,6 +403,7 @@ declare module '$env/dynamic/private' {
 		PULSE_SCRIPT: string;
 		npm_package_scripts_dev: string;
 		npm_package_devDependencies_prettier: string;
+		npm_package_dependencies_pg_hstore: string;
 		npm_config_audit: string;
 		npm_config_cidr: string;
 		npm_config_onload_script: string;
@@ -491,6 +497,7 @@ declare module '$env/dynamic/private' {
 		npm_config_link: string;
 		SHELL: string;
 		npm_package_version: string;
+		npm_package_dependencies_oracledb: string;
 		npm_config_access: string;
 		npm_config_also: string;
 		npm_config_save: string;
@@ -546,6 +553,7 @@ declare module '$env/dynamic/private' {
 		npm_package_scripts_preview: string;
 		npm_package_devDependencies_prettier_plugin_svelte: string;
 		npm_package_dependencies_jsonwebtoken: string;
+		npm_package_dependencies_mariadb: string;
 		npm_config_group: string;
 		npm_config_init_author_email: string;
 		npm_config_searchexclude: string;
