@@ -534,7 +534,7 @@ export const Application = dbsequelize.define(
         // @ts-ignore
         instance.rowkey = 999;
         // @ts-ignore
-        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
+        // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
         await hookUpsert(prefixTableName("application"));
       },
       beforeUpdate: (/** @type {any} */ instance) => {
@@ -544,7 +544,7 @@ export const Application = dbsequelize.define(
       beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
         // @ts-ignore
         instance.rowkey = Math.floor(Math.random() * 1000);
-        console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
+       // console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
         await hookUpsert(prefixTableName("application"));
       },
       beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
@@ -568,3 +568,66 @@ User.belongsTo(Role, {
 User.belongsTo(Role, { foreignKey: "idrole" });
 Role.hasMany(User, { foreignKey: "idrole" });
 */
+
+
+export const Apikey = dbsequelize.define(
+  prefixTableName("apikey"),
+  {
+    apikey: {
+      type: DataTypes.TEXT,
+      primaryKey: true,
+      allowNull: false,
+      unique: true,
+    },
+    idapp: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    rowkey: {
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+    enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
+    start_date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    expiry_date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    }
+  },
+  {
+    freezeTableName: true,
+    timestamps: true,
+    indexes: [],
+    hooks: {
+      afterUpsert: async (/** @type {any} */ instance) => {
+        // @ts-ignore
+        instance.rowkey = 999;
+        // @ts-ignore
+     //   console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
+        await hookUpsert(prefixTableName("apikey"));
+      },
+      beforeUpdate: (/** @type {any} */ instance) => {
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+      },
+      beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+     //   console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
+        await hookUpsert(prefixTableName("apikey"));
+      },
+      beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
+        // Acciones a realizar antes de guardar el modelo
+        //console.log('Antes de guardar:', instance.fieldName);
+        // @ts-ignore
+        instance.rowkey = Math.floor(Math.random() * 1000);
+      },
+    },
+  }
+);
+
+Application.hasMany(Apikey, { foreignKey: 'idapp' });
+Apikey.belongsTo(Application, { foreignKey: 'idapp' });

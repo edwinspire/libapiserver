@@ -152,3 +152,18 @@ export function websocketUnauthorized(socket) {
 	socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
 	socket.destroy();
 }
+
+
+export function createAPIKey() {
+	const caracteres =
+		'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@-|#/=¿.!:*$&';
+	let cadena = '';
+	while (cadena.length < 50) {
+		const caracterAleatorio =
+			caracteres[Math.floor(Math.random() * caracteres.length)];
+		if (cadena.indexOf(caracterAleatorio) === -1) {
+			cadena += caracterAleatorio;
+		}
+	}
+	return cadena;
+}

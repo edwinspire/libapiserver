@@ -738,6 +738,7 @@ export class ServerAPI extends EventEmitter {
 				return { message: error.message, status: 505, params: undefined };
 			}
 		} else {
+			// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
 			return { message: 'Not found', status: 404, params: undefined };
 		}
 	}
