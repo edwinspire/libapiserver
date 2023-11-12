@@ -2,7 +2,6 @@ const { createHmac } = await import('node:crypto');
 //import { v4 as uuidv4 } from 'uuid';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
-import { match } from "path-to-regexp";
 
 
 const { JWT_KEY } = process.env;
@@ -12,29 +11,6 @@ const errors = {
 	2: { code: 2, message: 'Invalid credentials' }
 };
 
-export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
-const fn_match_url = match(struct_path, { decode: decodeURIComponent });
-
-const mqtt_struct_path = '/api/:app/:namespace/:name/:version/:environment/:username/:topic*';
-const fn_mqtt_match_url = match(mqtt_struct_path, { decode: decodeURIComponent });
-
-export const path_params = (/** @type {string} */ url) => {
-	let reqUrl = new URL(`http://localhost${url}`);
-	return fn_match_url(reqUrl.pathname);
-}
-
-export const mqtt_path_params = (/** @type {string} */ url) => {
-	let reqUrl = new URL(`http://localhost${url}`);
-	return fn_mqtt_match_url(reqUrl.pathname);
-}
-
-export const path_params_to_url = (/** @type {{ app: any; namespace: any; name: any; version: any; environment: any; }} */ params) => {
-	return `/api/${params.app}/${params.namespace}/${params.name}/${params.version}/${params.environment}`;
-}
-
-export const defaultSystemPath = (/** @type {string} */ name) => {
-	return '/system/main/' + name;
-};
 
 /**
  * @param {any} token
@@ -166,4 +142,13 @@ export function createAPIKey() {
 		}
 	}
 	return cadena;
+}
+
+/**
+ * @param {string} apikey
+ * @param {string} apikeyData
+ */
+export function checkAPIKey(apikey, apikeyData) {
+	console.log('checkAPIKey: ', apikey, apikeyData);
+	return true;
 }

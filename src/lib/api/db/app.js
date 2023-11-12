@@ -1,27 +1,75 @@
-import { Application } from './models.js';
-import { checkToken } from '../server/utils.js';
+import { Application, Endpoint } from './models.js';
+import { checkAPIKey } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
-import { login } from './user.js';
-import { appDemo, varsDemo } from "./demo_values.js";
+//import { login } from './user.js';
+import { app_demo } from './demo_values.js';
+
+export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {boolean} */ raw) => {
+	return Application.findAll({
+		where: where,
+		attributes: ['idapp', 'app', 'description', 'enabled', 'vars', 'rowkey'],
+		include: {
+			model: Endpoint,
+			required: true, // INNER JOIN
+			attributes: [
+				'idendpoint',
+				'enabled',
+				'namespace',
+				'name',
+				'version',
+				'environment',
+				'method',
+				'handler',
+				'is_public',
+				'code',
+				'description',
+				'rowkey'
+			]
+		},
+		raw: raw,
+		nest: false
+	});
+};
+
 // READ
-export const getAppById = async (/** @type {import("sequelize").Identifier} */ idapp) => {
+export const getAppById = async (
+	/** @type {import("sequelize").Identifier} */ idapp,
+	raw = false
+) => {
 	try {
+		/*
 		const app = await Application.findByPk(idapp, {
 			attributes: ['idapp', 'app', 'data', 'vars']
 		});
-		return app;
-	} catch (error) {
-		console.error('Error retrieving app:', error);
-		throw error;
-	}
-};
-
-export const getAppByName = async ( /** @type {String} */ appname) => {
-	try {
-		const app = await Application.findOne({
-			where: { app: appname },
-			attributes: ['idapp', 'app', 'data', 'vars']
+*/
+		const app = await getAppWithEndpoints({ idapp: idapp }, raw);
+		/*
+		const app = await Application.findAll({
+			where: { idapp: idapp },
+			attributes: ['idapp', 'app', 'description', 'enabled', 'vars', 'rowkey'],
+			include: {
+				model: Endpoint,
+				required: true, // INNER JOIN
+				attributes: [
+					'idendpoint',
+					'enabled',
+					'namespace',
+					'name',
+					'version',
+					'environment',
+					'method',
+					'handler',
+					'is_public',
+					'code',
+					'description',
+					'rowkey'
+				]
+			},
+			raw: raw, 
+			nest: false
 		});
+		*/
+
 		return app;
 	} catch (error) {
 		console.error('Error retrieving app:', error);
@@ -29,6 +77,15 @@ export const getAppByName = async ( /** @type {String} */ appname) => {
 	}
 };
 
+export const getAppByName = async (/** @type {String} */ appname, raw = false) => {
+	try {
+		const app = await getAppWithEndpoints({ app: appname }, raw);
+		return app;
+	} catch (error) {
+		console.error('Error retrieving app:', error);
+		throw error;
+	}
+};
 
 export const getAllApps = async () => {
 	try {
@@ -69,7 +126,7 @@ export const upsertApp = async (
  * @param {string} environment
  * @param {string} method
  */
-export function getApiHandler(appData, app, namespace, name, version, environment, method) {
+export function __getApiHandler(appData, app, namespace, name, version, environment, method) {
 	let returnHandler = {};
 	try {
 		// @ts-ignore
@@ -126,26 +183,20 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 													*/
 													returnHandler.params = v[environment][method];
 
-													//console.log('returnHandler.params >>>> ', returnHandler);
+													console.log('returnHandler.params >>>> ', returnHandler);
 
 													if (returnHandler.params.public) {
-														returnHandler.authentication = async (
-															/** @type {string} */ token,
-															/** @type {string} */ username,
-															/** @type {string} */ password
-														) => {
-															console.log(token, username, password);
+														returnHandler.authentication = async (/** @type {string} */ apikey) => {
+															console.log('authentication, public: ', apikey);
 															return true;
 														};
 													} else {
 														// @ts-ignore
 														returnHandler.authentication = async (
-															/** @type {string} */ token,
-															/** @type {string} */ username,
-															/** @type {string} */ password
+															/** @type {string} */ apikey,
+															/** @type {string} */ apikeyData
 														) => {
-															let dataUser = undefined;
-
+															/*
 															if (returnHandler.params.tokenAuthentication && token) {
 																dataUser = checkToken(token);
 															}
@@ -159,21 +210,31 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 																let u = await login(username, password);
 																dataUser = u && u.login ? checkToken(u.token) : false;
 															}
+															*/
 
-															return dataUser;
+															return checkAPIKey(apikey, apikeyData);
 														};
 													}
 
 													returnHandler.params.code = returnHandler.params.code || '';
 
-													console.log('typeof appData.vars: ', appData.vars, typeof appData.vars === 'object', returnHandler.params.code);
+													console.log(
+														'typeof appData.vars: ',
+														appData.vars,
+														typeof appData.vars === 'object',
+														returnHandler.params.code
+													);
 
 													if (appData.vars && typeof appData.vars === 'object') {
 														const props = Object.keys(appData.vars);
 														for (let i = 0; i < props.length; i++) {
 															const prop = props[i];
 
-															console.log('typeof appData.vars[prop]: ', appData.vars[prop], typeof appData.vars[prop]);
+															console.log(
+																'typeof appData.vars[prop]: ',
+																appData.vars[prop],
+																typeof appData.vars[prop]
+															);
 
 															switch (typeof appData.vars[prop]) {
 																case 'string':
@@ -259,6 +320,82 @@ export function getApiHandler(appData, app, namespace, name, version, environmen
 	return returnHandler;
 }
 
+/**
+ * @param {{ enabled: any; method: any; }} endpointData
+ * @param {string | undefined} [appVars]
+ */
+export function getApiHandler(endpointData, appVars) {
+	let returnHandler = {};
+	returnHandler.params = endpointData;
+	try {
+		appVars = JSON.parse(appVars);
+		
+		if (endpointData.enabled) {
+			
+			if (returnHandler.params.is_public) {
+				returnHandler.authentication = async (/** @type {string} */ apikey) => {
+					console.log('authentication, public: ', apikey);
+					return true;
+				};
+			} else {
+				// @ts-ignore
+				returnHandler.authentication = async (
+					/** @type {string} */ apikey,
+					/** @type {string} */ apikeyData
+				) => {
+					return checkAPIKey(apikey, apikeyData);
+				};
+			}
+
+			returnHandler.params.code = returnHandler.params.code || '';
+
+			if (appVars && typeof appVars === 'object') {
+				const props = Object.keys(appVars);
+				for (let i = 0; i < props.length; i++) {
+					const prop = props[i];
+
+				//	console.log('typeof appData.vars[prop]: ', appVars[prop], typeof appVars[prop]);
+
+					switch (typeof appVars[prop]) {
+						case 'string':
+							returnHandler.params.code = returnHandler.params.code.replace(prop, appVars[prop]);
+							break;
+						case 'object':
+							returnHandler.params.code = returnHandler.params.code.replace(
+								'"' + prop + '"',
+								JSON.stringify(appVars[prop])
+							);
+
+							returnHandler.params.code = returnHandler.params.code.replace(
+								prop,
+								JSON.stringify(appVars[prop])
+							);
+							break;
+					}
+				}
+			}
+
+			if (returnHandler.params.handler == 'JS') {
+				returnHandler.params.jsFn = createFunction(returnHandler.params.code, appVars);
+			}
+			returnHandler.message = '';
+			returnHandler.status = 200;
+		} else {
+			returnHandler.message = `Method ${endpointData.method} Unabled`;
+			returnHandler.status = 404;
+			//console.log(endpointData);
+		}
+	} catch (error) {
+		// @ts-ignore
+		returnHandler.message = error.message;
+		returnHandler.status = 505;
+		console.trace(error);
+	}
+
+	return returnHandler;
+}
+
+/*
 export const defaultApps = async () => {
 	try {
 		console.log(' defaultApps >>>>>> ');
@@ -280,9 +417,16 @@ export const defaultApps = async () => {
 		return;
 	}
 };
+*/
 
+export const defaultApps = async () => {
+	try {
+		await Application.bulkCreate(app_demo, {
+			updateOnDuplicate: ['idapp']
+		});
 
-
-
-
-
+		console.log('Bulk upsert completado con éxito.');
+	} catch (error) {
+		console.error('Error durante el bulk upsert:', error);
+	}
+};

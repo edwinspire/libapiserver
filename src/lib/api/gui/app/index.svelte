@@ -15,8 +15,15 @@
 	import { createEventDispatcher } from 'svelte';
 	import { userStore, getListFunction, listAppVars } from '../utils.js';
 	import CellMethods from './cellMethods.svelte';
+	import CellMethod from './cellMethod.svelte';
+	import cellHandler from './cellHandler.svelte';
+	import cellIsPublic from './cellIsPublic.svelte';
+	import cellCode from './cellCode.svelte';
+	import cellEnabled from './cellEnabled.svelte';
+
 	import MethodDialog from './method.svelte';
-	import { AppToTable, TableToApp } from '../../db/utils.js';
+	//import { AppToTable, TableToApp } from '../../db/utils.js';
+	import { path_params_to_url } from '../../../api/server/utils_path.js';
 	//  import { tokenVerify } from "../../server/utils.js";
 	//  import jwt from "jsonwebtoken";
 
@@ -24,20 +31,37 @@
 	export let idapp = 0;
 
 	let uploaded_file;
+	let endpoints = [];
+	let showCode = false;
 
 	$: idapp, getApp();
 
 	let columns = {
-		dev: { decorator: { component: CellMethods } },
-		qa: { decorator: { component: CellMethods } },
-		prd: { decorator: { component: CellMethods } },
+		//enabled: { label: 'Enabled App' },
+		endpoint: { label: 'Endpoint' },
+		enabled: { label: 'Enabled Endpoint', decorator: { component: cellEnabled } },
+		method: { decorator: { component: CellMethod }, label: 'Method' },
+		handler: { decorator: { component: cellHandler }, label: 'Handler' },
+		is_public: { label: 'Public', decorator: { component: cellIsPublic } },
+		code: { label: 'Code', decorator: { component: cellCode } },
+		description: { label: 'Description' },
+
 		idapp: { hidden: true },
 		rowkey: { hidden: true },
 		app: { hidden: true },
 		namespace: { hidden: true },
 		name: { hidden: true },
 		version: { hidden: true },
-		description: { hidden: true }
+		description: { hidden: true },
+		vars: { hidden: true },
+		idendpoint: { hidden: true },
+
+		environment: { hidden: true },
+
+		name: { hidden: true },
+		namespace: { hidden: true },
+		rowkey: { hidden: true },
+		version: { hidden: true }
 	};
 	/**
 	 * @type {{ name: any; value: any; }[]}
@@ -76,7 +100,7 @@
 	/**
 	 * @type {any[]}
 	 */
-	let appDataTable = [];
+	//	let appDataTable = [];
 
 	let pageSelected = 'endpoint';
 	let versionSelected = '';
@@ -125,15 +149,34 @@
 				let apps_res = await uf.get('/system/main/app/' + idapp, {
 					raw: false
 				});
-				app = await apps_res.json();
-				//console.log(app);
-				if (app) {
-					appDataTable = AppToTable(app);
-					listAppVars.set(app.vars);
+				let app_resp = await apps_res.json();
+				console.log(app_resp);
+
+				if (app_resp && app_resp.length > 0) {
+					//appDataTable = AppToTable(app);
+					app = app_resp[0];
+
+					listAppVars.set(JSON.parse(app.vars));
 					//console.log("appDataTable = ", appDataTable);
 					//console.log(app);
 					// @ts-ignore
 					getListFunction($userStore.token, app.app);
+
+					if (app.apiserver_endpoints) {
+						endpoints = app.apiserver_endpoints.map((ax) => {
+							return {
+								endpoint: path_params_to_url({
+									app: app.app,
+									version: ax.version,
+									namespace: ax.namespace,
+									name: ax.name,
+									environment: ax.environment
+								}),
+								...ax
+							};
+						});
+						console.log(endpoints);
+					}
 				}
 			} catch (error) {
 				// @ts-ignore
@@ -245,7 +288,7 @@
 	</ul>
 </div>
 <div class={pageSelected == 'endpoint' ? '' : 'is-hidden'}>
-	<Table bind:RawDataTable={appDataTable} bind:columns>
+	<Table bind:RawDataTable={endpoints} bind:columns>
 		<span slot="l01"> Endpoints </span>
 
 		<span slot="r07">
@@ -253,9 +296,9 @@
 				<button
 					class="button is-small"
 					on:click={() => {
-						console.log('save', appDataTable);
+						console.log('save', app);
 						if (confirm('Do you want to save the application data?')) {
-							app = TableToApp(appDataTable);
+							//app = TableToApp(appDataTable);
 							saveApp();
 						}
 					}}
@@ -402,19 +445,24 @@
 		</span>
 	</Level>
 
-	{#if app}
+	{#if app && Array.isArray(app) && app.length > 0}
 		<div class="field">
 			<!-- svelte-ignore a11y-label-has-associated-control -->
 			<label class="label is-small">App</label>
 			<div class="control">
-				<input class="input is-small" type="text" placeholder="Text input" bind:value={app.app} />
+				<input
+					class="input is-small"
+					type="text"
+					placeholder="Text input"
+					bind:value={app[0].app}
+				/>
 			</div>
 		</div>
 
 		<div class="field">
 			<div class="control">
 				<label class="checkbox is-small">
-					<input type="checkbox" bind:checked={app.data.enabled} />
+					<input type="checkbox" bind:checked={app[0].enabled} />
 					Enabled
 				</label>
 			</div>
@@ -427,12 +475,12 @@
 				<textarea
 					class="textarea is-small"
 					placeholder="Description"
-					bind:value={app.data.description}
+					bind:value={app[0].description}
 				/>
 			</div>
 		</div>
 
-		{#if app && app.data && app.data.namespaces}
+		{#if app && app.data && app.data.namespaces && false}
 			<div class="box">
 				<div class="tabs is-small is-boxed">
 					<ul>

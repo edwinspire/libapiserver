@@ -1,26 +1,30 @@
 import 'dotenv/config';
 
 import { EventEmitter } from 'node:events';
-import { defaultApps, getAppByName } from './db/app.js';
+import { defaultApps, getAppByName, getAppWithEndpoints } from './db/app.js';
+import { demoEndpoints } from './db/endpoint.js';
 import { defaultUser, login } from './db/user.js';
 import { defaultRoles, getRoleById } from './db/role.js';
 import { defaultMethods } from './db/method.js';
 import { defaultHandlers } from './db/handler.js';
 import dbRestAPI from './db/sequelize.js';
-import { Application, prefixTableName } from './db/models.js';
+import { Apikey, Application, prefixTableName } from './db/models.js';
 import { runHandler } from './handler/handler.js';
 import { getApiHandler } from './db/app.js';
 import systemRoutes from './server/router/system.js';
 import {
 	validateToken,
-	defaultSystemPath,
 	getUserPasswordTokenFromRequest,
-	websocketUnauthorized,
+	websocketUnauthorized
+} from '../api/server/utils.js';
+
+import {
 	struct_path,
 	path_params,
 	mqtt_path_params,
-	path_params_to_url
-} from '../api/server/utils.js';
+	path_params_to_url,
+	defaultSystemPath
+} from '../api/server/utils_path.js';
 
 import aedesMod from 'aedes';
 import http from 'http';
@@ -36,6 +40,7 @@ import fs from 'fs';
 import path from 'path';
 
 import dns from 'dns';
+import { url } from 'node:inspector';
 dns.setDefaultResultOrder('ipv4first');
 
 const {
@@ -83,6 +88,7 @@ export class ServerAPI extends EventEmitter {
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
 		this._cacheRoles = new Map();
+		this._cacheAPIKey = new Map();
 		this._fn = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
@@ -304,7 +310,7 @@ export class ServerAPI extends EventEmitter {
 
 					if (data_url) {
 						let dataUser = getUserPasswordTokenFromRequest(request);
-						//	console.log('--------------->-<>>>>> dataUser', dataUser);
+						console.log('--------------->-<>>>>> dataUser', dataUser);
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
 						let h = await this._getApiHandler(
@@ -510,6 +516,7 @@ export class ServerAPI extends EventEmitter {
 			}
 		});
 
+		// Master input
 		this.app.all(struct_path, async (req, res) => {
 			let { app, namespace, name, version, environment } = req.params;
 
@@ -517,13 +524,23 @@ export class ServerAPI extends EventEmitter {
 				let h = await this._getApiHandler(app, namespace, name, version, environment, req.method);
 				// req.headers['api-token']
 
-				// console.log("HHHHHH >>>> ", h);
+			//	console.log('HHHHHH >>>> ', h);
 
 				if (h.status == 200) {
 					let dataAuth = getUserPasswordTokenFromRequest(req);
 
-					let auth = await h.authentication(dataAuth.token, dataAuth.username, dataAuth.password);
-					console.log(auth);
+					/*
+					if (!this._cacheAPIKey.has(dataAuth.token)) {
+						let apikeyData = await Apikey.findOne({ where: { apikey: dataAuth.token } });
+						//		console.log('apikeyData: ', apikeyData.dataValues, dataAuth.token);
+						this._cacheAPIKey.set(dataAuth.token, apikeyData.dataValues);
+
+						//		console.log('>>> ', this._cacheAPIKey.keys());
+					}
+					*/
+
+					let auth = await h.authentication(dataAuth.token, this._cacheAPIKey.get(dataAuth.token));
+					console.log('auth: ', auth);
 
 					if (auth) {
 						runHandler(req, res, h.params, this._getFunctions(app));
@@ -719,18 +736,58 @@ export class ServerAPI extends EventEmitter {
 			(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
 			(environment == 'prd' && EXPOSE_PROD_API === 'true')
 		) {
+			let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
+
 			try {
-				const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
+				// const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
+				const apiPath = `${path_params_to_url({
+					app,
+					namespace,
+					name,
+					version: ver,
+					environment
+				})}/${method}`;
+
 				if (!this._cacheApi.has(apiPath)) {
 					// Obtener el idapp por el nombre - Debe buscar primero en la cache y luego en la base
-					let appData = await Application.findOne({ where: { app: app } });
-					//	console.log('>>>> _getApiHandler NO usa cache', apiPath, appData);
-					this._cacheApi.set(
-						apiPath,
-						getApiHandler(appData, app, namespace, name, version, environment, method)
-					);
+					let appDataResult = await getAppWithEndpoints({ app: app }, false); //await Application.findOne({ where: { app: app } });
+
+					if (appDataResult && appDataResult.length > 0) {
+						const appDatas = appDataResult.map((result) => result.toJSON());
+						//console.log('>>>> _getApiHandler NO usa cache', apiPath, appDatas[0]);
+						const appData = appDatas[0];
+
+						for (let i = 0; i < appData.apiserver_endpoints.length; i++) {
+							let url_app_endpoint =
+								path_params_to_url({
+									app: appData.app,
+									namespace: appData.apiserver_endpoints[i].namespace,
+									name: appData.apiserver_endpoints[i].name,
+									version: appData.apiserver_endpoints[i].version,
+									environment: appData.apiserver_endpoints[i].environment
+								}) + `/${appData.apiserver_endpoints[i].method}`;
+
+							// console.log(apiPath, url_app_endpoint);
+
+							this._cacheApi.set(
+								url_app_endpoint,
+								getApiHandler(appData.apiserver_endpoints[i], appData.vars)
+							);
+						}
+
+						if (!this._cacheApi.has(apiPath)) {
+						//	console.log('___>>>> no se encontro: ', apiPath);
+							this._cacheApi.set(apiPath, { message: 'Not found', status: 404, params: undefined });
+						}
+					} else {
+						this._cacheApi.set(apiPath, { message: `Not found`, status: 404 });
+					}
+
+					/*
+
+*/
 				}
-				//console.log();
+			//	console.log('apiPath: ', apiPath, this._cacheApi.get(apiPath));
 				return this._cacheApi.get(apiPath);
 			} catch (error) {
 				console.trace(error);
@@ -785,6 +842,7 @@ export class ServerAPI extends EventEmitter {
 
 					try {
 						await defaultApps();
+						await demoEndpoints();
 					} catch (error) {
 						console.log(error);
 					}

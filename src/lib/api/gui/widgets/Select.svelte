@@ -9,13 +9,14 @@
     dispatch("select", { value: option });
   }
 export let options = [{ id: "TEST", value: `TEST`, enabled: true }];
+export let css_class = ' is-small';
+export let option = "";
 
-  export let option = "";
 </script>
 
 <div class="control">
-  <div class="select is-fullwidth is-small">
-    <select bind:value={option} on:select={handleClick}>
+  <div class="select {css_class}" >
+    <select bind:value={option} on:change={handleClick}>
       {#each options as h}
         <option value={h.id}>
           {h.value}
