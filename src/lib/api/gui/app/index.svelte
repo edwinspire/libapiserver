@@ -198,7 +198,12 @@
 		try {
 			let apps_res = await uf.post('/system/main/app/0', appToStore());
 			let rapp = await apps_res.json();
-			idapp = rapp.idapp;
+
+			if (idapp == rapp.idapp) {
+				getApp();
+			} else {
+				idapp = rapp.idapp;
+			}
 
 			await getListApps();
 		} catch (error) {
@@ -436,7 +441,7 @@
 		bind:RawDataTable={endpoints}
 		bind:columns
 		on:newrow={() => {
-			SelectedRow = { enabled: false };
+			SelectedRow = { enabled: false, environment: 'dev' };
 			showEndpointEdit = true;
 		}}
 	>
@@ -460,9 +465,10 @@
 			if (!checkEndpointConstraint(SelectedRow)) {
 				alert('Ya existe un Endpoint con estos parametros.');
 			} else {
-				endpoints.unshift({ SelectedRow });
+				endpoints.unshift({ ...SelectedRow });
 			}
 		}
+		showEndpointEdit = false;
 	}}
 >
 	<span slot="title">Endpoint Edit</span>
@@ -493,7 +499,7 @@
 					class="input"
 					type="text"
 					placeholder="Namespace"
-					bind:value={SelectedRow.namspace}
+					bind:value={SelectedRow.namespace}
 				/>
 			</div>
 		</div>
@@ -501,7 +507,7 @@
 		<div class="field">
 			<label class="label">Name</label>
 			<div class="control">
-				<input class="input" type="text" placeholder="Name" bind:value={SelectedRow.namspace} />
+				<input class="input" type="text" placeholder="Name" bind:value={SelectedRow.name} />
 			</div>
 		</div>
 
@@ -514,7 +520,7 @@
 					step="0.01"
 					min="0.01"
 					placeholder="0.01"
-					bind:value={SelectedRow.namspace}
+					bind:value={SelectedRow.version}
 				/>
 			</div>
 		</div>

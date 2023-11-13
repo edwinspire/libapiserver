@@ -1,4 +1,5 @@
 import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import { getAllApps, getAppById, upsertApp } from '../../db/app.js';
 import { upsertEndpoint } from '../../db/endpoint.js';
 import { validateToken } from '../utils.js';
@@ -42,11 +43,20 @@ router.post(defaultSystemPath('app/:idapp'), validateToken, async (req, res) => 
 		// @ts-ignore
 		let data = await upsertApp(req.body);
 
+		console.log('upsertApp:::::: ', data);
+
 		if (data.idapp && Number(data.idapp) > 0) {
 			// Inserta / Actualiza los endpoints
 			let promises_upsert = req.body.apiserver_endpoints.map(
 				(/** @type {import("sequelize").Optional<any, string>} */ ep) => {
 					ep.idapp = data.idapp;
+					if (!ep.idendpoint) {
+						ep.idendpoint = uuidv4();
+					}
+					if (!ep.handler) {
+						ep.handler = '';
+					}
+
 					return upsertEndpoint(ep);
 				}
 			);

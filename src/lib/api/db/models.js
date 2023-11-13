@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import dbsequelize from './sequelize.js';
-import { v4 as uuidv4 } from 'uuid';
 // @ts-ignore
 import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
@@ -708,11 +707,13 @@ export const Endpoint = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 
+				/*
 				if (!instance.idendpoint) {
 					instance.idendpoint = uuidv4();
 				}
+				*/
 
-				console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+			//	console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
 
 				await hookUpsert(prefixTableName('endpoint'));
 			},
