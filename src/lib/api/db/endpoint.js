@@ -68,11 +68,21 @@ export const getEndpointByApp = async (
 
 export const demoEndpoints = async () => {
 	try {
-		await Endpoint.bulkCreate(endpoins_demo, {
-			ignoreDuplicates: true
-		});
+		await bulkCreateEndpoints(endpoins_demo);
 		console.log('Bulk upsert completado con éxito.');
 	} catch (error) {
 		console.error('Error durante el bulk upsert:', error);
 	}
+};
+
+export const bulkCreateEndpoints = (
+	/** @type {readonly import("sequelize").Optional<any, string>[]} */ list_endpoints
+) => {
+	// Campos que se utilizarán para verificar duplicados (en este caso, todos excepto 'rowkey' y 'idendpoint')
+	//const uniqueFields = ['idapp', 'namespace', 'name', 'version', 'environment', 'method'];
+// OJO: No se pudo tener un bulk upsert
+	return Endpoint.bulkCreate(list_endpoints, {
+		ignoreDuplicates: true
+		//updateOnDuplicate: uniqueFields
+	});
 };

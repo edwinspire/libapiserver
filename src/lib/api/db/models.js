@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import dbsequelize from './sequelize.js';
-//import {EncryptPwd} from "../server/utils.js";
+import { v4 as uuidv4 } from 'uuid';
 // @ts-ignore
 import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
@@ -691,7 +691,6 @@ export const Endpoint = dbsequelize.define(
 				unique: true,
 				fields: ['idapp', 'namespace', 'name', 'version', 'environment', 'method']
 			}
-      
 		],
 		hooks: {
 			afterUpsert: async (/** @type {any} */ instance) => {
@@ -705,10 +704,16 @@ export const Endpoint = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
-			beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
+			beforeUpsert: async (/** @type {{ rowkey: number; idendpoint: string}} */ instance) => {
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
-				//   console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
+
+				if (!instance.idendpoint) {
+					instance.idendpoint = uuidv4();
+				}
+
+				console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+
 				await hookUpsert(prefixTableName('endpoint'));
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {

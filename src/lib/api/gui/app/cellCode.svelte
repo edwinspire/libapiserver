@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
 	'use strict';
 	import { onMount } from 'svelte';
 	import FetchCode from './handler/fetch.svelte';
@@ -25,6 +27,9 @@
 	 */
 	let fnSqlCode;
 
+	/**
+	 * @type {CustomFn}
+	 */
 	let fnCustomFn;
 
 	let showCode = false;
