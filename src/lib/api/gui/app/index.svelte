@@ -14,14 +14,14 @@
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { userStore, getListFunction, listAppVars } from '../utils.js';
-	import CellMethods from './cellMethods.svelte';
+	//	import CellMethods from './cellMethods.svelte';
 	import CellMethod from './cellMethod.svelte';
 	import cellHandler from './cellHandler.svelte';
 	import cellIsPublic from './cellIsPublic.svelte';
 	import cellCode from './cellCode.svelte';
 	import cellEnabled from './cellEnabled.svelte';
 
-	import MethodDialog from './method.svelte';
+	//	import MethodDialog from './method.svelte';
 	//import { AppToTable, TableToApp } from '../../db/utils.js';
 	import { path_params_to_url } from '../../../api/server/utils_path.js';
 	//  import { tokenVerify } from "../../server/utils.js";
@@ -32,8 +32,8 @@
 
 	let uploaded_file;
 	let endpoints = [];
-	let showCode = false;
-
+	let showEndpointEdit = false;
+	let SelectedRow = {};
 	$: idapp, getApp();
 
 	let columns = {
@@ -97,17 +97,20 @@
 	 */
 	let app = {};
 
-	/**
-	 * @type {any[]}
-	 */
-	//	let appDataTable = [];
-
-	let pageSelected = 'endpoint';
-	let versionSelected = '';
-
 	let uf = new uFetch();
 
-	//let dataUser = {};
+	function checkEndpointConstraint(endpoint_value) {
+		let check = endpoints.some((row) => {
+			return (
+				endpoint_value.namespace == row.namespace &&
+				endpoint_value.name == row.name &&
+				endpoint_value.version == row.version &&
+				endpoint_value.environment == row.environment &&
+				endpoint_value.method == row.endpoint_value
+			);
+		});
+		return !check;
+	}
 
 	async function getListApps() {
 		// Lógica de autenticación aquí
@@ -130,17 +133,6 @@
 			// @ts-ignore
 			alert(error.message);
 		}
-	}
-
-	/**
-	 * @param {string } method_selected
-	 */
-	function methodValidation(method_selected) {
-		if (!method_selected || (method_selected && method_selected.length < 2)) {
-			alert('You must select a method');
-			return false;
-		}
-		return true;
 	}
 
 	function showAppData(app_resp) {
@@ -225,8 +217,37 @@
 </script>
 
 <Level>
-	<span slot="l01">
+	<span slot="r01">
+		{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.create))}
+			<button
+				class="button is-small"
+				on:click={() => {
+					app = { app: '' };
+					endpoints = [];
+					/*
+					paramDialogOneField.title = 'New Application';
+					paramDialogOneField.label = 'Application Name';
+					paramDialogOneField.inputType = 'text';
+					paramDialogOneField.value = '';
+					paramDialogOneField.function = (value) => {
+						app = { app: value, data: { namespaces: [] } };
+						pageSelected = 'app';
+					};
+					showDialogOneField = true;
+					*/
+				}}
+			>
+				<span class="icon is-small">
+					<i class="fab fa-github" />
+				</span>
+				<span>New App</span>
+			</button>
+		{/if}
+	</span>
+
+	<span slot="r02">
 		<PredictiveInput
+			label="Application: "
 			bind:options
 			on:select={(/** @type {{ detail: { value: number; }; }} */ e) => {
 				if (
@@ -247,58 +268,11 @@
 			}}
 		/></span
 	>
-	<span slot="r01">
-		{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.create))}
-			<button
-				class="button is-small"
-				on:click={() => {
-					paramDialogOneField.title = 'New Application';
-					paramDialogOneField.label = 'Application Name';
-					paramDialogOneField.inputType = 'text';
-					paramDialogOneField.value = '';
-					paramDialogOneField.function = (value) => {
-						app = { app: value, data: { namespaces: [] } };
-						pageSelected = 'app';
-					};
-					showDialogOneField = true;
-				}}
-			>
-				<span class="icon is-small">
-					<i class="fab fa-github" />
-				</span>
-				<span>New App</span>
-			</button>
-		{/if}
-	</span>
 </Level>
 
 <div />
 
-<div class="tabs is-small is-boxed">
-	<ul>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-missing-attribute -->
-		<li class={pageSelected == 'endpoint' ? 'is-active' : ''}>
-			<!-- svelte-ignore a11y-no-static-element-interactions -->
-			<a
-				on:click={() => {
-					pageSelected = 'endpoint';
-				}}>Endpoints</a
-			>
-		</li>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-missing-attribute -->
-		<li class={pageSelected == 'app' ? 'is-active' : ''}>
-			<!-- svelte-ignore a11y-no-static-element-interactions -->
-			<a
-				on:click={() => {
-					pageSelected = 'app';
-				}}>App</a
-			>
-		</li>
-	</ul>
-</div>
-<div class={pageSelected == 'endpoint' ? '' : 'is-hidden'}>
+<div>
 	<Level>
 		<span slot="l01"> <strong> Application: </strong><span> {app.app} </span></span>
 		<span slot="r01">
@@ -457,8 +431,120 @@
 		</div>
 	</div>
 
-	<Table bind:RawDataTable={endpoints} bind:columns>
+	<Table
+		ShowNewButton="true"
+		bind:RawDataTable={endpoints}
+		bind:columns
+		on:newrow={() => {
+			SelectedRow = { enabled: false };
+			showEndpointEdit = true;
+		}}
+	>
 		<span slot="l01"> Endpoints </span>
 	</Table>
 </div>
-<div class={pageSelected == 'app' ? '' : 'is-hidden'} />
+
+<DialogModal
+	bind:Show={showEndpointEdit}
+	on:cancel={() => {
+		console.log('Ha cancelado');
+		//data = {};
+	}}
+	on:ok={() => {
+		if (SelectedRow.idendpoint) {
+			// Es edición de registro, se mantiene en bind con la fila seleccionada
+			showEndpointEdit = false;
+		} else {
+			// Es creación de registro
+			// Verifica que no haya otro registro igual
+			if (!checkEndpointConstraint(SelectedRow)) {
+				alert('Ya existe un Endpoint con estos parametros.');
+			} else {
+				endpoints.unshift({ SelectedRow });
+			}
+		}
+	}}
+>
+	<span slot="title">Endpoint Edit</span>
+
+	<div slot="body">
+		<input class="input" type="hidden" placeholder="Name" bind:value={SelectedRow.idendpoint} />
+
+		<div class="field is-horizontal">
+			<div class="field-label is-normal">
+				<!-- svelte-ignore a11y-label-has-associated-control -->
+				<label class="label">Enabled</label>
+			</div>
+			<div class="field-body">
+				<div class="field">
+					<div class="control">
+						<label class="checkbox">
+							<input type="checkbox" bind:checked={SelectedRow.enabled} />
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="field">
+			<label class="label">Namespace</label>
+			<div class="control">
+				<input
+					class="input"
+					type="text"
+					placeholder="Namespace"
+					bind:value={SelectedRow.namspace}
+				/>
+			</div>
+		</div>
+
+		<div class="field">
+			<label class="label">Name</label>
+			<div class="control">
+				<input class="input" type="text" placeholder="Name" bind:value={SelectedRow.namspace} />
+			</div>
+		</div>
+
+		<div class="field">
+			<label class="label">Version</label>
+			<div class="control">
+				<input
+					class="input"
+					type="number"
+					step="0.01"
+					min="0.01"
+					placeholder="0.01"
+					bind:value={SelectedRow.namspace}
+				/>
+			</div>
+		</div>
+
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label">Environment</label>
+			<div class="control">
+				<input class="input" type="text" readonly bind:value={SelectedRow.environment} />
+			</div>
+		</div>
+
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label">Method</label>
+			<div class="control">
+				<CellMethod bind:value={SelectedRow.method} />
+			</div>
+		</div>
+
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label is-small">Description</label>
+			<div class="control">
+				<textarea
+					class="textarea is-small"
+					placeholder="Textarea"
+					bind:value={SelectedRow.description}
+				/>
+			</div>
+		</div>
+	</div>
+</DialogModal>
