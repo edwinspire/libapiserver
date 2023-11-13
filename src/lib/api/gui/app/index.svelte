@@ -143,6 +143,35 @@
 		return true;
 	}
 
+	function showAppData(app_resp) {
+		if (app_resp && app_resp.length > 0) {
+			//appDataTable = AppToTable(app);
+			app = app_resp[0];
+
+			listAppVars.set(app.vars);
+			//console.log("appDataTable = ", appDataTable);
+			//console.log(app);
+			// @ts-ignore
+			getListFunction($userStore.token, app.app);
+
+			if (app.apiserver_endpoints) {
+				endpoints = app.apiserver_endpoints.map((ax) => {
+					return {
+						endpoint: path_params_to_url({
+							app: app.app,
+							version: ax.version,
+							namespace: ax.namespace,
+							name: ax.name,
+							environment: ax.environment
+						}),
+						...ax
+					};
+				});
+				console.log(endpoints);
+			}
+		}
+	}
+
 	async function getApp() {
 		if (idapp) {
 			try {
@@ -151,33 +180,7 @@
 				});
 				let app_resp = await apps_res.json();
 				console.log(app_resp);
-
-				if (app_resp && app_resp.length > 0) {
-					//appDataTable = AppToTable(app);
-					app = app_resp[0];
-
-					listAppVars.set(app.vars);
-					//console.log("appDataTable = ", appDataTable);
-					//console.log(app);
-					// @ts-ignore
-					getListFunction($userStore.token, app.app);
-
-					if (app.apiserver_endpoints) {
-						endpoints = app.apiserver_endpoints.map((ax) => {
-							return {
-								endpoint: path_params_to_url({
-									app: app.app,
-									version: ax.version,
-									namespace: ax.namespace,
-									name: ax.name,
-									environment: ax.environment
-								}),
-								...ax
-							};
-						});
-						console.log(endpoints);
-					}
-				}
+				showAppData(app_resp);
 			} catch (error) {
 				// @ts-ignore
 				alert(error.message);
@@ -388,7 +391,8 @@
 										uploaded_file = JSON.parse(fileContent);
 										console.log('Contenido del archivo JSON:', uploaded_file);
 
-										// Aquí puedes realizar acciones con los datos JSON, por ejemplo, mostrarlos en la página.
+										// TODO: Aquí puedes realizar acciones con los datos JSON, por ejemplo, mostrarlos en la página.
+										showAppData([uploaded_file]);
 									} catch (error) {
 										console.error('Error al analizar el archivo JSON:', error);
 									}
@@ -404,7 +408,7 @@
 						<button
 							class="button is-small"
 							on:click={() => {
-								alert('Ha hecho click');
+								//alert('Ha hecho click');
 
 								if (uploaded_file) {
 									if (confirm('Do you want to replace app data permanently?')) {
