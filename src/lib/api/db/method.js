@@ -16,6 +16,7 @@ export const defaultMethods = () => {
 		console.log(' defaultMethods >>>>>> ');
 
 		let methods = [
+			{ id: 'NA', text: `NA` },
 			{ id: 'CONNECT', text: `CONNECT` },
 			{ id: 'GET', text: `GET` },
 			{ id: 'DELETE', text: `DELETE` },

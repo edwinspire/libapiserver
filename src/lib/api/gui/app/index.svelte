@@ -441,7 +441,7 @@
 		bind:RawDataTable={endpoints}
 		bind:columns
 		on:newrow={() => {
-			SelectedRow = { enabled: false, environment: 'dev' };
+			SelectedRow = { enabled: false, environment: 'dev', method: 'NA', handler: 'NA' };
 			showEndpointEdit = true;
 		}}
 	>
@@ -463,7 +463,7 @@
 			// Es creación de registro
 			// Verifica que no haya otro registro igual
 			if (!checkEndpointConstraint(SelectedRow)) {
-				alert('Ya existe un Endpoint con estos parametros.');
+				alert('Ya existe un Endpoint con estos parámetros.');
 			} else {
 				endpoints.unshift({ ...SelectedRow });
 			}

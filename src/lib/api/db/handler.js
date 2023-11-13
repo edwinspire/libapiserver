@@ -16,12 +16,12 @@ export const defaultHandlers = () => {
     console.log(" defaultHandlers >>>>>> ");
 
     let handlers = [
+      { id: "NA", text: `NOAPPLY`, description:  'Not apply' },
       { id: "FETCH", text: `FETCH`, description:  'Make fetch requests. It works like a proxy.'},
       { id: "JS", text: `JS`, description:  'Run basic Javascript code.' },
       { id: "SOAP", text: `SOAP`, description:  'Useful for consuming SOAP services.' },
       { id: "SQL", text: `SQL`, description:  'Make SQL queries to different databases.' },
-      { id: "FUNCTION", text: `FUNCTION`, description:  'Calls custom functions written on the server.' },
-      { id: "NA", text: `NOAPPLY`, description:  'Not apply' }
+      { id: "FUNCTION", text: `FUNCTION`, description:  'Calls custom functions written on the server.' }
     ];
 
     handlers.forEach(async (h) => {
