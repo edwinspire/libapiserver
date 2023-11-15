@@ -40,7 +40,7 @@ import fs from 'fs';
 import path from 'path';
 
 import dns from 'dns';
-import { url } from 'node:inspector';
+//import { url } from 'node:inspector';
 dns.setDefaultResultOrder('ipv4first');
 
 const {
@@ -453,6 +453,13 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.use(express.json()); // Agrega esta línea
 
+		// Middleware para capturar los request TODO: Aqui realizar un control de autorizaciones para los endpoints
+		this.app.use((req, res, next) => {
+			console.log(' ::: req.path >>>>', req.path);
+			next();
+		});
+
+		// Emite un evento a websocket cuando la solicitud ha terminado
 		this.app.use((req, res, next) => {
 			const startTime = new Date().getTime();
 
@@ -524,7 +531,7 @@ export class ServerAPI extends EventEmitter {
 				let h = await this._getApiHandler(app, namespace, name, version, environment, req.method);
 				// req.headers['api-token']
 
-			//	console.log('HHHHHH >>>> ', h);
+				//	console.log('HHHHHH >>>> ', h);
 
 				if (h.status == 200) {
 					let dataAuth = getUserPasswordTokenFromRequest(req);
@@ -776,7 +783,7 @@ export class ServerAPI extends EventEmitter {
 						}
 
 						if (!this._cacheApi.has(apiPath)) {
-						//	console.log('___>>>> no se encontro: ', apiPath);
+							//	console.log('___>>>> no se encontro: ', apiPath);
 							this._cacheApi.set(apiPath, { message: 'Not found', status: 404, params: undefined });
 						}
 					} else {
@@ -787,7 +794,7 @@ export class ServerAPI extends EventEmitter {
 
 */
 				}
-			//	console.log('apiPath: ', apiPath, this._cacheApi.get(apiPath));
+				//	console.log('apiPath: ', apiPath, this._cacheApi.get(apiPath));
 				return this._cacheApi.get(apiPath);
 			} catch (error) {
 				console.trace(error);
