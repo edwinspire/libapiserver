@@ -421,7 +421,7 @@ export const Method = dbsequelize.define(
 	prefixTableName('methods'),
 	{
 		method: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING(10),
 			primaryKey: true,
 			allowNull: false,
 			unique: true
@@ -431,7 +431,7 @@ export const Method = dbsequelize.define(
 			defaultValue: true
 		},
 		label: {
-			type: DataTypes.CHAR(5),
+			type: DataTypes.STRING(10),
 			unique: true,
 			allowNull: false
 		}
@@ -454,7 +454,7 @@ export const Handler = dbsequelize.define(
 	prefixTableName('handler'),
 	{
 		handler: {
-			type: DataTypes.CHAR(10),
+			type: DataTypes.STRING(10),
 			primaryKey: true,
 			allowNull: false,
 			unique: true
@@ -464,7 +464,7 @@ export const Handler = dbsequelize.define(
 			defaultValue: true
 		},
 		label: {
-			type: DataTypes.CHAR(25),
+			type: DataTypes.STRING(25),
 			unique: true,
 			allowNull: false
 		},
