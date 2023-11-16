@@ -6,7 +6,7 @@
 	/**
 	 * @type {any[]}
 	 */
-	let methods = [];
+	let handlers = [];
 
 	/**
 	 * @type {any}
@@ -27,7 +27,7 @@
 	listHandlerStore.subscribe((value) => {
 		//console.log('listMethodStore ->>>>', value);
 		// @ts-ignore
-		methods = value;
+		handlers = value;
 	});
 
 	/**
@@ -54,7 +54,7 @@
 <td>
 	{#if row && row.method && row.method != 'WS' && row.method != 'MQTT'}
 		<SelectHandler
-			bind:options={methods}
+			bind:options={handlers}
 			bind:option={value}
 			bind:css_class={css_class_handler}
 			on:select={(e) => {
