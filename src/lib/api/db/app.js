@@ -1,3 +1,4 @@
+import dbsequelize from './sequelize.js';
 import { Application, Endpoint } from './models.js';
 import { checkAPIKey } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
@@ -329,9 +330,8 @@ export function getApiHandler(endpointData, appVars) {
 	returnHandler.params = endpointData;
 	try {
 		appVars = JSON.parse(appVars);
-		
+
 		if (endpointData.enabled) {
-			
 			if (returnHandler.params.is_public) {
 				returnHandler.authentication = async (/** @type {string} */ apikey) => {
 					console.log('authentication, public: ', apikey);
@@ -354,7 +354,7 @@ export function getApiHandler(endpointData, appVars) {
 				for (let i = 0; i < props.length; i++) {
 					const prop = props[i];
 
-				//	console.log('typeof appData.vars[prop]: ', appVars[prop], typeof appVars[prop]);
+					//	console.log('typeof appData.vars[prop]: ', appVars[prop], typeof appVars[prop]);
 
 					switch (typeof appVars[prop]) {
 						case 'string':
@@ -420,10 +420,19 @@ export const defaultApps = async () => {
 */
 
 export const defaultApps = async () => {
+	let options = {
+		updateOnDuplicate: ['idapp']
+	};
+
+	if (dbsequelize.getDialect() == 'mssql') {
+		options = {
+			// @ts-ignore
+			onDuplicate: true // Opción válida para mssql
+		};
+	}
+
 	try {
-		await Application.bulkCreate(app_demo, {
-			updateOnDuplicate: ['idapp']
-		});
+		await Application.bulkCreate(app_demo, options);
 
 		console.log('Bulk upsert completado con éxito.');
 	} catch (error) {
