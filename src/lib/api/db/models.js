@@ -312,6 +312,10 @@ export const User = dbsequelize.define(
 			type: DataTypes.BOOLEAN,
 			defaultValue: true
 		},
+		is_admin: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
 		username: {
 			type: DataTypes.STRING,
 			unique: true,
@@ -331,7 +335,7 @@ export const User = dbsequelize.define(
 		},
 		idrole: {
 			type: DataTypes.BIGINT,
-			allowNull: false,
+			allowNull: true,
 			defaultValue: 0
 		},
 		token: {
@@ -388,17 +392,29 @@ export const Role = dbsequelize.define(
 			defaultValue: true
 		},
 		role: {
-			type: DataTypes.STRING,
+			type: DataTypes.STRING(50),
 			unique: true,
 			allowNull: false
 		},
-		type: {
-			type: DataTypes.SMALLINT,
-			defaultValue: 0 // 0: Role min - 1: Role max - 2: Custom Role
+		create_app: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
 		},
-		attrs: {
-			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
-			allowNull: true
+		read_app: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
+		update_app: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
+		delete_app: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
+		notes: {
+			type: DataTypes.TEXT,
+			defaultValue: ''
 		}
 	},
 	{
@@ -414,6 +430,15 @@ export const Role = dbsequelize.define(
 			afterUpsert: async () => {
 				// @ts-ignore
 				await hookUpsert(prefixTableName('role'));
+			},
+			beforeValidate: (instance) => {
+				console.log('>>> beforeValidate >>>> ', instance);
+				/*
+				instance.attrs =
+					dbsequelize.getDialect() === 'mssql' && typeof instance.attrs === 'object'
+						? JSON.stringify(instance.attrs)
+						: instance.attrs;
+						*/
 			}
 		}
 	}
@@ -546,6 +571,13 @@ export const Application = dbsequelize.define(
 				//console.log('Antes de guardar:', instance.fieldName);
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
+			},
+			beforeValidate: (instance) => {
+				console.log('>>> beforeValidate >>>> ', instance);
+				instance.vars =
+					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
+						? JSON.stringify(instance.vars)
+						: instance.vars;
 			}
 		}
 	}

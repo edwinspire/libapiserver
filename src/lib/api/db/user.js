@@ -100,7 +100,7 @@ export const defaultUser = async () => {
 			first_name: 'super',
 			last_name: 'user',
 			email: 'superuser@example.com',
-			idrole: 1
+			is_admin: true
 		});
 	} catch (error) {
 		console.error('Example error:', error);
