@@ -396,7 +396,10 @@ export const Role = dbsequelize.define(
 			type: DataTypes.SMALLINT,
 			defaultValue: 0 // 0: Role min - 1: Role max - 2: Custom Role
 		},
-		attrs: { type: DataTypes.JSON, allowNull: true }
+		attrs: {
+			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
+			allowNull: true
+		}
 	},
 	{
 		freezeTableName: true,
@@ -510,10 +513,10 @@ export const Application = dbsequelize.define(
 		iduser: { type: DataTypes.BIGINT },
 		enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 		description: {
-			type: DataTypes.JSON
+			type: DataTypes.TEXT
 		},
 		vars: {
-			type: DataTypes.JSON
+			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON
 		}
 	},
 	{
@@ -713,7 +716,7 @@ export const Endpoint = dbsequelize.define(
 				}
 				*/
 
-			//	console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+				//	console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
 
 				await hookUpsert(prefixTableName('endpoint'));
 			},
