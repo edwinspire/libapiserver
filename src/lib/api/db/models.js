@@ -502,7 +502,7 @@ export const Application = dbsequelize.define(
 			unique: true
 		},
 		app: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING(50),
 			allowNull: false,
 			unique: true
 		},
@@ -567,7 +567,7 @@ export const Apikey = dbsequelize.define(
 	prefixTableName('apikey'),
 	{
 		apikey: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING(150),
 			primaryKey: true,
 			allowNull: false,
 			unique: true
@@ -644,11 +644,11 @@ export const Endpoint = dbsequelize.define(
 			allowNull: false
 		},
 		namespace: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING(50),
 			allowNull: false
 		},
 		name: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING(50),
 			allowNull: false
 		},
 		version: {
