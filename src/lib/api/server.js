@@ -90,7 +90,7 @@ export class ServerAPI extends EventEmitter {
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
 		this._cacheRoles = new Map();
-		this._cacheAPIKey = new Map();
+//		this._cacheAPIKey = new Map();
 		this._fn = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
@@ -547,17 +547,7 @@ export class ServerAPI extends EventEmitter {
 				if (h.status == 200) {
 					let dataAuth = getUserPasswordTokenFromRequest(req);
 
-					/*
-					if (!this._cacheAPIKey.has(dataAuth.token)) {
-						let apikeyData = await Apikey.findOne({ where: { apikey: dataAuth.token } });
-						//		console.log('apikeyData: ', apikeyData.dataValues, dataAuth.token);
-						this._cacheAPIKey.set(dataAuth.token, apikeyData.dataValues);
-
-						//		console.log('>>> ', this._cacheAPIKey.keys());
-					}
-					*/
-
-					let auth = await h.authentication(dataAuth.token, this._cacheAPIKey.get(dataAuth.token));
+					let auth = await h.authentication(dataAuth.token);
 					console.log('auth: ', auth);
 
 					if (auth) {
@@ -789,7 +779,7 @@ export class ServerAPI extends EventEmitter {
 
 							this._cacheApi.set(
 								url_app_endpoint,
-								getApiHandler(appData.apiserver_endpoints[i], appData.vars)
+								getApiHandler(appData.app, appData.apiserver_endpoints[i], appData.vars)
 							);
 						}
 

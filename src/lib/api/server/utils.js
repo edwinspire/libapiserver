@@ -144,10 +144,25 @@ export function createAPIKey() {
 }
 
 /**
- * @param {string} apikey
- * @param {string} apikeyData
+ * @param {any} app
+ * @param {any} env
+ * @param {any} jwtoken
  */
-export function checkAPIKey(apikey, apikeyData) {
-	console.log('checkAPIKey: ', apikey, apikeyData);
-	return true;
+export function checkAPIToken(app, env, jwtoken) {
+	//
+	try {
+		let data = tokenVerify(jwtoken);
+
+		// @ts-ignore
+		if (data && data.app && data.env) {
+			// Verificar que el app corresponda a la data que está en el jwtoken
+			// @ts-ignore
+			return data.app == app && data.env == env;
+		}
+
+		return false;
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
 }

@@ -1,6 +1,6 @@
 import dbsequelize from './sequelize.js';
 import { Application, Endpoint } from './models.js';
-import { checkAPIKey } from '../server/utils.js';
+import { checkAPIToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
 //import { login } from './user.js';
 import { app_demo } from './demo_values.js';
@@ -321,32 +321,39 @@ export function __getApiHandler(appData, app, namespace, name, version, environm
 	return returnHandler;
 }
 
+
+
 /**
- * @param {{ enabled: any; method: any; }} endpointData
- * @param {string | undefined} [appVars]
+ * @param {any} app_name
+ * @param {{ enabled: any; environment: any; method: any; }} endpointData
+ * @param {any | undefined} [appVars]
  */
-export function getApiHandler(endpointData, appVars) {
+export function getApiHandler(app_name, endpointData, appVars) {
 	let returnHandler = {};
 	returnHandler.params = endpointData;
+
+//console.log('-----> endpointData >>>>>', endpointData);
+
 	try {
 		appVars = typeof appVars !== 'object' ? JSON.parse(appVars) : appVars;
 
 		if (endpointData.enabled) {
+			// @ts-ignore
 			if (returnHandler.params.is_public) {
-				returnHandler.authentication = async (/** @type {string} */ apikey) => {
-					console.log('authentication, public: ', apikey);
+				returnHandler.authentication = async (/** @type {string} */ jw_token) => {
+					console.log('authentication, public: ', jw_token);
 					return true;
 				};
 			} else {
 				// @ts-ignore
 				returnHandler.authentication = async (
-					/** @type {string} */ apikey,
-					/** @type {string} */ apikeyData
+					/** @type {string} */ jw_token
 				) => {
-					return checkAPIKey(apikey, apikeyData);
+					return checkAPIToken(app_name, endpointData.environment, jw_token);
 				};
 			}
 
+			// @ts-ignore
 			returnHandler.params.code = returnHandler.params.code || '';
 
 			if (appVars && typeof appVars === 'object') {
@@ -358,14 +365,17 @@ export function getApiHandler(endpointData, appVars) {
 
 					switch (typeof appVars[prop]) {
 						case 'string':
+							// @ts-ignore
 							returnHandler.params.code = returnHandler.params.code.replace(prop, appVars[prop]);
 							break;
 						case 'object':
+							// @ts-ignore
 							returnHandler.params.code = returnHandler.params.code.replace(
 								'"' + prop + '"',
 								JSON.stringify(appVars[prop])
 							);
 
+							// @ts-ignore
 							returnHandler.params.code = returnHandler.params.code.replace(
 								prop,
 								JSON.stringify(appVars[prop])
@@ -375,7 +385,9 @@ export function getApiHandler(endpointData, appVars) {
 				}
 			}
 
+			// @ts-ignore
 			if (returnHandler.params.handler == 'JS') {
+				// @ts-ignore
 				returnHandler.params.jsFn = createFunction(returnHandler.params.code, appVars);
 			}
 			returnHandler.message = '';
