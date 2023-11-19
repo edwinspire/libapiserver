@@ -457,6 +457,7 @@ export class ServerAPI extends EventEmitter {
 
 		// Middleware para capturar los request TODO: Aqui realizar un control de autorizaciones para los endpoints
 		this.app.use((req, res, next) => {
+			// TODO: Optimizar esta consulta para leer la data de cache si fuera necesario para no consultar la data en base
 			// Solo registra las url que no correspondan a apis
 			if (!req.path.startsWith('/api')) {
 				console.log(' ::: req.path >>>>', req.path);

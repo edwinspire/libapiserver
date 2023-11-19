@@ -329,7 +329,7 @@ export function getApiHandler(endpointData, appVars) {
 	let returnHandler = {};
 	returnHandler.params = endpointData;
 	try {
-		appVars = JSON.parse(appVars);
+		appVars = typeof appVars !== 'object' ? JSON.parse(appVars) : appVars;
 
 		if (endpointData.enabled) {
 			if (returnHandler.params.is_public) {
