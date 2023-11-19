@@ -190,7 +190,7 @@
 		let app_save = { ...app };
 		app_save.apiserver_endpoints = endpoints;
 
-		console.log('v >> ', app_save);
+		//console.log('v >> ', app_save);
 		return app_save;
 	}
 
@@ -223,23 +223,12 @@
 
 <Level>
 	<span slot="r01">
-		{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.create))}
+		{#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.create_app}
 			<button
-				class="button is-small"
+				class="button is-small is-primary is-outlined"
 				on:click={() => {
 					app = { app: '' };
 					endpoints = [];
-					/*
-					paramDialogOneField.title = 'New Application';
-					paramDialogOneField.label = 'Application Name';
-					paramDialogOneField.inputType = 'text';
-					paramDialogOneField.value = '';
-					paramDialogOneField.function = (value) => {
-						app = { app: value, data: { namespaces: [] } };
-						pageSelected = 'app';
-					};
-					showDialogOneField = true;
-					*/
 				}}
 			>
 				<span class="icon is-small">
@@ -255,21 +244,11 @@
 			label="Application: "
 			bind:options
 			on:select={(/** @type {{ detail: { value: number; }; }} */ e) => {
-				if (
-					$userStore &&
-					$userStore.role &&
-					$userStore.role.enabled &&
-					($userStore.role.type == 1 ||
-						($userStore.role.attrs &&
-							$userStore.role.attrs.apps &&
-							$userStore.role.attrs.apps.read))
-				) {
+				if ($userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app) {
 					idapp = e.detail.value;
 				} else {
-					alert('No tiene autorizacion para ver la app');
+					alert('You do not have authorization');
 				}
-
-				//getApp();
 			}}
 		/></span
 	>
@@ -277,15 +256,17 @@
 
 <div />
 
+{#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
+	
 <div>
 	<Level>
 		<span slot="l01"> <strong> Application: </strong><span> {app.app} </span></span>
 		<span slot="r01">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
 				<button
-					class="button is-small"
+					class="button is-small is-link is-outlined"
 					on:click={() => {
-						console.log('save', app);
+		//				console.log('save', app);
 						if (confirm('Do you want to save the application data?')) {
 							saveApp();
 						}
@@ -300,7 +281,7 @@
 		</span>
 
 		<span slot="r02">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+			{#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
 				<button
 					class="button is-small"
 					on:click={() => {
@@ -345,7 +326,7 @@
 		</span>
 
 		<span slot="r03">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.type == 1 || ($userStore.role.attrs && $userStore.role.attrs.apps && $userStore.role.attrs.apps.update))}
+			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
 				<div class="field has-addons">
 					<p class="control file">
 						<input
@@ -448,6 +429,7 @@
 		<span slot="l01"> Endpoints </span>
 	</Table>
 </div>
+{/if}
 
 <DialogModal
 	bind:Show={showEndpointEdit}

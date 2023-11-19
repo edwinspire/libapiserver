@@ -1,5 +1,5 @@
 import { User } from './models.js';
-import { getRoleById } from './role.js';
+import { getRoleById, defaultRoles } from './role.js';
 import { EncryptPwd, GenToken, customError } from '../server/utils.js';
 
 export const upsertUser = async (
@@ -64,8 +64,10 @@ export const getUserByCredentials = async (username, password) => {
 		attributes: ['iduser', 'enabled', 'username', 'first_name', 'last_name', 'email', 'idrole']
 	});
 
+	let jsonDataUser = dataUser.toJSON();
+
 	if (dataUser) {
-		dataUser.dataValues.role = await getRoleById(dataUser?.dataValues.idrole, true);
+		dataUser.dataValues.role = await getRoleById(jsonDataUser.idrole);
 
 		/*
     if (dataUser.dataValues.role) {
@@ -82,8 +84,6 @@ export const getUserByCredentials = async (username, password) => {
 // Usage examples
 export const defaultUser = async () => {
 	try {
-		console.log(' defaultUser >>>>>> ');
-
 		// Verificar si el usuario "admin" ya existe
 		const existingUser = await User.findOne({
 			where: { username: 'superuser' }
@@ -93,6 +93,10 @@ export const defaultUser = async () => {
 			return;
 		}
 
+		let super_role = await defaultRoles();
+
+		console.log(' defaultUser >>>>>> ', super_role);
+
 		// El usuario "admin" no existe, se realiza la inserción
 		await User.create({
 			username: 'superuser',
@@ -100,8 +104,9 @@ export const defaultUser = async () => {
 			first_name: 'super',
 			last_name: 'user',
 			email: 'superuser@example.com',
-			is_admin: true
+			idrole: super_role && super_role.dataValues.idrole ? super_role.dataValues.idrole : undefined
 		});
+
 	} catch (error) {
 		console.error('Example error:', error);
 		return;

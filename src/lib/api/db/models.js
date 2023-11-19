@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, UUIDV4 } from 'sequelize';
 import dbsequelize from './sequelize.js';
 // @ts-ignore
 import uFetch from '@edwinspire/universal-fetch';
@@ -44,10 +44,6 @@ export const User = dbsequelize.define(
 			type: DataTypes.BOOLEAN,
 			defaultValue: true
 		},
-		is_admin: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: false
-		},
 		username: {
 			type: DataTypes.STRING,
 			unique: true,
@@ -66,9 +62,8 @@ export const User = dbsequelize.define(
 			type: DataTypes.STRING
 		},
 		idrole: {
-			type: DataTypes.BIGINT,
-			allowNull: true,
-			defaultValue: 0
+			type: DataTypes.UUID,
+			allowNull: false
 		},
 		token: {
 			type: DataTypes.STRING
@@ -109,11 +104,11 @@ export const Role = dbsequelize.define(
 	prefixTableName('role'),
 	{
 		idrole: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.UUID,
 			primaryKey: true,
-			autoIncrement: true,
 			allowNull: false,
-			unique: true
+			unique: true,
+			defaultValue: UUIDV4()
 		},
 		rowkey: {
 			type: DataTypes.SMALLINT,

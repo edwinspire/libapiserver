@@ -5,26 +5,31 @@ import { getAllMethods } from '../db/method.js';
 
 export const defaultRoles = async () => {
 	try {
-		console.log(' defaultRoles >>>>>> ');
+		//	console.log(' defaultRoles >>>>>> ');
 
 		// create super user
 		const r0 = await Role.findOne({
-			where: { role: 'none' }
+			where: { role: 'super' }
 		});
+
+		console.log('defaultRoles ==> ', r0);
+
 		if (!r0) {
 			await Role.upsert({
-				role: 'none',
-				enabled: false,
-				notes: 'No access'
+				role: 'super',
+				enabled: true,
+				create_app: true,
+				read_app: true,
+				update_app: true,
+				delete_app: true,
+				notes: 'Super user'
 			});
 		}
 
 		// create super user
-		await Role.findOne({
+		return await Role.findOne({
 			where: { role: 'super' }
 		});
-
-		return;
 	} catch (error) {
 		console.error('Example error:', error);
 		return;
@@ -85,7 +90,7 @@ export const getRoleById = async (/** @type {import("sequelize").Identifier} */ 
 			//	attributes: ['idrole', 'enabled', 'role', 'type', 'attrs']
 		});
 
-		return role?.toJSON();
+		return role;
 	} catch (error) {
 		console.error('Error retrieving app:', error);
 		throw error;

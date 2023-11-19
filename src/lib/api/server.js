@@ -823,11 +823,13 @@ export class ServerAPI extends EventEmitter {
 				async () => {
 					console.log('Crea la base de datos');
 
+					/*
 					try {
 						await defaultRoles();
 					} catch (error) {
 						console.log(error);
 					}
+*/
 
 					try {
 						await defaultUser();
