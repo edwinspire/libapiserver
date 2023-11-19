@@ -1,5 +1,5 @@
 <script>
-// @ts-nocheck
+	// @ts-nocheck
 
 	'use strict';
 	import { onMount } from 'svelte';
@@ -9,6 +9,7 @@
 	import SqlCode from './handler/sql.svelte';
 	import CustomFn from './handler/customFunction.svelte';
 	import { DialogModal } from '@edwinspire/svelte-components';
+	import { css_handlers } from '../utils.js';
 
 	/**
 	 * @type {FetchCode}
@@ -41,31 +42,35 @@
 	export let row = {};
 	export let props = {};
 
-	let css_class_icons = {
-		FETCH: ' is-primary ',
-		JS: ' is-link ',
-		SOAP: ' is-danger ',
-		SQL: ' is-info',
-		FUNCTION: ' is-warning '
-	};
-
 	onMount(() => {});
 </script>
 
 <td>
-	<button
-		class="button is-small"
-		on:click={() => {
-			if (!showCode) {
-				showCode = true;
-			}
-		}}
-	>
-		<span class="icon is-small">
-			<i class="fa-solid fa-code" />
-		</span>
-		<span>Code</span>
-	</button>
+	{#if row.method != 'NA' && row.method != 'WS' && row.method != 'MQTT'}
+		<button
+			class={css_handlers[row.handler] && css_handlers[row.handler].css
+				? ' button is-small is-outlined ' + css_handlers[row.handler].css
+				: ' button is-small is-outlined '}
+			on:click={() => {
+				if (!showCode) {
+					showCode = true;
+				}
+			}}
+		>
+			<span class="icon is-small">
+				{#if css_handlers[row.handler] && css_handlers[row.handler].icon}
+					<i class={css_handlers[row.handler].icon} />
+				{:else}
+					<i class="fa-solid fa-code" />
+				{/if}
+			</span>
+			{#if css_handlers[row.handler] && css_handlers[row.handler].label}
+				<span>{css_handlers[row.handler].label}</span>
+			{:else}
+				<span> code </span>
+			{/if}
+		</button>
+	{/if}
 </td>
 
 <DialogModal
@@ -94,13 +99,13 @@
 		{#if row && row.handler == 'JS'}
 			<JsCode bind:this={fnJsCode} code={value} />
 		{:else if row && row.handler == 'SOAP'}
-			<SoapCode bind:this={fnSoapCode} bind:code={value} />
+			<SoapCode bind:this={fnSoapCode} code={value} />
 		{:else if row && row.handler == 'SQL'}
-			<SqlCode bind:this={fnSqlCode} bind:code={value} />
+			<SqlCode bind:this={fnSqlCode} code={value} />
 		{:else if row && row.handler == 'FETCH'}
-			<FetchCode bind:this={fnFetchCode} bind:code={value} />
+			<FetchCode bind:this={fnFetchCode} code={value} />
 		{:else if row && row.handler == 'FUNCTION'}
-			<CustomFn bind:this={fnCustomFn} bind:code={value} />
+			<CustomFn bind:this={fnCustomFn} code={value} />
 		{:else}
 			<code contenteditable>
 				{value}

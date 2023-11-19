@@ -1,6 +1,6 @@
 <script>
 	import SelectHandler from '../widgets/Select.svelte';
-	import { listHandlerStore } from '../utils.js';
+	import { listHandlerStore, css_handlers } from '../utils.js';
 	import { onMount } from 'svelte';
 
 	/**
@@ -15,14 +15,7 @@
 	export let row = {};
 	export let props = {};
 	//let methodSelected = '';
-	let css_class_handlers = {
-		FETCH: ' is-primary ',
-		JS: ' is-link ',
-		SOAP: ' is-danger ',
-		SQL: ' is-info',
-		FUNCTION: ' is-warning '
-	};
-	let css_class_handler = ' is-small  ';
+	let css_h = ' is-small ';
 
 	listHandlerStore.subscribe((value) => {
 		//console.log('listMethodStore ->>>>', value);
@@ -31,19 +24,15 @@
 	});
 
 	/**
-	 * @param {string} handler
+	 * @param {string } value_handler
 	 */
-	function setCSS(handler) {
-		// @ts-ignore
-		let css_selected = css_class_handlers[handler];
-		if (css_selected) {
-			css_class_handler = ' is-small ' + css_selected;
-		} else {
-			css_class_handler = ' is-small has-background-warning-light';
-		}
-
-	//	console.log('>>>>>>>', row);
-		//console.log(css_class_handler);
+	function setCSS(value_handler) {
+		css_h =
+			// @ts-ignore
+			value_handler && css_handlers[value_handler] && css_handlers[value_handler].css
+				? // @ts-ignore
+				  ' is-small ' + css_handlers[value_handler].css
+				: ' is-small ';
 	}
 
 	onMount(() => {
@@ -56,10 +45,10 @@
 		<SelectHandler
 			bind:options={handlers}
 			bind:option={value}
-			bind:css_class={css_class_handler}
+			bind:css_class={css_h}
 			on:select={(e) => {
 				setCSS(e.detail.value);
-					console.log('Row', row);
+				console.log('Row', row);
 			}}
 		/>
 	{:else}

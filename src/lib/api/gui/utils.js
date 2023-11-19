@@ -87,3 +87,11 @@ export const authBearerString = ( value) => {
 	return 'Bearer ' + value;
 };
 */
+
+export const css_handlers = {
+	FETCH: { css: ' is-primary is-outlined ', label: ' Fetch ', icon: ' fa-solid fa-server ' },
+	JS: { css: ' is-link is-outlined ', label: ' Javascript ', icon: ' fa-brands fa-square-js ' },
+	SOAP: { css: ' is-danger is-outlined ', label: ' SOAP ', icon: ' fa-solid fa-soap ' },
+	SQL: { css: ' is-info is-outlined ', label: ' SQL ', icon: 'fa-solid fa-database ' },
+	FUNCTION: { css: ' is-success is-outlined ', label: ' Function ', icon: ' fa-brands fa-node-js ' }
+};
