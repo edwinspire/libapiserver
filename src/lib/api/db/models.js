@@ -26,6 +26,72 @@ async function hookUpsert(modelName) {
 }
 
 // Definir el modelo de la tabla 'User'
+export const PathRequest = dbsequelize.define(
+	prefixTableName('path_request'),
+	{
+		idpath: {
+			type: DataTypes.BIGINT,
+			primaryKey: true,
+			autoIncrement: true,
+			allowNull: false,
+			unique: true
+		},
+		rowkey: {
+			type: DataTypes.SMALLINT,
+			defaultValue: 0
+		},
+		enabled: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true
+		},
+		path: { type: DataTypes.TEXT, allowNull: false, unique: true },
+		idapp: { type: DataTypes.BIGINT, allowNull: true },
+		is_public: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true
+		},
+		ip_create: {
+			type: DataTypes.STRING(50),
+			allowNull: true
+		},
+		headers_create: { type: DataTypes.TEXT, allowNull: true },
+		notes: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			defaultValue: ''
+		}
+	},
+	{
+		freezeTableName: true,
+		timestamps: true,
+		indexes: [
+			{
+				unique: true,
+				fields: ['path']
+			}
+		],
+		hooks: {
+			afterUpsert: async () => {
+				// @ts-ignore
+				await hookUpsert(prefixTableName('path_request'));
+			},
+			beforeUpdate: (/** @type {any} */ instance) => {
+				// @ts-ignore
+				instance.rowkey = Math.floor(Math.random() * 1000);
+			},
+			beforeValidate: (/** @type {any} */ instance) => {
+				// @ts-ignore
+				instance.rowkey = Math.floor(Math.random() * 1000);
+				instance.headers_create =
+					typeof instance.headers_create == 'object' || Array.isArray(instance.headers_create)
+						? JSON.stringify(instance.headers_create)
+						: instance.headers_create;
+			}
+		}
+	}
+);
+
+// Definir el modelo de la tabla 'User'
 export const User = dbsequelize.define(
 	prefixTableName('user'),
 	{

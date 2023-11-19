@@ -3,7 +3,6 @@ const { createHmac } = await import('node:crypto');
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
 
-
 const { JWT_KEY } = process.env;
 
 const errors = {
@@ -11,6 +10,12 @@ const errors = {
 	2: { code: 2, message: 'Invalid credentials' }
 };
 
+/**
+ * @param {{ headers: { [x: string]: any; }; connection: { remoteAddress: any; }; }} req
+ */
+export function getIPFromRequest(req) {
+	return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+}
 
 /**
  * @param {any} token
@@ -102,9 +107,7 @@ export function tokenVerify(token) {
 export function getUserPasswordTokenFromRequest(req) {
 	const authHeader = req.headers.authorization;
 
-	let username,
-		token,
-		password;
+	let username, token, password;
 
 	if (authHeader && authHeader.startsWith('Basic')) {
 		const encodedCredentials = authHeader.split(' ')[1];
@@ -119,7 +122,6 @@ export function getUserPasswordTokenFromRequest(req) {
 	return { username: username, password: password, token: token };
 }
 
-
 /**
  * @param {any} socket
  */
@@ -129,14 +131,11 @@ export function websocketUnauthorized(socket) {
 	socket.destroy();
 }
 
-
 export function createAPIKey() {
-	const caracteres =
-		'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@-|#/=¿.!:*$&';
+	const caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@-|#/=¿.!:*$&';
 	let cadena = '';
 	while (cadena.length < 50) {
-		const caracterAleatorio =
-			caracteres[Math.floor(Math.random() * caracteres.length)];
+		const caracterAleatorio = caracteres[Math.floor(Math.random() * caracteres.length)];
 		if (cadena.indexOf(caracterAleatorio) === -1) {
 			cadena += caracterAleatorio;
 		}

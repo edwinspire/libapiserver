@@ -4,7 +4,8 @@ import { EventEmitter } from 'node:events';
 import { defaultApps, getAppByName, getAppWithEndpoints } from './db/app.js';
 import { demoEndpoints } from './db/endpoint.js';
 import { defaultUser, login } from './db/user.js';
-import { defaultRoles, getRoleById } from './db/role.js';
+import { getRoleById } from './db/role.js';
+import { createPathRequest } from './db/path_request.js';
 import { defaultMethods } from './db/method.js';
 import { defaultHandlers } from './db/handler.js';
 import dbRestAPI from './db/sequelize.js';
@@ -15,7 +16,8 @@ import systemRoutes from './server/router/system.js';
 import {
 	validateToken,
 	getUserPasswordTokenFromRequest,
-	websocketUnauthorized
+	websocketUnauthorized,
+	getIPFromRequest
 } from '../api/server/utils.js';
 
 import {
@@ -455,7 +457,15 @@ export class ServerAPI extends EventEmitter {
 
 		// Middleware para capturar los request TODO: Aqui realizar un control de autorizaciones para los endpoints
 		this.app.use((req, res, next) => {
-			console.log(' ::: req.path >>>>', req.path);
+			// Solo registra las url que no correspondan a apis
+			if (!req.path.startsWith('/api')) {
+				console.log(' ::: req.path >>>>', req.path);
+				// @ts-ignore
+				createPathRequest(req.path, getIPFromRequest(req), req.headers).then((r) => {
+					console.log('createPathRequest >>>>>>> ', r);
+				});
+			}
+
 			next();
 		});
 
