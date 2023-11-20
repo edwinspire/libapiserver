@@ -382,44 +382,80 @@ User.belongsTo(Role, {
 	as: 'role'
 });
 
-export const Apikey = dbsequelize.define(
-	prefixTableName('apikey'),
+export const ApiUser = dbsequelize.define(
+	prefixTableName('api_user'),
 	{
-		apikey: {
-			type: DataTypes.STRING(150),
+		idau: {
+			type: DataTypes.BIGINT,
 			primaryKey: true,
+			autoIncrement: true,
 			allowNull: false,
 			unique: true
-		},
-		idapp: {
-			type: DataTypes.BIGINT,
-			allowNull: false
 		},
 		rowkey: {
 			type: DataTypes.SMALLINT,
 			defaultValue: 0
 		},
-		enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
-		start_date: {
-			type: DataTypes.DATE,
+		enabled: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true
+		},
+		username: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			unique: true
+		},
+		password: {
+			type: DataTypes.TEXT,
+			allowNull: false
+		},/*
+		jwt: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			defaultValue: ''
+			},*/
+		idapp: {
+			type: DataTypes.BIGINT,
 			allowNull: false
 		},
-		expiry_date: {
-			type: DataTypes.DATE,
-			allowNull: false
+		env_dev: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true
+		},
+		env_qa: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
+		env_prd: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
+		},
+		validity_time: {
+			type: DataTypes.BIGINT,
+			defaultValue: 60
+		},
+		notes: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			defaultValue: ''
 		}
 	},
 	{
 		freezeTableName: true,
 		timestamps: true,
-		indexes: [],
+		indexes: [
+			{
+				unique: true,
+				fields: ['idapp', 'username']
+			}
+		],
 		hooks: {
 			afterUpsert: async (/** @type {any} */ instance) => {
 				// @ts-ignore
 				instance.rowkey = 999;
 				// @ts-ignore
 				//   console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-				await hookUpsert(prefixTableName('apikey'));
+				await hookUpsert(prefixTableName('api_user'));
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -429,11 +465,17 @@ export const Apikey = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 				//   console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
-				await hookUpsert(prefixTableName('apikey'));
+				await hookUpsert(prefixTableName('api_user'));
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
 				// Acciones a realizar antes de guardar el modelo
-				//console.log('Antes de guardar:', instance.fieldName);
+				//console.log('******* Antes de guardar:', instance.jwt);
+				// @ts-ignore
+				instance.rowkey = Math.floor(Math.random() * 1000);
+			},
+			beforeValidate: (/** @type {{ rowkey: number; }} */ instance) => {
+				// Acciones a realizar antes de guardar el modelo
+				//console.log('******* Antes de beforeValidate:', instance.jwt);
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			}
@@ -441,8 +483,8 @@ export const Apikey = dbsequelize.define(
 	}
 );
 
-Application.hasMany(Apikey, { foreignKey: 'idapp' });
-Apikey.belongsTo(Application, { foreignKey: 'idapp' });
+Application.hasMany(ApiUser, { foreignKey: 'idapp' });
+ApiUser.belongsTo(Application, { foreignKey: 'idapp' });
 
 export const Endpoint = dbsequelize.define(
 	prefixTableName('endpoint'),

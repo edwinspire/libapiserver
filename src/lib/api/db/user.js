@@ -64,9 +64,10 @@ export const getUserByCredentials = async (username, password) => {
 		attributes: ['iduser', 'enabled', 'username', 'first_name', 'last_name', 'email', 'idrole']
 	});
 
-	let jsonDataUser = dataUser.toJSON();
+	//	let jsonDataUser = dataUser.toJSON();
 
 	if (dataUser) {
+		let jsonDataUser = dataUser.toJSON();
 		dataUser.dataValues.role = await getRoleById(jsonDataUser.idrole);
 
 		/*
@@ -106,7 +107,6 @@ export const defaultUser = async () => {
 			email: 'superuser@example.com',
 			idrole: super_role && super_role.dataValues.idrole ? super_role.dataValues.idrole : undefined
 		});
-
 	} catch (error) {
 		console.error('Example error:', error);
 		return;
@@ -122,12 +122,12 @@ export async function login(username, password) {
 		let user = await getUserByCredentials(username || '', EncryptPwd(password || ''));
 
 		if (user) {
-			let u = { ...user.dataValues };
+			let u = user.toJSON();
 
-			// Envía el Token en el Header
 			let token = GenToken({
+				user_type: 'system',
 				username: u.username,
-				role: u.idrole,
+				role: u.role.toJSON(),
 				date: new Date() // Para que se genere siempre un token diferente
 			});
 
@@ -139,7 +139,7 @@ export async function login(username, password) {
 				username: u.username,
 				first_name: u.first_name,
 				last_name: u.last_name,
-				role: u.role.dataValues,
+				role: u.role.toJSON(),
 				token: token
 			};
 		} else {

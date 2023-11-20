@@ -5,6 +5,7 @@ import handlersRoutes from "./handler.js";
 import methodsRoutes from "./method.js";
 import usersRoutes from "./user.js";
 import rolesRoutes from "./role.js";
+import apiUser from "./api_user.js";
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.use(handlersRoutes);
 router.use(methodsRoutes);
 router.use(usersRoutes);
 router.use(rolesRoutes);
+router.use(apiUser);
 
 export default router;

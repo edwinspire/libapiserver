@@ -154,7 +154,7 @@ export const endpoins_demo = [
 		environment: 'dev',
 		method: 'GET',
 		handler: 'JS',
-		is_public: true,
+		is_public: false,
 		code: '$_RETURN_DATA_ = $_VARS_APP;'
 	},
 
@@ -223,7 +223,7 @@ export const endpoins_demo = [
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
-		code: '{"config": { "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "132.128.241.18",\n    "port": 5432,\n    "dialect": "postgres"\n  }}, "query": "SELECT NOW();"\n}'
+		code: '{"config": { "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "132.128.241.18",\n    "port": 5454,\n    "dialect": "postgres"\n  }}, "query": "SELECT NOW();"\n}'
 	},
 	{
 		idendpoint: 'c51ce410c124a10e0db5e4b97fc2af39',
@@ -262,7 +262,7 @@ export const endpoins_demo = [
 		environment: 'dev',
 		method: 'WS',
 		handler: 'NA',
-		is_public: true,
+		is_public: false,
 		code: '{"userAuthentication":false,"tokenAuthentication":false,"broadcast":true}'
 	},
 	{

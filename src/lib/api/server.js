@@ -9,7 +9,7 @@ import { createPathRequest } from './db/path_request.js';
 import { defaultMethods } from './db/method.js';
 import { defaultHandlers } from './db/handler.js';
 import dbRestAPI from './db/sequelize.js';
-import { Apikey, Application, prefixTableName } from './db/models.js';
+import { prefixTableName } from './db/models.js';
 import { runHandler } from './handler/handler.js';
 import { getApiHandler } from './db/app.js';
 import systemRoutes from './server/router/system.js';
@@ -463,7 +463,7 @@ export class ServerAPI extends EventEmitter {
 				console.log(' ::: req.path >>>>', req.path);
 				// @ts-ignore
 				createPathRequest(req.path, getIPFromRequest(req), req.headers).then((r) => {
-					console.log('createPathRequest >>>>>>> ', r);
+				//	console.log('createPathRequest >>>>>>> ', r);
 				});
 			}
 
@@ -625,7 +625,7 @@ export class ServerAPI extends EventEmitter {
 
 		if (!role && idrole && idrole > 0) {
 			// console.log(' > _checkAuthorization > No está en cache!', idrole);
-			role = await getRoleById(idrole, true);
+			role = await getRoleById(idrole);
 			this._cacheRoles.set(idrole, role);
 		}
 

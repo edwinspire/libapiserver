@@ -38,10 +38,10 @@ export function checkToken(token) {
  * @param {() => void} next
  */
 export function validateToken(req, res, next) {
-	// Obtener el token del encabezado de autorización
-	// @ts-ignore
-	//const token = req.headers['api-token'];
+	
+	req.headers['data-token'] = ''; // Vacia los datos que llegan en el token
 	let dataAuth = getUserPasswordTokenFromRequest(req);
+	
 
 	// Verificar si se proporcionó un token
 	if (!dataAuth.token) {
@@ -51,11 +51,42 @@ export function validateToken(req, res, next) {
 	let data = checkToken(dataAuth.token);
 
 	if (data) {
+		req.headers['data-token'] = JSON.stringify(data); // setea los datos del token para usarlo posteriormente
 		next();
 	} else {
 		return res.status(401).json({ error: 'Token invalid' });
 	}
 }
+
+
+
+// Middleware para validar el token de usuario del systema (Administradores de endpoints)
+/**
+ * @param {any} req
+ * @param { any } res
+ * @param {() => void} next
+ */
+export function validateUserToken(req, res, next) {
+	
+	req.headers['data-token'] = ''; // Vacia los datos que llegan en el token
+	let dataAuth = getUserPasswordTokenFromRequest(req);
+	
+
+	// Verificar si se proporcionó un token
+	if (!dataAuth.token) {
+		return res.status(401).json({ error: 'Token not found' });
+	}
+
+	let data = checkToken(dataAuth.token);
+
+	if (data) {
+		req.headers['data-token'] = JSON.stringify(data); // setea los datos del token para usarlo posteriormente
+		next();
+	} else {
+		return res.status(401).json({ error: 'Token invalid' });
+	}
+}
+
 
 /**
  * @param {number} code
@@ -85,13 +116,10 @@ export function EncryptPwd(pwd) {
 /**
  * @param {any} data
  */
-export function GenToken(data) {
+export function GenToken(data, exp = Math.floor(Date.now() / 1000) + 60 * 60) {
 	console.log('GenToken > ', data);
 	// Genera un Token
-	return jwt.sign(
-		{ data: data, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
-		JWT_KEY || '9999999999'
-	);
+	return jwt.sign({ data: data, exp: exp }, JWT_KEY || '9999999999');
 }
 
 /**
