@@ -70,13 +70,6 @@ export const getUserByCredentials = async (username, password) => {
 		let jsonDataUser = dataUser.toJSON();
 		dataUser.dataValues.role = await getRoleById(jsonDataUser.idrole);
 
-		/*
-    if (dataUser.dataValues.role) {
-      if (!dataUser.dataValues.role.dataValues.enabled) {
-        dataUser.dataValues.role = {};
-      }
-    }
-    */
 	}
 
 	return dataUser;

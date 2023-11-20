@@ -65,7 +65,9 @@ router.post(defaultSystemPath('login'), async (req, res) => {
 
 router.post(defaultSystemPath('token'), async (req, res) => {
 	try {
-		let token = await getAPIToken(req.body.appname, req.body.username, req.body.password);
+	
+if(req.body.appname && req.body.username && req.body.password){
+	let token = await getAPIToken(req.body.appname, req.body.username, req.body.password);
 
 		//console.log(token);
 
@@ -75,6 +77,10 @@ router.post(defaultSystemPath('token'), async (req, res) => {
 		} else {
 			res.status(401).json();
 		}
+}else{
+	res.status(401).json({error: 'Parameters are missing'});
+}
+
 	} catch (error) {
 		console.log(error);
 		// @ts-ignore

@@ -29,7 +29,7 @@ export async function getAPIToken(app_name, username, password) {
 				Array.isArray(u.apiserver_api_users) &&
 				u.apiserver_api_users.length > 0
 			) {
-				console.log('------->>>>>>>>>>>>>>>>> ', u);
+//				console.log('------->>>>>>>>>>>>>>>>> ', u);
 
 				let au = u.apiserver_api_users[0];
 
