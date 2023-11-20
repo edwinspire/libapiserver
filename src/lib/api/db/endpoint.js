@@ -1,5 +1,5 @@
 import { Endpoint } from './models.js';
-import { endpoins_demo } from './demo_values.js';
+import { endpoins_default } from './demo_values.js';
 
 export const upsertEndpoint = async (
 	/** @type {import("sequelize").Optional<any, string>} */ data
@@ -68,7 +68,7 @@ export const getEndpointByApp = async (
 
 export const demoEndpoints = async () => {
 	try {
-		await bulkCreateEndpoints(endpoins_demo);
+		await bulkCreateEndpoints(endpoins_default);
 		console.log('Bulk upsert completado con éxito.');
 	} catch (error) {
 		console.error('Error durante el bulk upsert:', error);

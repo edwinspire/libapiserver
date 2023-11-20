@@ -62,17 +62,29 @@ export const app_default = [
 
 export const endpoins_default = [
 	{
+		idendpoint: 'cfcd208495d565ef66e7dff9f98764da',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'token',
+		version: 0.01,
+		environment: 'dev',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		code: 'fnToken'
+	}, {
 		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'main',
-		name: 'test_functions',
+		namespace: 'system',
+		name: 'login',
 		version: 0.01,
 		environment: 'dev',
-		method: 'GET',
+		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
-		code: 'fnPublicAdd'
+		code: 'fnLogin'
 	},
 	{
 		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',

@@ -3,7 +3,7 @@ import dbsequelize from './sequelize.js';
 // @ts-ignore
 import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
@@ -369,7 +369,7 @@ export const Application = dbsequelize.define(
 			beforeValidate: (instance) => {
 				console.log('>>> beforeValidate >>>> ', instance);
 
-				if(!instance.idapp){
+				if (!instance.idapp) {
 					instance.idapp == uuidv4();
 				}
 
@@ -414,12 +414,12 @@ export const ApiUser = dbsequelize.define(
 		password: {
 			type: DataTypes.TEXT,
 			allowNull: false
-		},/*
+		} /*
 		jwt: {
 			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: ''
-			},*/
+			},*/,
 		idapp: {
 			type: DataTypes.UUID,
 			allowNull: false
@@ -587,10 +587,18 @@ export const Endpoint = dbsequelize.define(
 
 				await hookUpsert(prefixTableName('endpoint'));
 			},
-			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
-				// Acciones a realizar antes de guardar el modelo
-				//console.log('Antes de guardar:', instance.fieldName);
-				// @ts-ignore
+			beforeValidate: (instance) => {
+				if (!instance.idendpoint) {
+					instance.idendpoint = uuidv4();
+				}
+
+				instance.rowkey = Math.floor(Math.random() * 1000);
+			},
+			beforeBulkCreate: (instance) => {
+				if (!instance.idendpoint) {
+					instance.idendpoint = uuidv4();
+				}
+
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			}
 		}

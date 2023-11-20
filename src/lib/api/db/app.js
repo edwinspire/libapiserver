@@ -3,7 +3,7 @@ import { Application, Endpoint } from './models.js';
 import { checkAPIToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
 //import { login } from './user.js';
-import { app_demo } from './demo_values.js';
+import { app_default } from './demo_values.js';
 
 export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {boolean} */ raw) => {
 	return Application.findAll({
@@ -118,208 +118,6 @@ export const upsertApp = async (
 	}
 };
 
-/**
- * @param {Model<any, any> | null} appData
- * @param {string} app
- * @param {string} namespace
- * @param {string} name
- * @param {string} version
- * @param {string} environment
- * @param {string} method
- */
-export function __getApiHandler(appData, app, namespace, name, version, environment, method) {
-	let returnHandler = {};
-	try {
-		// @ts-ignore
-		if (appData && appData.data && appData.data.enabled) {
-			// Verificar que exista namespaces
-			if (
-				// @ts-ignore
-				appData.data.namespaces &&
-				// @ts-ignore
-				Array.isArray(appData.data.namespaces)
-			) {
-				// Busca el namespace
-				// @ts-ignore
-				let ns = appData.data.namespaces.find(
-					(/** @type {{ namespace: string; }} */ element) => element.namespace == namespace
-				);
-
-				// Verifcar si fue encontrado el namespace
-				if (ns) {
-					// Buscar el name
-					if (ns.names && Array.isArray(ns.names)) {
-						// Buscar el name
-						let n = ns.names.find(
-							(/** @type {{ name: string; }} */ element) => element.name == name
-						);
-
-						if (n) {
-							let ver = Number(version.replace(/[^0-9.]/g, ''));
-
-							// Verificamos que exista version dentro de name
-							if (n.versions && Array.isArray(n.versions)) {
-								// Buscamos la version
-								let v = n.versions.find(
-									(/** @type {{ version: number; }} */ element) => element.version == ver
-								);
-
-								if (v) {
-									// Verificar que exista el ambiente
-									if (v[environment]) {
-										//   console.log('< v[environment] >', method, v[environment]);
-
-										// Verificar el método
-										if (v[environment][method]) {
-											//   console.log('< v[environment][method] >', v[environment][method]);
-
-											if (v[environment][method]) {
-												// Verificar si es publico o privado
-												if (v[environment][method].enabled) {
-													//  && (v[environment][req.method].enabled   && checkToken(token))
-
-													/*
-														v[environment][method].public ||
-														(!v[environment][method].public && checkToken(token))
-													*/
-													returnHandler.params = v[environment][method];
-
-													console.log('returnHandler.params >>>> ', returnHandler);
-
-													if (returnHandler.params.public) {
-														returnHandler.authentication = async (/** @type {string} */ apikey) => {
-															console.log('authentication, public: ', apikey);
-															return true;
-														};
-													} else {
-														// @ts-ignore
-														returnHandler.authentication = async (
-															/** @type {string} */ apikey,
-															/** @type {string} */ apikeyData
-														) => {
-															/*
-															if (returnHandler.params.tokenAuthentication && token) {
-																dataUser = checkToken(token);
-															}
-
-															if (
-																!dataUser &&
-																returnHandler.params.userAuthentication &&
-																username &&
-																password
-															) {
-																let u = await login(username, password);
-																dataUser = u && u.login ? checkToken(u.token) : false;
-															}
-															*/
-
-															return checkAPIKey(apikey, apikeyData);
-														};
-													}
-
-													returnHandler.params.code = returnHandler.params.code || '';
-
-													console.log(
-														'typeof appData.vars: ',
-														appData.vars,
-														typeof appData.vars === 'object',
-														returnHandler.params.code
-													);
-
-													if (appData.vars && typeof appData.vars === 'object') {
-														const props = Object.keys(appData.vars);
-														for (let i = 0; i < props.length; i++) {
-															const prop = props[i];
-
-															console.log(
-																'typeof appData.vars[prop]: ',
-																appData.vars[prop],
-																typeof appData.vars[prop]
-															);
-
-															switch (typeof appData.vars[prop]) {
-																case 'string':
-																	returnHandler.params.code = returnHandler.params.code.replace(
-																		prop,
-																		appData.vars[prop]
-																	);
-																	break;
-																case 'object':
-																	returnHandler.params.code = returnHandler.params.code.replace(
-																		'"' + prop + '"',
-																		JSON.stringify(appData.vars[prop])
-																	);
-
-																	returnHandler.params.code = returnHandler.params.code.replace(
-																		prop,
-																		JSON.stringify(appData.vars[prop])
-																	);
-																	break;
-															}
-														}
-													}
-
-													if (returnHandler.params.handler == 'JS') {
-														returnHandler.params.jsFn = createFunction(
-															returnHandler.params.code,
-															appData.vars
-														);
-													}
-													returnHandler.message = '';
-													returnHandler.status = 200;
-												} else {
-													returnHandler.message = `Method ${method} Unabled`;
-													returnHandler.status = 404;
-												}
-											} else {
-												returnHandler.message = `Method ${method} on Environment ${environment}, unabled`;
-												returnHandler.status = 404;
-											}
-										} else {
-											returnHandler.message = `Method ${method} not exists on Environment ${environment}`;
-											returnHandler.status = 404;
-										}
-									} else {
-										returnHandler.message = `Environment ${environment} not exists on ${ver}`;
-										returnHandler.status = 404;
-									}
-								} else {
-									returnHandler.message = `Version ${ver} not exists on ${name}`;
-									returnHandler.status = 404;
-								}
-							} else {
-								returnHandler.message = `Not exists versions to name ${name}`;
-								returnHandler.status = 404;
-							}
-						} else {
-							returnHandler.message = `Name ${name} not found`;
-							returnHandler.status = 404;
-						}
-					} else {
-						returnHandler.message = `Names not exists in name ${name}`;
-						returnHandler.status = 404;
-					}
-				} else {
-					returnHandler.message = `Namespace ${namespace} not found`;
-					returnHandler.status = 404;
-				}
-			} else {
-				returnHandler.message = `Namespace ${namespace} not found`;
-				returnHandler.status = 404;
-			}
-		} else {
-			returnHandler.message = `App ${app} not found`;
-			returnHandler.status = 404;
-		}
-	} catch (error) {
-		// @ts-ignore
-		returnHandler.message = error.message;
-		returnHandler.status = 505;
-		console.trace(error);
-	}
-
-	return returnHandler;
-}
 
 
 
@@ -341,7 +139,7 @@ export function getApiHandler(app_name, endpointData, appVars) {
 			// @ts-ignore
 			if (returnHandler.params.is_public) {
 				returnHandler.authentication = async (/** @type {string} */ jw_token) => {
-					console.log('authentication, public: ', jw_token);
+					//console.log('authentication, public: ', jw_token);
 					return true;
 				};
 			} else {
@@ -444,7 +242,7 @@ export const defaultApps = async () => {
 	}
 
 	try {
-		await Application.bulkCreate(app_demo, options);
+		await Application.bulkCreate(app_default, options);
 
 		console.log('Bulk upsert completado con éxito.');
 	} catch (error) {
