@@ -1,8 +1,9 @@
-import { DataTypes, UUIDV4 } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import dbsequelize from './sequelize.js';
 // @ts-ignore
 import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
+import {v4 as uuidv4} from "uuid";
 
 const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
@@ -45,7 +46,7 @@ export const PathRequest = dbsequelize.define(
 			defaultValue: true
 		},
 		path: { type: DataTypes.TEXT, allowNull: false, unique: true },
-		idapp: { type: DataTypes.BIGINT, allowNull: true },
+		idapp: { type: DataTypes.UUID, allowNull: true },
 		is_public: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: true
@@ -174,7 +175,7 @@ export const Role = dbsequelize.define(
 			primaryKey: true,
 			allowNull: false,
 			unique: true,
-			defaultValue: UUIDV4()
+			defaultValue: uuidv4()
 		},
 		rowkey: {
 			type: DataTypes.SMALLINT,
@@ -313,9 +314,9 @@ export const Application = dbsequelize.define(
 	prefixTableName('application'),
 	{
 		idapp: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.UUID,
 			primaryKey: true,
-			autoIncrement: true,
+			//autoIncrement: true,
 			allowNull: false,
 			unique: true
 		},
@@ -367,6 +368,11 @@ export const Application = dbsequelize.define(
 			},
 			beforeValidate: (instance) => {
 				console.log('>>> beforeValidate >>>> ', instance);
+
+				if(!instance.idapp){
+					instance.idapp == uuidv4();
+				}
+
 				instance.vars =
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
@@ -415,7 +421,7 @@ export const ApiUser = dbsequelize.define(
 			defaultValue: ''
 			},*/
 		idapp: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.UUID,
 			allowNull: false
 		},
 		env_dev: {
@@ -501,7 +507,7 @@ export const Endpoint = dbsequelize.define(
 		},
 		enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 		idapp: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.UUID,
 			allowNull: false
 		},
 		namespace: {

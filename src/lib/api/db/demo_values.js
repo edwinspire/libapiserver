@@ -21,10 +21,10 @@ export const varsDemo = {
 	}
 };
 
-export const app_demo = [
-	{ idapp: 0, app: 'system', description: 'App System' },
+export const app_default = [
+	{ idapp: 'cfcd208495d565ef66e7dff9f98764da', app: 'system', description: 'App System' },
 	{
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		app: 'demo',
 		description: 'App DEMO',
 		vars: {
@@ -60,11 +60,24 @@ export const app_demo = [
 	}
 ];
 
-export const endpoins_demo = [
+export const endpoins_default = [
 	{
 		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
 		enabled: true,
-		idapp: 1,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'main',
+		name: 'test_functions',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		code: 'fnPublicAdd'
+	},
+	{
+		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
+		enabled: true,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_functions',
 		version: 0.01,
@@ -78,7 +91,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'c81e728d9d4c2f636f067f89cc14862c',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_functions',
 		version: 0.01,
@@ -92,7 +105,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'eccbc87e4b5ce2fe28308fd9f2a7baf3',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_fetch',
 		version: 0.01,
@@ -105,7 +118,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'a87ff679a2f3e71d9181a67b7542122c',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_fetch',
 		version: 0.01,
@@ -119,7 +132,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'e4da3b7fbbce2345d7772b0674a318d5',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_fetch',
 		version: 0.02,
@@ -133,7 +146,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '1679091c5a880faf6fb5e6087eb1b2dc',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_javascript',
 		version: 0.01,
@@ -147,7 +160,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '8f14e45fceea167a5a36dedd4bea2543',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_javascript',
 		version: 0.02,
@@ -161,7 +174,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'c9f0f895fb98ab9159f51fd0297e236d',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_soap',
 		version: 0.01,
@@ -175,7 +188,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '45c48cce2e2d7fbdea1afc51c7c6ad26',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_soap',
 		version: 0.02,
@@ -189,7 +202,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'd3d9446802a44259755d38e6d163e820',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_sql',
 		version: 0.01,
@@ -202,7 +215,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '6512bd43d9caa6e02c990b0a82652dca',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_sql',
 		version: 0.02,
@@ -215,7 +228,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'c20ad4d76fe97759aa27a0c99bff6710',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_sql',
 		version: 0.03,
@@ -228,7 +241,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'c51ce410c124a10e0db5e4b97fc2af39',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_sql',
 		version: 0.04,
@@ -241,7 +254,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'aab3238922bcc25a6f606eb525ffdc56',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_sql',
 		version: 0.05,
@@ -255,7 +268,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'e99a18c428cb38d5f260853678922e03',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_ws',
 		version: 0.01,
@@ -268,7 +281,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '8faeeae40f850ca05bc5eb46b79cc6c5',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_ws',
 		version: 0.02,
@@ -281,7 +294,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '073db68a5c49d16a1807c8e7f2f9bbd1',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_ws',
 		version: 0.03,
@@ -295,7 +308,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '76c15b66d0762c3f01c35fa5a57c225d',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_mqtt',
 		version: 0.01,
@@ -309,7 +322,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '1a448ae839a065f04e34abf75b240da1',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_javascript_return_array_objects',
 		version: 0.01,
@@ -322,7 +335,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: '80a5e5a2f7906a267e10a6ef40a1ebeb',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_javascript_with_fetch',
 		version: 0.01,
@@ -335,7 +348,7 @@ export const endpoins_demo = [
 	{
 		idendpoint: 'c3fcd3d76192e4007dfb496cca67e13b',
 		enabled: true,
-		idapp: 1,
+		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
 		name: 'test_javascript_two_fetch_ByBlocks',
 		version: 0.01,
