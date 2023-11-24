@@ -499,14 +499,17 @@ export const Endpoint = dbsequelize.define(
 			type: DataTypes.UUID,
 			primaryKey: true,
 			allowNull: false,
-			unique: true
+			unique: true,
+//			defaultValue: uuidv4()
 		},
 		rowkey: {
 			type: DataTypes.SMALLINT,
 			defaultValue: 0
 		},
 		enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
-		idapp: {
+		for_user: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
+		for_api: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: true },
+		idapp: {	
 			type: DataTypes.UUID,
 			allowNull: false
 		},
@@ -546,6 +549,10 @@ export const Endpoint = dbsequelize.define(
 			allowNull: false,
 			defaultValue: ''
 		},
+		cors: {
+			type: DataTypes.TEXT,
+			allowNull: true
+		},
 		description: {
 			type: DataTypes.TEXT,
 			allowNull: false,
@@ -577,30 +584,39 @@ export const Endpoint = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 
-				/*
-				if (!instance.idendpoint) {
-					instance.idendpoint = uuidv4();
-				}
-				*/
-
 				//	console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
 
 				await hookUpsert(prefixTableName('endpoint'));
 			},
 			beforeValidate: (instance) => {
-				if (!instance.idendpoint) {
-					instance.idendpoint = uuidv4();
-				}
 
 				instance.rowkey = Math.floor(Math.random() * 1000);
+				if (!instance.idendpoint) {
+					//console.log('##################----> beforeValidate: ');
+					// @ts-ignore
+					instance.idendpoint = uuidv4();
+				}
 			},
 			beforeBulkCreate: (instance) => {
+				/*
+				// @ts-ignore
 				if (!instance.idendpoint) {
+					// @ts-ignore
 					instance.idendpoint = uuidv4();
 				}
+				*/
 
+				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
+			},
+			beforeCreate: (instance)=>{
+				if (!instance.idendpoint) {
+					console.log('##################----> beforeCreate: ');
+					// @ts-ignore
+					instance.idendpoint = uuidv4();
+				}
 			}
+			
 		}
 	}
 );

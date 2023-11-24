@@ -118,7 +118,7 @@ export async function login(username, password) {
 			let u = user.toJSON();
 
 			let token = GenToken({
-				user_type: 'system',
+				for: 'user',
 				username: u.username,
 				role: u.role.toJSON(),
 				date: new Date() // Para que se genere siempre un token diferente

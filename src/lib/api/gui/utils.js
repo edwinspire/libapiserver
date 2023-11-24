@@ -39,7 +39,7 @@ export const getListHandler = async (/** @type {string} */ token) => {
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get('/system/main/handlers');
+		let fr = await f.get('/api/system/system/handler/0.01/prd');
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -62,7 +62,7 @@ export const getListMethods = async (/** @type {string} */ token) => {
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get('/system/main/methods');
+		let fr = await f.get('/api/system/system/method/0.01/prd');
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {

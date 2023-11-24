@@ -17,9 +17,9 @@
 	//	import CellMethods from './cellMethods.svelte';
 	import CellMethod from './cellMethod.svelte';
 	import cellHandler from './cellHandler.svelte';
-	import cellIsPublic from './cellIsPublic.svelte';
+//	import cellIsPublic from './cellIsPublic.svelte';
 	import cellCode from './cellCode.svelte';
-	import cellEnabled from './cellEnabled.svelte';
+//	import cellEnabled from './cellEnabled.svelte';
 
 	//	import MethodDialog from './method.svelte';
 	//import { AppToTable, TableToApp } from '../../db/utils.js';
@@ -39,13 +39,42 @@
 	let columns = {
 		//enabled: { label: 'Enabled App' },
 		endpoint: { label: 'Endpoint' },
-		enabled: { label: 'Enabled Endpoint', decorator: { component: cellEnabled } },
+		enabled: {
+			label: 'Enabled Endpoint',
+			decorator: {
+				component: ColumnTypes.BooleanIcon,
+				props: {
+					ontrue: { label: 'Enabled' },
+					onfalse: { label: 'Unabled' }
+				}
+			}
+		},
 		method: { decorator: { component: CellMethod }, label: 'Method' },
 		handler: { decorator: { component: cellHandler }, label: 'Handler' },
-		is_public: { label: 'Public', decorator: { component: cellIsPublic } },
+		is_public: {
+			label: 'Public',
+			decorator: {
+				component: ColumnTypes.BooleanIcon,
+				props: {
+					ontrue: { label: 'Public', iconClass: ' fa-solid fa-lock-open ' },
+					onfalse: { label: 'Private', iconClass: ' fa-solid fa-lock ' }
+				}
+			}
+		},
 		code: { label: 'Code', decorator: { component: cellCode } },
 		description: { label: 'Description' },
-
+		for_user: {
+			decorator: {
+				component: ColumnTypes.BooleanIcon,
+				props: { ontrue: { label: 'Active' }, onfalse: { label: 'Inactive' } }
+			}
+		},
+		for_api: {
+			decorator: {
+				component: ColumnTypes.BooleanIcon,
+				props: { ontrue: { label: 'Active' }, onfalse: { label: 'Inactive' } }
+			}
+		},
 		idapp: { hidden: true },
 		rowkey: { hidden: true },
 		app: { hidden: true },
@@ -257,178 +286,181 @@
 <div />
 
 {#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
-	
-<div>
-	<Level>
-		<span slot="l01"> <strong> Application: </strong><span> {app.app} </span></span>
-		<span slot="r01">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
-				<button
-					class="button is-small is-link is-outlined"
-					on:click={() => {
-		//				console.log('save', app);
-						if (confirm('Do you want to save the application data?')) {
-							saveApp();
-						}
-					}}
-				>
-					<span class="icon is-small">
-						<i class="fab fa-github" />
-					</span>
-					<span>Save</span>
-				</button>
-			{/if}
-		</span>
+	<div>
+		<Level>
+			<span slot="l01"> <strong> Application: </strong><span> {app.app} </span></span>
+			<span slot="r01">
+				{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
+					<button
+						class="button is-small is-link is-outlined"
+						on:click={() => {
+							//				console.log('save', app);
+							if (confirm('Do you want to save the application data?')) {
+								saveApp();
+							}
+						}}
+					>
+						<span class="icon is-small">
+							<i class="fab fa-github" />
+						</span>
+						<span>Save</span>
+					</button>
+				{/if}
+			</span>
 
-		<span slot="r02">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
-				<button
-					class="button is-small"
-					on:click={() => {
-						console.log('Download', app);
+			<span slot="r02">
+				{#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
+					<button
+						class="button is-small"
+						on:click={() => {
+							console.log('Download', app);
 
-						const now = new Date();
-						const year = now.getFullYear();
-						const month = String(now.getMonth() + 1).padStart(2, '0'); // Sumamos 1 al mes ya que en JavaScript los meses van de 0 a 11
-						const day = String(now.getDate()).padStart(2, '0');
-						const hours = String(now.getHours()).padStart(2, '0');
-						const minutes = String(now.getMinutes()).padStart(2, '0');
+							const now = new Date();
+							const year = now.getFullYear();
+							const month = String(now.getMonth() + 1).padStart(2, '0'); // Sumamos 1 al mes ya que en JavaScript los meses van de 0 a 11
+							const day = String(now.getDate()).padStart(2, '0');
+							const hours = String(now.getHours()).padStart(2, '0');
+							const minutes = String(now.getMinutes()).padStart(2, '0');
 
-						//const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+							//const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
 
-						// Convertir el objeto JSON a una cadena
-						const jsonString = JSON.stringify(appToStore(), null, 2);
+							// Convertir el objeto JSON a una cadena
+							const jsonString = JSON.stringify(appToStore(), null, 2);
 
-						// Crear un Blob con el contenido JSON
-						const blob = new Blob([jsonString], { type: 'application/json' });
+							// Crear un Blob con el contenido JSON
+							const blob = new Blob([jsonString], { type: 'application/json' });
 
-						// Crear una URL para el Blob
-						const url = window.URL.createObjectURL(blob);
+							// Crear una URL para el Blob
+							const url = window.URL.createObjectURL(blob);
 
-						// Crear un enlace para descargar el JSON
-						const a = document.createElement('a');
-						a.href = url;
-						a.download = `app_${app.app}_${year}${month}${day}_${hours}${minutes}.json`;
+							// Crear un enlace para descargar el JSON
+							const a = document.createElement('a');
+							a.href = url;
+							a.download = `app_${app.app}_${year}${month}${day}_${hours}${minutes}.json`;
 
-						// Simular un clic en el enlace para iniciar la descarga
-						a.click();
+							// Simular un clic en el enlace para iniciar la descarga
+							a.click();
 
-						// Liberar recursos
-						window.URL.revokeObjectURL(url);
-					}}
-				>
-					<span class="icon is-small">
-						<i class="fa-solid fa-file-export" />
-					</span>
-					<span>Download</span>
-				</button>
-			{/if}
-		</span>
+							// Liberar recursos
+							window.URL.revokeObjectURL(url);
+						}}
+					>
+						<span class="icon is-small">
+							<i class="fa-solid fa-file-export" />
+						</span>
+						<span>Download</span>
+					</button>
+				{/if}
+			</span>
 
-		<span slot="r03">
-			{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
-				<div class="field has-addons">
-					<p class="control file">
-						<input
-							class="input is-small"
-							type="file"
-							accept=".json"
-							on:change={(event) => {
-								const selectedFile = event.target.files[0]; // Obten el primer archivo seleccionado
+			<span slot="r03">
+				{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
+					<div class="field has-addons">
+						<p class="control file">
+							<input
+								class="input is-small"
+								type="file"
+								accept=".json"
+								on:change={(event) => {
+									const selectedFile = event.target.files[0]; // Obten el primer archivo seleccionado
 
-								if (!selectedFile) {
-									alert('Por favor, selecciona un archivo JSON válido.');
-									return;
-								}
-
-								const reader = new FileReader();
-
-								// Escucha el evento 'load' que se dispara cuando se ha leído el archivo
-								reader.onload = function (e) {
-									const fileContent = e.target.result; // Aquí tienes el contenido del archivo
-
-									try {
-										uploaded_file = JSON.parse(fileContent);
-										console.log('Contenido del archivo JSON:', uploaded_file);
-
-										// TODO: Aquí puedes realizar acciones con los datos JSON, por ejemplo, mostrarlos en la página.
-										showAppData([uploaded_file]);
-									} catch (error) {
-										console.error('Error al analizar el archivo JSON:', error);
+									if (!selectedFile) {
+										alert('Por favor, selecciona un archivo JSON válido.');
+										return;
 									}
-								};
 
-								// Lee el contenido del archivo como texto
-								reader.readAsText(selectedFile);
-							}}
-						/>
-					</p>
+									const reader = new FileReader();
 
-					<p class="control">
-						<button
-							class="button is-small"
-							on:click={() => {
-								//alert('Ha hecho click');
+									// Escucha el evento 'load' que se dispara cuando se ha leído el archivo
+									reader.onload = function (e) {
+										const fileContent = e.target.result; // Aquí tienes el contenido del archivo
 
-								if (uploaded_file) {
-									if (confirm('Do you want to replace app data permanently?')) {
-										app = { ...uploaded_file };
-										uploaded_file = null;
+										try {
+											uploaded_file = JSON.parse(fileContent);
+											console.log('Contenido del archivo JSON:', uploaded_file);
+
+											// TODO: Aquí puedes realizar acciones con los datos JSON, por ejemplo, mostrarlos en la página.
+											showAppData([uploaded_file]);
+										} catch (error) {
+											console.error('Error al analizar el archivo JSON:', error);
+										}
+									};
+
+									// Lee el contenido del archivo como texto
+									reader.readAsText(selectedFile);
+								}}
+							/>
+						</p>
+
+						<p class="control">
+							<button
+								class="button is-small"
+								on:click={() => {
+									//alert('Ha hecho click');
+
+									if (uploaded_file) {
+										if (confirm('Do you want to replace app data permanently?')) {
+											app = { ...uploaded_file };
+											uploaded_file = null;
+										}
+									} else {
+										alert('Please new select file!');
 									}
-								} else {
-									alert('Please new select file!');
-								}
-							}}
-						>
-							<span class="icon is-small">
-								<i class="fas fa-align-left" />
-							</span>
+								}}
+							>
+								<span class="icon is-small">
+									<i class="fas fa-align-left" />
+								</span>
 
-							<span> Upload </span>
-						</button>
-					</p>
-				</div>
-			{/if}
-		</span>
-	</Level>
+								<span> Upload </span>
+							</button>
+						</p>
+					</div>
+				{/if}
+			</span>
+		</Level>
 
-	<div class="field">
-		<!-- svelte-ignore a11y-label-has-associated-control -->
-		<label class="label is-small">App</label>
-		<div class="control">
-			<input class="input is-small" type="text" placeholder="Text input" bind:value={app.app} />
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label is-small">App</label>
+			<div class="control">
+				<input class="input is-small" type="text" placeholder="Text input" bind:value={app.app} />
+			</div>
 		</div>
-	</div>
 
-	<div class="field">
-		<div class="control">
-			<label class="checkbox is-small">
-				<input type="checkbox" bind:checked={app.enabled} />
-				Enabled
-			</label>
+		<div class="field">
+			<div class="control">
+				<label class="checkbox is-small">
+					<input type="checkbox" bind:checked={app.enabled} />
+					Enabled
+				</label>
+			</div>
 		</div>
-	</div>
 
-	<div class="field">
-		<!-- svelte-ignore a11y-label-has-associated-control -->
-		<label class="label is-small">Description</label>
-		<div class="control">
-			<textarea class="textarea is-small" placeholder="Description" bind:value={app.description} />
+		<div class="field">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label is-small">Description</label>
+			<div class="control">
+				<textarea
+					class="textarea is-small"
+					placeholder="Description"
+					bind:value={app.description}
+				/>
+			</div>
 		</div>
-	</div>
 
-	<Table
-		ShowNewButton="true"
-		bind:RawDataTable={endpoints}
-		bind:columns
-		on:newrow={() => {
-			SelectedRow = { enabled: false, environment: 'dev', method: 'NA', handler: 'NA' };
-			showEndpointEdit = true;
-		}}
-	>
-		<span slot="l01"> Endpoints </span>
-	</Table>
-</div>
+		<Table
+			ShowNewButton="true"
+			bind:RawDataTable={endpoints}
+			bind:columns
+			on:newrow={() => {
+				SelectedRow = { enabled: false, environment: 'dev', method: 'NA', handler: 'NA' };
+				showEndpointEdit = true;
+			}}
+		>
+			<span slot="l01"> Endpoints </span>
+		</Table>
+	</div>
 {/if}
 
 <DialogModal

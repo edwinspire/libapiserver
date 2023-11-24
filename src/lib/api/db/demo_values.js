@@ -62,7 +62,7 @@ export const app_default = [
 
 export const endpoins_default = [
 	{
-		idendpoint: 'cfcd208495d565ef66e7dff9f98764da',
+		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
 		namespace: 'api',
@@ -72,9 +72,44 @@ export const endpoins_default = [
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
+		for_user: true,
+		for_api: true,
 		code: 'fnToken'
-	}, {
-		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
+	},
+	{
+		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'token',
+		version: 0.01,
+		environment: 'qa',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		code: 'fnToken'
+	},
+	{
+	//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'token',
+		version: 0.01,
+		environment: 'prd',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		code: 'fnToken'
+	},
+
+
+	{
+		// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
 		namespace: 'system',
@@ -84,10 +119,243 @@ export const endpoins_default = [
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
+		for_user: true,
+		for_api: true,
 		code: 'fnLogin'
 	},
 	{
-		idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
+		//// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'login',
+		version: 0.01,
+		environment: 'qa',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		code: 'fnLogin'
+	},
+	{
+		//// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'login',
+		version: 0.01,
+		environment: 'prd',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		code: 'fnLogin'
+	},
+
+
+
+
+
+	{
+		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'logout',
+		version: 0.01,
+		environment: 'dev',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnLogout'
+	},
+	{
+		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'logout',
+		version: 0.01,
+		environment: 'qa',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnLogout'
+	},
+	{
+		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'logout',
+		version: 0.01,
+		environment: 'prd',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnLogout'
+	},
+
+
+
+	{
+		// idendpoint: '8277e0910d750195b448797616e091ad',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'handler',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetHandler'
+	},
+	{
+		// idendpoint: '8277e0910d750195b448797616e091ad',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'handler',
+		version: 0.01,
+		environment: 'qa',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetHandler'
+	},
+	{
+		// idendpoint: '8277e0910d750195b448797616e091ad',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'handler',
+		version: 0.01,
+		environment: 'prd',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetHandler'
+	},
+
+
+
+
+
+
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'method',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetMethod'
+	},
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'method',
+		version: 0.01,
+		environment: 'qa',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetMethod'
+	},
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'method',
+		version: 0.01,
+		environment: 'prd',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetMethod'
+	},
+
+
+
+
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'environment',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetEnvironment'
+	},
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'environment',
+		version: 0.01,
+		environment: 'qa',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetEnvironment'
+	},
+	{
+		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'system',
+		name: 'environment',
+		version: 0.01,
+		environment: 'prd',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: false,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetEnvironment'
+	},
+
+
+
+	{
+		// idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -101,7 +369,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'c81e728d9d4c2f636f067f89cc14862c',
+		// idendpoint: 'c81e728d9d4c2f636f067f89cc14862c',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -115,7 +383,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'eccbc87e4b5ce2fe28308fd9f2a7baf3',
+		// idendpoint: 'eccbc87e4b5ce2fe28308fd9f2a7baf3',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -128,7 +396,7 @@ export const endpoins_default = [
 		code: 'https://api.github.com/users/edwinspire'
 	},
 	{
-		idendpoint: 'a87ff679a2f3e71d9181a67b7542122c',
+		// idendpoint: 'a87ff679a2f3e71d9181a67b7542122c',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -142,7 +410,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'e4da3b7fbbce2345d7772b0674a318d5',
+		// idendpoint: 'e4da3b7fbbce2345d7772b0674a318d5',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -156,7 +424,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: '1679091c5a880faf6fb5e6087eb1b2dc',
+		// idendpoint: '1679091c5a880faf6fb5e6087eb1b2dc',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -170,7 +438,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: '8f14e45fceea167a5a36dedd4bea2543',
+		// idendpoint: '8f14e45fceea167a5a36dedd4bea2543',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -184,7 +452,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'c9f0f895fb98ab9159f51fd0297e236d',
+		// idendpoint: 'c9f0f895fb98ab9159f51fd0297e236d',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -198,7 +466,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: '45c48cce2e2d7fbdea1afc51c7c6ad26',
+		// idendpoint: '45c48cce2e2d7fbdea1afc51c7c6ad26',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -212,7 +480,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'd3d9446802a44259755d38e6d163e820',
+		// idendpoint: 'd3d9446802a44259755d38e6d163e820',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -225,7 +493,7 @@ export const endpoins_default = [
 		code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},  "query": "SELECT 1097 AS test_sql;"\n}'
 	},
 	{
-		idendpoint: '6512bd43d9caa6e02c990b0a82652dca',
+		// idendpoint: '6512bd43d9caa6e02c990b0a82652dca',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -238,7 +506,7 @@ export const endpoins_default = [
 		code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},\n  "query": "SELECT $name as nombre;"\n}'
 	},
 	{
-		idendpoint: 'c20ad4d76fe97759aa27a0c99bff6710',
+		// idendpoint: 'c20ad4d76fe97759aa27a0c99bff6710',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -251,7 +519,7 @@ export const endpoins_default = [
 		code: '{"config": { "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "132.128.241.18",\n    "port": 5454,\n    "dialect": "postgres"\n  }}, "query": "SELECT NOW();"\n}'
 	},
 	{
-		idendpoint: 'c51ce410c124a10e0db5e4b97fc2af39',
+		// idendpoint: 'c51ce410c124a10e0db5e4b97fc2af39',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -264,7 +532,7 @@ export const endpoins_default = [
 		code: '{"config": { "database": "msdb",\n  "username": "sa",\n  "password": "sqlkarma",\n  "options": {\n    "host": "192.168.138.30",\n    "dialect": "mssql",\n    "encrypt": false\n  }}, "query": "SELECT\\n    job_id AS [Job ID],\\n    name AS [Job Name],\\n    enabled AS [Is Enabled]\\nFROM\\n    msdb.dbo.sysjobs;"\n}'
 	},
 	{
-		idendpoint: 'aab3238922bcc25a6f606eb525ffdc56',
+		// idendpoint: 'aab3238922bcc25a6f606eb525ffdc56',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -278,7 +546,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: 'e99a18c428cb38d5f260853678922e03',
+		// idendpoint: 'e99a18c428cb38d5f260853678922e03',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -291,7 +559,7 @@ export const endpoins_default = [
 		code: '{"userAuthentication":false,"tokenAuthentication":false,"broadcast":true}'
 	},
 	{
-		idendpoint: '8faeeae40f850ca05bc5eb46b79cc6c5',
+		// idendpoint: '8faeeae40f850ca05bc5eb46b79cc6c5',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -304,7 +572,7 @@ export const endpoins_default = [
 		code: '{"userAuthentication":true,"tokenAuthentication":false,"broadcast":false}'
 	},
 	{
-		idendpoint: '073db68a5c49d16a1807c8e7f2f9bbd1',
+		// idendpoint: '073db68a5c49d16a1807c8e7f2f9bbd1',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -318,7 +586,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: '76c15b66d0762c3f01c35fa5a57c225d',
+		// idendpoint: '76c15b66d0762c3f01c35fa5a57c225d',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -332,7 +600,7 @@ export const endpoins_default = [
 	},
 
 	{
-		idendpoint: '1a448ae839a065f04e34abf75b240da1',
+		// idendpoint: '1a448ae839a065f04e34abf75b240da1',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -345,7 +613,7 @@ export const endpoins_default = [
 		code: '$_RETURN_DATA_ = [];\n\nwhile ($_RETURN_DATA_.length < 30) {\n  const objeto = { value1: Math.floor(Math.random() * 1000), value2: Math.floor(Math.random() * 1000) };\n  $_RETURN_DATA_.push(objeto);\n}\n'
 	},
 	{
-		idendpoint: '80a5e5a2f7906a267e10a6ef40a1ebeb',
+		// idendpoint: '80a5e5a2f7906a267e10a6ef40a1ebeb',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',
@@ -358,7 +626,7 @@ export const endpoins_default = [
 		code: "let uf = new $_UFETCH_();\nlet r1 = await uf.get('http://localhost:3000/api/demo/main/test_javascript_return_array_objects/v0.01/dev');\n\n$_RETURN_DATA_ = await r1.json();\n"
 	},
 	{
-		idendpoint: 'c3fcd3d76192e4007dfb496cca67e13b',
+		// idendpoint: 'c3fcd3d76192e4007dfb496cca67e13b',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		namespace: 'main',

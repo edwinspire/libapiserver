@@ -13,7 +13,7 @@ export const getAllMethods = async () => {
 
 export const defaultMethods = () => {
 	try {
-		console.log(' defaultMethods >>>>>> ');
+		// console.log(' defaultMethods >>>>>> ');
 
 		let methods = [
 			{ id: 'NA', text: `NA` },

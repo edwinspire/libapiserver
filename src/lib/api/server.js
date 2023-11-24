@@ -90,7 +90,8 @@ export class ServerAPI extends EventEmitter {
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
 		this._cacheRoles = new Map();
-//		this._cacheAPIKey = new Map();
+		this._cacheEndpoints = new Map();
+		//		this._cacheAPIKey = new Map();
 		this._fn = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
@@ -455,15 +456,14 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.use(express.json()); // Agrega esta línea
 
-		// Middleware para capturar los request TODO: Aqui realizar un control de autorizaciones para los endpoints
+		// Middleware para capturar los request
 		this.app.use((req, res, next) => {
-			// TODO: Optimizar esta consulta para leer la data de cache si fuera necesario para no consultar la data en base
 			// Solo registra las url que no correspondan a apis
 			if (!req.path.startsWith('/api')) {
-				console.log(' ::: req.path >>>>', req.path);
+			//	console.log(' ::: req.path >>>>', req.path);
 				// @ts-ignore
 				createPathRequest(req.path, getIPFromRequest(req), req.headers).then((r) => {
-				//	console.log('createPathRequest >>>>>>> ', r);
+					console.log('createPathRequest >>>>>>> ', req.path);
 				});
 			}
 
@@ -535,34 +535,89 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		// Master input
-		this.app.all(struct_path, async (req, res) => {
+		this.app.all(struct_path, async (req, res, next) => {
+			let { app, namespace, name, version, environment } = req.params;
+			let method = req.method;
+
+			if (
+				(environment == 'qa' && EXPOSE_QA_API === 'true') ||
+				(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
+				(environment == 'prd' && EXPOSE_PROD_API === 'true')
+			) {
+				let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
+
+				let url_app_endpoint =
+					path_params_to_url({
+						app: app,
+						namespace: namespace,
+						name: name,
+						version: ver,
+						environment: environment
+					}) + `/${method}`;
+
+				if (!this._cacheApi.has(url_app_endpoint)) {
+					await this._loadEndpointsByAPPToCache(app);
+				}
+
+				if (!this._cacheApi.has(url_app_endpoint)) {
+					res.status(404).json({ message: 'API not found' });
+				} else {
+					// Validar permisos
+					let ep = this._cacheApi.get(url_app_endpoint);
+					console.log(ep);
+
+					if (!ep.params.enabled) {
+						res.status(404).json({ message: 'API unabled' });
+					} else {
+						if (ep.params.is_public) {
+							next();
+						} else {
+							//  API Privada, validar accesos
+							let dataUserRequest = getUserPasswordTokenFromRequest(req);
+
+							console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', dataUserRequest.data_token, ep.params);
+
+							if (dataUserRequest && dataUserRequest.data_token) {
+								if (
+									(dataUserRequest.data_token.for == 'user' && ep.params.for_user) ||
+									(dataUserRequest.data_token.for == 'api' && ep.params.for_api)
+								) {
+									// TODO: Validar el entorno al que el usuario de la API tiene acceso
+
+									next();
+								} else {
+									res.status(403).json({ message: 'Unauthorized' });
+								}
+							} else {
+								res.status(401).json({ message: 'Unauthorized' });
+							}
+						}
+					}
+				}
+			} else {
+				// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
+				res.status(401).json({ message: 'Environment not found'+req.path +' - '+environment+' - '+EXPOSE_PROD_API});
+			}
+		}, async (req, res) => {
 			let { app, namespace, name, version, environment } = req.params;
 
 			try {
-				let h = await this._getApiHandler(app, namespace, name, version, environment, req.method);
-				// req.headers['api-token']
+				let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
 
-				//	console.log('HHHHHH >>>> ', h);
+				let url_app_endpoint =
+					path_params_to_url({
+						app: app,
+						namespace: namespace,
+						name: name,
+						version: ver,
+						environment: environment
+					}) + `/${req.method}`;
 
-				if (h.status == 200) {
-					let dataAuth = getUserPasswordTokenFromRequest(req);
+				let handlerEndpoint = this._cacheApi.get(url_app_endpoint);
 
-					let auth = await h.authentication(dataAuth.token);
-					console.log('auth: ', auth);
+				console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
 
-					if (auth) {
-						runHandler(req, res, h.params, this._getFunctions(app));
-					} else {
-						res.status(401).json({
-							error: 'Requires authentication'
-						});
-					}
-				} else {
-					res.status(h.status).json({
-						// @ts-ignore
-						error: h.message
-					});
-				}
+				runHandler(req, res, handlerEndpoint.params, this._getFunctions(app));
 			} catch (error) {
 				res.status(505).json({
 					// @ts-ignore
@@ -809,6 +864,44 @@ export class ServerAPI extends EventEmitter {
 	}
 
 	/**
+	 * @param {any} app
+	 */
+	async _loadEndpointsByAPPToCache(app) {
+		try {
+			// Carga los endpoints de una App a cache
+			let appDataResult = await getAppWithEndpoints({ app: app }, false);
+
+			if (appDataResult && appDataResult.length > 0) {
+				const appDatas = appDataResult.map((result) => result.toJSON());
+
+				const appData = appDatas[0];
+
+				for (let i = 0; i < appData.apiserver_endpoints.length; i++) {
+					let url_app_endpoint =
+						path_params_to_url({
+							app: appData.app,
+							namespace: appData.apiserver_endpoints[i].namespace,
+							name: appData.apiserver_endpoints[i].name,
+							version: appData.apiserver_endpoints[i].version,
+							environment: appData.apiserver_endpoints[i].environment
+						}) + `/${appData.apiserver_endpoints[i].method}`;
+
+					// console.log(apiPath, url_app_endpoint);
+
+					this._cacheApi.set(
+						url_app_endpoint,
+						getApiHandler(appData.app, appData.apiserver_endpoints[i], appData.vars)
+					);
+				}
+			}
+		} catch (error) {
+			console.trace(error);
+		}
+	}
+
+
+
+	/**
 	 * @param {string} app
 	 */
 	async getApp(app) {
@@ -819,49 +912,26 @@ export class ServerAPI extends EventEmitter {
 	 * @param {boolean} buildDB
 	 */
 	buildDB(buildDB) {
+
 		if (buildDB) {
-			dbRestAPI.sync({ alter: false }).then(
-				async () => {
-					console.log('Crea la base de datos');
+			console.log('Crea la base de datos');
 
-					/*
-					try {
-						await defaultRoles();
-					} catch (error) {
-						console.log(error);
-					}
-*/
+			(async () => {
+				try {
+					await dbRestAPI.sync({ alter: false });
+					await defaultUser();
+					await defaultMethods();
+					await defaultHandlers();
+					await defaultApps();
+					await demoEndpoints();
+				} catch (error) {
+					console.log(error);
 
-					try {
-						await defaultUser();
-					} catch (error) {
-						console.log(error);
-					}
-
-					try {
-						await defaultMethods();
-					} catch (error) {
-						console.log(error);
-					}
-
-					try {
-						await defaultHandlers();
-					} catch (error) {
-						console.log(error);
-					}
-
-					try {
-						await defaultApps();
-						await demoEndpoints();
-					} catch (error) {
-						console.log(error);
-					}
-				},
-				(/** @type {any} */ e) => {
-					console.log('no se pudo crear / modificar la base de datos', e);
 				}
-			);
+			})();
+
 		}
+		return true;
 	}
 
 	_addFunctions() {

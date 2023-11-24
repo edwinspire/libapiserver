@@ -1,5 +1,6 @@
 import { Endpoint } from './models.js';
 import { endpoins_default } from './demo_values.js';
+import PromiseSequence from "@edwinspire/sequential-promises";
 
 export const upsertEndpoint = async (
 	/** @type {import("sequelize").Optional<any, string>} */ data
@@ -68,10 +69,25 @@ export const getEndpointByApp = async (
 
 export const demoEndpoints = async () => {
 	try {
-		await bulkCreateEndpoints(endpoins_default);
-		console.log('Bulk upsert completado con éxito.');
+
+		let out = await PromiseSequence.ByBlocks(async (/** @type {{ idapp: any; namespace: any; name: any; version: any; environment: any; method: any; }} */ element) => {
+			let o;
+			try {
+
+				o = await Endpoint.findOrCreate({
+					where: { idapp: element.idapp, namespace: element.namespace, name: element.name, version: element.version, environment: element.environment, method: element.method }, // Campos para la cláusula WHERE
+					defaults: { code: element.code, handler: element.handler, is_public: element.is_public, for_user: element.for_user, for_api: element.for_api }, // Campos para actualizar si se encuentra
+				});
+			} catch (error) {
+				o = error;
+			}
+			return o;
+		}, endpoins_default, 1);
+
+		console.log('=====>>>> demoEndpoints >>==', out);
+
 	} catch (error) {
-		console.error('Error durante el bulk upsert:', error);
+		console.error('Error durante el demoEndpoints:', error);
 	}
 };
 
@@ -80,7 +96,7 @@ export const bulkCreateEndpoints = (
 ) => {
 	// Campos que se utilizarán para verificar duplicados (en este caso, todos excepto 'rowkey' y 'idendpoint')
 	//const uniqueFields = ['idapp', 'namespace', 'name', 'version', 'environment', 'method'];
-// OJO: No se pudo tener un bulk upsert
+	// OJO: No se pudo tener un bulk upsert
 	return Endpoint.bulkCreate(list_endpoints, {
 		ignoreDuplicates: true
 		//updateOnDuplicate: uniqueFields

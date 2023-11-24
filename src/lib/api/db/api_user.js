@@ -36,7 +36,7 @@ export async function getAPIToken(app_name, username, password) {
 				// Envía el Token en el Header
 				let token = GenToken(
 					{
-						user_type: 'api',
+						for: 'api',
 						user: username,
 						app: app_name,
 						attr: au

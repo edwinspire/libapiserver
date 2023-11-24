@@ -8,13 +8,15 @@ import { app_default } from './demo_values.js';
 export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {boolean} */ raw) => {
 	return Application.findAll({
 		where: where,
-		attributes: ['idapp', 'app', 'description', 'enabled', 'vars', 'rowkey'],
+		attributes: ['idapp', 'app',  'enabled', 'vars', 'description', 'rowkey'],
 		include: {
 			model: Endpoint,
 			//required: true, // INNER JOIN
 			attributes: [
 				'idendpoint',
 				'enabled',
+				'for_user',
+				'for_api',
 				'namespace',
 				'name',
 				'version',
@@ -22,6 +24,7 @@ export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {b
 				'method',
 				'handler',
 				'is_public',
+				'cors',
 				'code',
 				'description',
 				'rowkey'
@@ -130,8 +133,6 @@ export function getApiHandler(app_name, endpointData, appVars) {
 	let returnHandler = {};
 	returnHandler.params = endpointData;
 
-//console.log('-----> endpointData >>>>>', endpointData);
-
 	try {
 		appVars = typeof appVars !== 'object' ? JSON.parse(appVars) : appVars;
 
@@ -147,7 +148,7 @@ export function getApiHandler(app_name, endpointData, appVars) {
 				returnHandler.authentication = async (
 					/** @type {string} */ jw_token
 				) => {
-					return checkAPIToken(app_name, endpointData.environment, jw_token);
+					return checkAPIToken(app_name, endpointData, jw_token);
 				};
 			}
 

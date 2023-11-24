@@ -44,10 +44,8 @@ export function checkToken(token) {
  * @param {() => void} next
  */
 export function validateToken(req, res, next) {
-
 	req.headers['data-token'] = ''; // Vacia los datos que llegan en el token
 	let dataAuth = getUserPasswordTokenFromRequest(req);
-
 
 	// Verificar si se proporcionó un token
 	if (!dataAuth.token) {
@@ -64,19 +62,15 @@ export function validateToken(req, res, next) {
 	}
 }
 
-
-
 // Middleware para validar el token de usuario del systema (Administradores de endpoints)
 /**
  * @param {any} req
  * @param { any } res
  * @param {() => void} next
  */
-export function validateSystemToken(req, res, next) {
-
+export function ___validateSystemToken(req, res, next) {
 	req.headers['data-token'] = ''; // Vacia los datos que llegan en el token
 	let dataAuth = getUserPasswordTokenFromRequest(req);
-
 
 	// Verificar si se proporcionó un token
 	if (!dataAuth.token) {
@@ -86,19 +80,16 @@ export function validateSystemToken(req, res, next) {
 	let data = checkToken(dataAuth.token);
 
 	if (data) {
-
-		if (data.user_type == "system") {
+		if (data.for == 'user') {
 			req.headers['data-token'] = JSON.stringify(data); // setea los datos del token para usarlo posteriormente
 			next();
 		} else {
 			return res.status(401).json({ error: 'Incorrect token' });
 		}
-
 	} else {
 		return res.status(401).json({ error: 'Token invalid' });
 	}
 }
-
 
 // Middleware para validar el token de usuario del systema (Administradores de endpoints)
 /**
@@ -107,10 +98,8 @@ export function validateSystemToken(req, res, next) {
  * @param {() => void} next
  */
 export function validateAPIToken(req, res, next) {
-
 	req.headers['data-token'] = ''; // Vacia los datos que llegan en el token
 	let dataAuth = getUserPasswordTokenFromRequest(req);
-
 
 	// Verificar si se proporcionó un token
 	if (!dataAuth.token) {
@@ -120,15 +109,13 @@ export function validateAPIToken(req, res, next) {
 	let data = checkToken(dataAuth.token);
 
 	if (data) {
-
-		if (data.user_type == "api") {
-			// TODO: Verificar mas parámetros de de acceso, por ejemplo ambiente de acceso 
+		if (data.for == 'api') {
+			// TODO: Verificar mas parámetros de de acceso, por ejemplo ambiente de acceso
 			req.headers['data-token'] = JSON.stringify(data); // setea los datos del token para usarlo posteriormente
 			next();
 		} else {
 			return res.status(401).json({ error: 'Incorrect token' });
 		}
-
 	} else {
 		return res.status(401).json({ error: 'Token invalid' });
 	}
@@ -181,7 +168,7 @@ export function tokenVerify(token) {
 export function getUserPasswordTokenFromRequest(req) {
 	const authHeader = req.headers.authorization;
 
-	let username, token, password;
+	let username, token, password, data_token;
 
 	if (authHeader && authHeader.startsWith('Basic')) {
 		const encodedCredentials = authHeader.split(' ')[1];
@@ -191,9 +178,11 @@ export function getUserPasswordTokenFromRequest(req) {
 
 	if (authHeader && authHeader.startsWith('Bearer')) {
 		token = authHeader.split(' ')[1];
+
+		data_token = checkToken(token);
 	}
 
-	return { username: username, password: password, token: token };
+	return { username: username, password: password, token: token, data_token: data_token };
 }
 
 /**
@@ -219,19 +208,21 @@ export function createAPIKey() {
 
 /**
  * @param {any} app
- * @param {any} env
+ * @param {any} endpointData
  * @param {any} jwtoken
  */
-export function checkAPIToken(app, env, jwtoken) {
+export function checkAPIToken(app, endpointData, jwtoken) {
 	//
 	try {
 		let data = tokenVerify(jwtoken);
+
+		console.log('::::::> checkAPIToken ::: > ', data, endpointData);
 
 		// @ts-ignore
 		if (data && data.app && data.env) {
 			// Verificar que el app corresponda a la data que está en el jwtoken
 			// @ts-ignore
-			return data.app == app && data.env == env;
+			return data.app == app && data.env == endpointData.env;
 		}
 
 		return false;
