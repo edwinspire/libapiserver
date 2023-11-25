@@ -1,47 +1,87 @@
 <script>
-  import { onMount } from "svelte";
-  import SelectHandlers from "../../widgets/Select.svelte";
-  import { listFunctionStore } from "../../utils";
+	import { onMount } from 'svelte';
+	import SelectFns from '../../widgets/Select.svelte';
+	import { listFunctionStoreDev } from '../../utils';
+	import { listFunctionStoreQA } from '../../utils';
+	import { listFunctionStorePRD } from '../../utils';
 
-  /**
-   * @type {any[]}
-   */
-  let functions = [];
+	/**
+	 * @type {any[]}
+	 */
+	let functions = [];
 
-  /**
-   * @type {any}
-   */
-  export let code;
+	/**
+	 * @type {any[]}
+	 */
+	let functionsDev = [];
 
-  export function getCode() {
-    //fnEditorCode.apply();
-    return code;
-  }
+	/**
+	 * @type {any[]}
+	 */
+	let functionsQa = [];
 
-  listFunctionStore.subscribe((value) => {
-    // @ts-ignore
-    functions = value;
-  });
+	/**
+	 * @type {any[]}
+	 */
+	let functionsPrd = [];
 
-  onMount(() => {
-    console.log(code);
-  });
+	/**
+	 * @type {any}
+	 */
+	export let environment;
+	/**
+	 * @type {any}
+	 */
+	export let code;
+
+	export function getCode() {
+		//fnEditorCode.apply();
+		return code;
+	}
+
+	listFunctionStoreDev.subscribe((value) => {
+		// @ts-ignore
+		functionsDev = value;
+	});
+
+	listFunctionStoreQA.subscribe((value) => {
+		// @ts-ignore
+		functionsQa = value;
+	});
+
+	listFunctionStorePRD.subscribe((value) => {
+		// @ts-ignore
+		functionsPrd = value;
+	});
+
+	onMount(() => {
+		console.log(code);
+		switch (environment) {
+			case 'dev':
+				functions = functionsDev;
+				break;
+			case 'qa':
+				functions = functionsQa;
+				break;
+			case 'prd':
+				functions = functionsPrd;
+				break;
+		}
+	});
 </script>
 
 <div>
-  <div class="content is-small">
-    Use the selected function to return a response.
-  </div>
+	<div class="content is-small">Use the selected function to return a response.</div>
 
-  <div class="field is-horizontal">
-    <div class="field-label is-normal">
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label class="label is-small">Function</label>
-    </div>
-    <div class="field-body">
-      <div class="field is-narrow">
-        <SelectHandlers bind:options={functions} bind:option={code} />
-      </div>
-    </div>
-  </div>
+	<div class="field is-horizontal">
+		<div class="field-label is-normal">
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label is-small">Function</label>
+		</div>
+		<div class="field-body">
+			<div class="field is-narrow">
+				<SelectFns bind:options={functions} bind:option={code} />
+			</div>
+		</div>
+	</div>
 </div>

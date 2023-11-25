@@ -2,11 +2,15 @@
 import uFetch from '@edwinspire/universal-fetch';
 import { writable } from 'svelte/store';
 
+const path_functions = '/system/main/functions' ;
+
 //export const tokenStore = writable('');
 export const userStore = writable({});
 export const listMethodStore = writable({});
 export const listHandlerStore = writable({});
-export const listFunctionStore = writable({});
+export const listFunctionStoreDev = writable({});
+export const listFunctionStoreQA = writable({});
+export const listFunctionStorePRD = writable({});
 export const listAppVars = writable({});
 
 export const formatJsonForHtmlCode = (/** @type {any} */ json) => {
@@ -21,14 +25,42 @@ export const getListFunction = async (
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get('/system/main/functions', { appName: appName });
+		let fr = await f.get(path_functions, { appName: appName, environment: 'dev' });
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
 			let data = list.map((fn) => {
 				return { id: fn, value: fn };
 			});
-			listFunctionStore.set(data);
+			listFunctionStoreDev.set(data);
+		}
+	} catch (error) {
+		console.error(error);
+	}
+	////////////////////////////////////
+	try {
+		let fr = await f.get(path_functions, { appName: appName, environment: 'qa' });
+		let list = await fr.json();
+
+		if (list && Array.isArray(list)) {
+			let data = list.map((fn) => {
+				return { id: fn, value: fn };
+			});
+			listFunctionStoreQA.set(data);
+		}
+	} catch (error) {
+		console.error(error);
+	}
+	////////////////////////////////////
+	try {
+		let fr = await f.get(path_functions, { appName: appName, environment: 'prd' });
+		let list = await fr.json();
+
+		if (list && Array.isArray(list)) {
+			let data = list.map((fn) => {
+				return { id: fn, value: fn };
+			});
+			listFunctionStorePRD.set(data);
 		}
 	} catch (error) {
 		console.error(error);

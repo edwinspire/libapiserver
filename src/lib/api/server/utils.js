@@ -1,5 +1,7 @@
 const { createHmac } = await import('node:crypto');
 
+import fs from 'fs';
+import path from 'path';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
 
@@ -230,4 +232,51 @@ export function checkAPIToken(app, endpointData, jwtoken) {
 		console.log(error);
 		return false;
 	}
+}
+
+/**
+ * @param {string} path_file
+ */
+function getPathParts(path_file) {
+	const part = path_file.split('/');
+	const last_parts = part.slice(-3);
+	//return last_parts;
+	return { appName: last_parts[0], environment: last_parts[1], file: last_parts[2] }
+}
+
+/**
+ * @param {string} fn_path
+ */
+export const getFunctionsFiles = (fn_path) => {
+	/**
+	 * @type {string[]}
+	 */
+	const jsFiles = [];
+
+	/**
+	 * @param {string} ruta
+	 */
+	function searchFiles(ruta) {
+		const archivos = fs.readdirSync(ruta);
+
+		archivos.forEach((archivo) => {
+			const rutaCompleta = path.join(ruta, archivo);
+
+			if (fs.statSync(rutaCompleta).isDirectory()) {
+				// Si es un directorio, busca en él de forma recursiva
+				searchFiles(rutaCompleta);
+			} else {
+				// Si es un archivo con extensión .js, agrégalo a la lista
+				if (path.extname(archivo) === '.js') {
+					jsFiles.push(rutaCompleta);
+				}
+			}
+		});
+	}
+
+	searchFiles(fn_path);
+
+	return jsFiles.map((f) => {
+		return { file: f, data: getPathParts(f) }
+	});
 }

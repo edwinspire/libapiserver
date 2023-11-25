@@ -105,7 +105,7 @@
 		{:else if row && row.handler == 'FETCH'}
 			<FetchCode bind:this={fnFetchCode} code={value} />
 		{:else if row && row.handler == 'FUNCTION'}
-			<CustomFn bind:this={fnCustomFn} code={value} />
+			<CustomFn bind:this={fnCustomFn} code={value} environment={row.environment} />
 		{:else}
 			<code contenteditable>
 				{value}

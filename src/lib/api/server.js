@@ -17,7 +17,7 @@ import {
 	validateToken,
 	getUserPasswordTokenFromRequest,
 	websocketUnauthorized,
-	getIPFromRequest
+	getIPFromRequest, getFunctionsFiles
 } from '../api/server/utils.js';
 
 import {
@@ -34,8 +34,8 @@ import express from 'express';
 import WebSocket from 'ws';
 import websocketStream from 'websocket-stream';
 
-import * as fnSystem from './server/functions/system.js';
-import * as fnPublic from './server/functions/public.js';
+import { fnPublic, fnSystem } from './server/functions/index.js';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import fs from 'fs';
@@ -92,7 +92,9 @@ export class ServerAPI extends EventEmitter {
 		this._cacheRoles = new Map();
 		this._cacheEndpoints = new Map();
 		//		this._cacheAPIKey = new Map();
-		this._fn = new Map();
+		this._fnDEV = new Map();
+		this._fnQA = new Map();
+		this._fnPRD = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
 		this._path_api_hooks = PATH_API_HOOKS || '/system/api/hooks';
@@ -239,6 +241,48 @@ export class ServerAPI extends EventEmitter {
 			});
 		}
 
+		/**
+		 * @param {fs.PathLike} fn_path
+		 */
+		function CreateFnPath(fn_path) {
+
+			try {
+				if (!fs.existsSync(fn_path)) {
+					// Si no existe, créala recursivamente
+					// @ts-ignore
+					fs.mkdirSync(fn_path, { recursive: true }, (/** @type {any} */ err) => {
+						if (err) {
+							console.error('Error al crear la ruta:', err);
+						} else {
+							console.log('Ruta creada exitosamente.');
+						}
+					});
+				} else {
+					console.log('La ruta ya existe.');
+				}
+			} catch (error) {
+				console.error(error);
+			}
+			return fn_path;
+		}
+
+
+
+
+		// Crea las rutas para las funciones personalizadas
+		CreateFnPath(`${dir_fn}/system/dev`);
+		CreateFnPath(`${dir_fn}/system/qa`);
+		CreateFnPath(`${dir_fn}/system/prd`);
+
+		CreateFnPath(`${dir_fn}/public/dev`);
+		CreateFnPath(`${dir_fn}/public/qa`);
+		CreateFnPath(`${dir_fn}/public/prd`);
+
+
+		getFunctionsFiles(dir_fn).forEach((data_js) => {
+			this._appendFunctionsFiles(data_js.file, data_js.data.appName, data_js.data.environment);
+		});
+		/*
 		try {
 			//////////////////////////
 			fs.readdirSync(dir_fn).forEach(async (_app_name) => {
@@ -252,37 +296,13 @@ export class ServerAPI extends EventEmitter {
 				} else if (stat.isDirectory()) {
 					console.log('Es un directorio, por lo tanto es el nombre de la app:', filePath);
 					// Buscamos los archivos js para cargarlos como modulos
-					try {
-						fs.readdirSync(filePath).forEach(async (file_app) => {
-							console.log('Load Module -> ', file_app);
-
-							const fileModule = path.join(filePath, file_app);
-							const stat_mod = fs.statSync(fileModule);
-
-							if (stat_mod.isFile() && file_app.endsWith('.js') && file_app.startsWith('fn')) {
-								console.log('Es un archivo:', fileModule);
-
-								const taskModule = await import(fileModule);
-
-								console.log('Module: ', taskModule);
-
-								if (taskModule && taskModule.default) {
-									this._appendAppFunction(
-										_app_name,
-										file_app.replace('.js', ''),
-										taskModule.default
-									);
-								}
-							}
-						});
-					} catch (error) {
-						console.log(error);
-					}
+					this._addFunctionsFiles();
 				}
 			});
 		} catch (error) {
 			console.log(error);
 		}
+		*/
 
 		this.app = express();
 
@@ -460,9 +480,9 @@ export class ServerAPI extends EventEmitter {
 		this.app.use((req, res, next) => {
 			// Solo registra las url que no correspondan a apis
 			if (!req.path.startsWith('/api')) {
-			//	console.log(' ::: req.path >>>>', req.path);
+				//	console.log(' ::: req.path >>>>', req.path);
 				// @ts-ignore
-				createPathRequest(req.path, getIPFromRequest(req), req.headers).then((r) => {
+				createPathRequest(req.path, getIPFromRequest(req), req.headers).then(() => {
 					console.log('createPathRequest >>>>>>> ', req.path);
 				});
 			}
@@ -575,7 +595,7 @@ export class ServerAPI extends EventEmitter {
 							//  API Privada, validar accesos
 							let dataUserRequest = getUserPasswordTokenFromRequest(req);
 
-							console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', dataUserRequest.data_token, ep.params);
+							console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', url_app_endpoint, dataUserRequest, ep.params);
 
 							if (dataUserRequest && dataUserRequest.data_token) {
 								if (
@@ -596,7 +616,7 @@ export class ServerAPI extends EventEmitter {
 				}
 			} else {
 				// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
-				res.status(401).json({ message: 'Environment not found'+req.path +' - '+environment+' - '+EXPOSE_PROD_API});
+				res.status(401).json({ message: 'Environment not found' + req.path + ' - ' + environment + ' - ' + EXPOSE_PROD_API });
 			}
 		}, async (req, res) => {
 			let { app, namespace, name, version, environment } = req.params;
@@ -615,9 +635,9 @@ export class ServerAPI extends EventEmitter {
 
 				let handlerEndpoint = this._cacheApi.get(url_app_endpoint);
 
-				console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
+				//	console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
 
-				runHandler(req, res, handlerEndpoint.params, this._getFunctions(app));
+				runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
 			} catch (error) {
 				res.status(505).json({
 					// @ts-ignore
@@ -638,6 +658,40 @@ export class ServerAPI extends EventEmitter {
 		}
 		console.log('EXPRESSJS_SERVER_TIMEOUT: ' + EXPRESSJS_SERVER_TIMEOUT);
 		this._httpServer.setTimeout(rto); // Para 5 minutos
+	}
+
+	/**
+	 * @param {string} filePath
+	 * @param {string} _app_name
+	 * @param {string} environment
+	 */
+	_appendFunctionsFiles(filePath, _app_name, environment) {
+		try {
+			fs.readdirSync(filePath).forEach(async (file_app) => {
+				console.log('Load Module -> ', file_app);
+
+				const fileModule = path.join(filePath, file_app);
+				const stat_mod = fs.statSync(fileModule);
+
+				if (stat_mod.isFile() && file_app.endsWith('.js') && file_app.startsWith('fn')) {
+					console.log('Es un archivo:', fileModule);
+
+					const taskModule = await import(fileModule);
+
+					console.log('Module: ', taskModule);
+
+					if (taskModule && taskModule.default) {
+						this._appendAppFunction(
+							_app_name, environment,
+							file_app.replace('.js', ''),
+							taskModule.default
+						);
+					}
+				}
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	/**
@@ -705,35 +759,77 @@ export class ServerAPI extends EventEmitter {
 	 * @param {string} appname
 	 * @param {string} functionName
 	 * @param {any} Function
+	 * @param {string} environment
 	 */
-	appendAppFunction(appname, functionName, Function) {
+	appendAppFunction(appname, environment, functionName, Function) {
 		if (appname != 'system' && functionName.startsWith('fn')) {
-			this._appendAppFunction(appname, functionName, Function);
+			this._appendAppFunction(appname,environment, functionName, Function);
 		} else {
 			throw `The app must not be "system" and the function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
 	}
 
+
 	/**
+	 * @param {string} environment
 	 * @param {string} appname
-	 * @param {string} functionName
-	 * @param {any} fn
+	 * @param {string } functionName
+	 * @param {any} [fn]
 	 */
-	_appendAppFunction(appname, functionName, fn) {
+	_appendAppFunction(appname, environment, functionName, fn) {
+		console.log(appname, environment, functionName);
 		if (functionName.startsWith('fn')) {
-			if (this._fn.has(appname)) {
-				let fnList = this._fn.get(appname);
-				fnList[functionName] = fn;
-				this._fn.set(appname, fnList);
-			} else {
-				let f = {};
-				// @ts-ignore
-				f[functionName] = fn;
-				this._fn.set(appname, f);
+			switch (environment) {
+				case 'dev':
+					if (this._fnDEV.has(appname)) {
+						let fnList = this._fnDEV.get(appname);
+						fnList[functionName] = fn;
+						this._fnDEV.set(appname, fnList);
+					} else {
+						let f = {};
+						// @ts-ignore
+						f[functionName] = fn;
+						this._fnDEV.set(appname, f);
+					}
+					break;
+
+				case 'qa':
+					if (this._fnQA.has(appname)) {
+						let fnList = this._fnQA.get(appname);
+						fnList[functionName] = fn;
+						this._fnQA.set(appname, fnList);
+					} else {
+						let f = {};
+						// @ts-ignore
+						f[functionName] = fn;
+						this._fnQA.set(appname, f);
+					}
+					break;
+
+				case 'prd':
+
+					if (this._fnPRD.has(appname)) {
+						let fnList = this._fnPRD.get(appname);
+						fnList[functionName] = fn;
+						this._fnPRD.set(appname, fnList);
+					} else {
+						let f = {};
+						// @ts-ignore
+						f[functionName] = fn;
+						this._fnPRD.set(appname, f);
+					}
+
+					break;
 			}
+
 		} else {
 			throw `The function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
+
+
+
+
+
 	}
 
 	/**
@@ -935,19 +1031,62 @@ export class ServerAPI extends EventEmitter {
 	}
 
 	_addFunctions() {
-		const entries = Object.entries(fnSystem);
-		for (let [fName, fn] of entries) {
-			//console.log(prop + ": " + fn);
-			this._appendAppFunction('system', fName, fn);
+
+		if (fnSystem) {
+
+			if (fnSystem.fn_system_prd) {
+				const entries = Object.entries(fnSystem.fn_system_prd);
+				for (let [fName, fn] of entries) {
+					console.log(":::::.> fnSystem >> ", fName, fn);
+					this._appendAppFunction('system', 'prd', fName, fn);
+				}
+			}
+
+			if (fnSystem.fn_system_qa) {
+				const entries = Object.entries(fnSystem.fn_system_qa);
+				for (let [fName, fn] of entries) {
+					console.log(":::::.> fnSystem >> ", fName, fn);
+					this._appendAppFunction('system', 'qa', fName, fn);
+				}
+			}
+
+			if (fnSystem.fn_system_dev) {
+				const entries = Object.entries(fnSystem.fn_system_dev);
+				for (let [fName, fn] of entries) {
+					console.log(":::::.> fnSystem >> ", fName, fn);
+					this._appendAppFunction('system', 'dev', fName, fn);
+				}
+			}
 		}
 
-		const entriesP = Object.entries(fnPublic);
-		for (let [fName, fn] of entriesP) {
-			//console.log(prop + ": " + fn);
-			this._appendAppFunction('public', fName, fn);
+		if (fnPublic) {
+
+			if (fnPublic.fn_public_dev) {
+				const entriesP = Object.entries(fnPublic.fn_public_dev);
+				for (let [fName, fn] of entriesP) {
+					//console.log(prop + ": " + fn);
+					this._appendAppFunction('public', 'dev', fName, fn);
+				}
+			}
+			if (fnPublic.fn_public_qa) {
+				const entriesP = Object.entries(fnPublic.fn_public_qa);
+				for (let [fName, fn] of entriesP) {
+					//console.log(prop + ": " + fn);
+					this._appendAppFunction('public', 'qa', fName, fn);
+				}
+			}
+			if (fnPublic.fn_public_prd) {
+				const entriesP = Object.entries(fnPublic.fn_public_prd);
+				for (let [fName, fn] of entriesP) {
+					//console.log(prop + ": " + fn);
+					this._appendAppFunction('public', 'dev', fName, fn);
+				}
+			}
+
 		}
 
-		this._appendAppFunction('system', 'fnGetFunctions', this._functions);
+
+		//this._appendAppFunction('system', 'fnGetFunctions', this._functions);
 
 		/*
 		this._fn.forEach((fx) => {
@@ -956,20 +1095,41 @@ export class ServerAPI extends EventEmitter {
 		*/
 	}
 
+
 	/**
 	 * @param {string} appName
+	 * @param {string} [environment]
 	 */
-	_getFunctions(appName) {
-		let d = this._fn.get(appName);
-		let p = this._fn.get('public');
+	_getFunctions(appName, environment) {
+		let d;
+		let p;
+
+		switch (environment) {
+			case 'dev':
+				d = this._fnDEV.get(appName);
+				p = this._fnDEV.get('public');
+				break;
+
+			case 'qa':
+				d = this._fnQA.get(appName);
+				p = this._fnQA.get('public');
+				break;
+			case 'prd':
+				d = this._fnPRD.get(appName);
+				p = this._fnPRD.get('public');
+				break;
+
+		}
+
 		return { ...d, ...p };
 	}
 
 	/**
 	 * @param {string} appName
+	 * @param {string } environment
 	 */
-	_getNameFunctions(appName) {
-		let f = this._getFunctions(appName);
+	_getNameFunctions(appName, environment) {
+		let f = this._getFunctions(appName, environment);
 		if (f) {
 			return Object.keys(f);
 		}
@@ -991,13 +1151,21 @@ export class ServerAPI extends EventEmitter {
 		return [];
 	}
 
+	/**
+	 * @param {import("express-serve-static-core").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>} req
+	 */
 	async _functions(
-		/** @type {{ params: any; body: import("sequelize").Optional<any, string>; }} */ req,
+		req,
 		/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }} */ res
 	) {
 		try {
-			// @ts-ignore
-			res.status(200).json(this._getNameFunctions(req.query.appName));
+			if (req && req.query && req.query.appName && req.query.environment) {
+				// @ts-ignore
+				res.status(200).json(this._getNameFunctions(req.query.appName, req.query.environment));
+			} else {
+				res.status(400).json({ 'error': 'appName and environment are required' });
+			}
+
 		} catch (error) {
 			console.trace(error);
 			// @ts-ignore

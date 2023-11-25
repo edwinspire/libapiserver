@@ -23,3 +23,5 @@ export const path_params_to_url = (/** @type {{ app: any; namespace: any; name: 
 export const defaultSystemPath = (/** @type {string} */ name) => {
 	return '/system/main/' + name;
 };
+
+

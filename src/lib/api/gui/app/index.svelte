@@ -173,7 +173,7 @@
 			//console.log("appDataTable = ", appDataTable);
 			//console.log(app);
 			// @ts-ignore
-			getListFunction($userStore.token, app.app);
+			getListFunction($userStore.token, app.app, app.environment);
 
 			if (app.apiserver_endpoints) {
 				endpoints = app.apiserver_endpoints.map((ax) => {
