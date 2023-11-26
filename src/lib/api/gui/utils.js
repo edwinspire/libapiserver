@@ -2,7 +2,7 @@
 import uFetch from '@edwinspire/universal-fetch';
 import { writable } from 'svelte/store';
 
-const path_functions = '/system/main/functions' ;
+const path_functions = '/system/main/functions';
 
 //export const tokenStore = writable('');
 export const userStore = writable({});
@@ -110,6 +110,22 @@ export const getListMethods = async (/** @type {string} */ token) => {
 		}
 	} catch (error) {
 		console.error(error);
+	}
+};
+
+
+export const saveMethod = async (/** @type {string} */ token, /** @type {any} */ method) => {
+	let f = new uFetch();
+	f.setBearerAuthorization(token);
+	try {
+		let fr = await f.post('/api/system/system/method/0.01/prd', { method });
+		let result = await fr.json();
+
+		console.log(result);
+		return result;
+	} catch (error) {
+		console.error(error);
+		return { error }
 	}
 };
 

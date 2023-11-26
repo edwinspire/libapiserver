@@ -9,7 +9,7 @@ export const upsertEndpoint = async (
 		const [result, created] = await Endpoint.upsert(data, { returning: true });
 		return { result, created };
 	} catch (error) {
-		console.error('Error retrieving:', error);
+		console.error('Error retrieving:', error, data);
 		throw error;
 	}
 };

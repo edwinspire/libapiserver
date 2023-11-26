@@ -9,7 +9,8 @@
 	import SqlCode from './handler/sql.svelte';
 	import CustomFn from './handler/customFunction.svelte';
 	import { DialogModal } from '@edwinspire/svelte-components';
-	import { css_handlers } from '../utils.js';
+	import { css_handlers, saveMethod } from '../utils.js';
+	import { userStore } from '../utils.js';
 
 	/**
 	 * @type {FetchCode}
@@ -41,36 +42,114 @@
 	export let value;
 	export let row = {};
 	export let props = {};
+	//let token;
+
+	/*
+	userStore.subscribe((value) => {
+		console.log('tokenStore ->>>>', value);
+	//	token = value.token;
+	});
+	*/
+
 
 	onMount(() => {});
 </script>
 
 <td>
-	{#if row.method != 'NA' && row.method != 'WS' && row.method != 'MQTT'}
-		<button
-			class={css_handlers[row.handler] && css_handlers[row.handler].css
-				? ' button is-small is-outlined ' + css_handlers[row.handler].css
-				: ' button is-small is-outlined '}
-			on:click={() => {
-				if (!showCode) {
-					showCode = true;
-				}
-			}}
-		>
-			<span class="icon is-small">
-				{#if css_handlers[row.handler] && css_handlers[row.handler].icon}
-					<i class={css_handlers[row.handler].icon} />
-				{:else}
-					<i class="fa-solid fa-code" />
-				{/if}
-			</span>
-			{#if css_handlers[row.handler] && css_handlers[row.handler].label}
-				<span>{css_handlers[row.handler].label}</span>
+	<div class="field has-addons">
+		<p class="control">
+			{#if row.method != 'NA' && row.method != 'WS' && row.method != 'MQTT'}
+				<button
+					class={css_handlers[row.handler] && css_handlers[row.handler].css
+						? ' button is-small  ' + css_handlers[row.handler].css
+						: ' button is-small  '}
+					on:click={() => {
+						if (!showCode) {
+							showCode = true;
+						}
+					}}
+				>
+					<span class="icon is-small">
+						{#if css_handlers[row.handler] && css_handlers[row.handler].icon}
+							<i class={css_handlers[row.handler].icon} />
+						{:else}
+							<i class="fa-solid fa-code" />
+						{/if}
+					</span>
+					{#if css_handlers[row.handler] && css_handlers[row.handler].label}
+						<span>{css_handlers[row.handler].label}</span>
+					{:else}
+						<span> Code </span>
+					{/if}
+				</button>
 			{:else}
-				<span> code </span>
+				<button
+					class={css_handlers[row.handler] && css_handlers[row.handler].css
+						? ' button is-small ' + css_handlers[row.handler].css
+						: ' button is-small '}
+					disabled
+				>
+					<span class="icon is-small">
+						<i class="fa-solid fa-code" />
+					</span>
+					<span> Code </span>
+				</button>
 			{/if}
-		</button>
-	{/if}
+		</p>
+
+		<p class="control">
+			{#if row.environment == 'dev'}
+				<button
+					class={css_handlers[row.handler] && css_handlers[row.handler].css
+						? ' button is-small ' + css_handlers[row.handler].css
+						: ' button is-small '}
+					on:click={() => {
+						if (confirm('Are you sure to upload the version to Quality?')) {
+							let sm = saveMethod($userStore.token, row);
+							console.log(sm);
+						}
+					}}
+				>
+					<span class="icon is-small">
+						<i class="fa-solid fa-up-right-from-square" />
+					</span>
+					<span> To Quality </span>
+				</button>
+			{:else if row.environment == 'qa'}
+				<button
+					class={css_handlers[row.handler] && css_handlers[row.handler].css
+						? ' button is-small ' + css_handlers[row.handler].css
+						: ' button is-small '}
+					on:click={() => {
+
+//console.log('>>>>>>>>> saveMethod >>>>>>', $userStore.token, row);
+
+						if (confirm('Are you sure to upload the version to Production?')) {
+							let sm = saveMethod($userStore.token, row);
+							console.log(sm);
+						}
+					}}
+				>
+					<span class="icon is-small">
+						<i class="fa-solid fa-up-right-from-square" />
+					</span>
+					<span> To Production </span>
+				</button>
+			{:else if row.environment == 'prd'}
+				<button
+					class={css_handlers[row.handler] && css_handlers[row.handler].css
+						? ' button is-small ' + css_handlers[row.handler].css
+						: ' button is-small '}
+					disabled
+				>
+					<span class="icon is-small">
+						<i class="fa-solid fa-check-double fa-fade" />
+					</span>
+					<span> On Production </span>
+				</button>
+			{/if}
+		</p>
+	</div>
 </td>
 
 <DialogModal
@@ -97,15 +176,15 @@
 
 	<div slot="body">
 		{#if row && row.handler == 'JS'}
-			<JsCode bind:this={fnJsCode} code={value} />
+			<JsCode bind:this={fnJsCode} code={value} bind:environment={row.environment} />
 		{:else if row && row.handler == 'SOAP'}
-			<SoapCode bind:this={fnSoapCode} code={value} />
+			<SoapCode bind:this={fnSoapCode} code={value} bind:environment={row.environment} />
 		{:else if row && row.handler == 'SQL'}
-			<SqlCode bind:this={fnSqlCode} code={value} />
+			<SqlCode bind:this={fnSqlCode} code={value} bind:environment={row.environment} />
 		{:else if row && row.handler == 'FETCH'}
-			<FetchCode bind:this={fnFetchCode} code={value} />
+			<FetchCode bind:this={fnFetchCode} code={value} bind:environment={row.environment} />
 		{:else if row && row.handler == 'FUNCTION'}
-			<CustomFn bind:this={fnCustomFn} code={value} environment={row.environment} />
+			<CustomFn bind:this={fnCustomFn} code={value} bind:environment={row.environment} />
 		{:else}
 			<code contenteditable>
 				{value}

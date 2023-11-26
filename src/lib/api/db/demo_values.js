@@ -1,62 +1,79 @@
 export const varsDemo = {
-	$_VAR_DEMO_1: 10,
-	$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
-	$_VAR_FETCH: 'https://api.github.com/users/auth0',
-	$_VAR_SQLITE: {
-		database: 'memory',
-		username: '',
-		password: '',
-		options: {
-			host: 'localhost',
-			dialect: 'sqlite'
+	dev: {
+		$_VAR_DEMO_1: 10,
+		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
+		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_SQLITE: {
+			database: 'memory',
+			username: '',
+			password: '',
+			options: {
+				host: 'localhost',
+				dialect: 'sqlite'
+			}
+		},
+		$_VAR_SOAP_TEST: {
+			wsdl: 'https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL',
+			FunctionName: 'NumberToDollars',
+			BasicAuthSecurity: {
+				User: 'any',
+				Password: 'any'
+			}
 		}
 	},
-	$_VAR_SOAP_TEST: {
-		wsdl: 'https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL',
-		FunctionName: 'NumberToDollars',
-		BasicAuthSecurity: {
-			User: 'any',
-			Password: 'any'
+	qa: {
+		$_VAR_DEMO_1: 10,
+		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
+		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_SQLITE: {
+			database: 'memory',
+			username: '',
+			password: '',
+			options: {
+				host: 'localhost',
+				dialect: 'sqlite'
+			}
+		},
+		$_VAR_SOAP_TEST: {
+			wsdl: 'https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL',
+			FunctionName: 'NumberToDollars',
+			BasicAuthSecurity: {
+				User: 'any',
+				Password: 'any'
+			}
+		}
+	},
+	prd: {
+		$_VAR_DEMO_1: 10,
+		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
+		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_SQLITE: {
+			database: 'memory',
+			username: '',
+			password: '',
+			options: {
+				host: 'localhost',
+				dialect: 'sqlite'
+			}
+		},
+		$_VAR_SOAP_TEST: {
+			wsdl: 'https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL',
+			FunctionName: 'NumberToDollars',
+			BasicAuthSecurity: {
+				User: 'any',
+				Password: 'any'
+			}
 		}
 	}
-};
 
+}
 export const app_default = [
 	{ idapp: 'cfcd208495d565ef66e7dff9f98764da', app: 'system', description: 'App System' },
 	{
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
 		app: 'demo',
 		description: 'App DEMO',
-		vars: {
-			$_VAR_DEMO_1: 10,
-			$_VAR_DEMO_2: {
-				host: 'google.com',
-				var1: {
-					a: 10,
-					b: {
-						casti: 3
-					}
-				}
-			},
-			$_VAR_FETCH: 'https://api.github.com/users/auth0',
-			$_VAR_SQLITE: {
-				database: 'memory',
-				username: '',
-				password: '',
-				options: {
-					host: 'localhost',
-					dialect: 'sqlite'
-				}
-			},
-			$_VAR_SOAP_TEST: {
-				wsdl: 'https://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL',
-				FunctionName: 'NumberToDollars',
-				BasicAuthSecurity: {
-					User: 'any',
-					Password: 'any'
-				}
-			}
-		}
+		vars: varsDemo
 	}
 ];
 
@@ -92,7 +109,7 @@ export const endpoins_default = [
 		code: 'fnToken'
 	},
 	{
-	//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
 		namespace: 'api',
@@ -106,6 +123,150 @@ export const endpoins_default = [
 		for_api: true,
 		code: 'fnToken'
 	},
+
+
+	{
+		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'apps',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetApps'
+	},
+	{
+		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'apps',
+		version: 0.01,
+		environment: 'qa',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetApps'
+	},
+	{
+		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'apps',
+		version: 0.01,
+		environment: 'prd',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetApps'
+	},
+
+
+
+	{
+		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'dev',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetAppById'
+	},
+	{
+		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'qa',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetAppById'
+	},
+	{
+		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'prd',
+		method: 'GET',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnGetAppById'
+	},
+
+
+	{
+		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'dev',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnSaveApp'
+	},
+	{
+		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'qa',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnSaveApp'
+	},
+	{
+		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		namespace: 'api',
+		name: 'app',
+		version: 0.01,
+		environment: 'prd',
+		method: 'POST',
+		handler: 'FUNCTION',
+		is_public: true,
+		for_user: true,
+		for_api: false,
+		code: 'fnSaveApp'
+	},
+
+
 
 
 	{

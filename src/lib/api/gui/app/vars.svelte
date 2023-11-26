@@ -7,6 +7,7 @@
 
 	// export let vars = {};
 	export let editable = false;
+	export let environment = '';
 	let Datavars = {};
 
 	listAppVars.subscribe((value) => {
@@ -19,17 +20,19 @@
 </script>
 
 <div>
-	{#each Object.keys(Datavars) as varKey}
-		{#if editable}
-			<div>{varKey}</div>
-			<div>
-				<EditorCode lang={'json'} code={JSON.stringify(Datavars[varKey])} />
-			</div>
-		{:else}
-			<details>
-				<summary><strong>{varKey}</strong></summary>
-				<CodeHTML bind:jsonObject={Datavars[varKey]} />
-			</details>
-		{/if}
-	{/each}
+	{#if Datavars && Datavars[environment]}
+		{#each Object.keys(Datavars[environment]) as varKey}
+			{#if editable}
+				<div>{varKey}</div>
+				<div>
+					<EditorCode lang={'json'} code={JSON.stringify(Datavars[environment][varKey])} />
+				</div>
+			{:else}
+				<details>
+					<summary><strong>{varKey}</strong></summary>
+					<CodeHTML bind:jsonObject={Datavars[environment][varKey]} />
+				</details>
+			{/if}
+		{/each}
+	{/if}
 </div>

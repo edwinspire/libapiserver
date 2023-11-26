@@ -14,18 +14,10 @@
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { userStore, getListFunction, listAppVars } from '../utils.js';
-	//	import CellMethods from './cellMethods.svelte';
 	import CellMethod from './cellMethod.svelte';
 	import cellHandler from './cellHandler.svelte';
-//	import cellIsPublic from './cellIsPublic.svelte';
 	import cellCode from './cellCode.svelte';
-//	import cellEnabled from './cellEnabled.svelte';
-
-	//	import MethodDialog from './method.svelte';
-	//import { AppToTable, TableToApp } from '../../db/utils.js';
 	import { path_params_to_url } from '../../../api/server/utils_path.js';
-	//  import { tokenVerify } from "../../server/utils.js";
-	//  import jwt from "jsonwebtoken";
 
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
@@ -147,7 +139,7 @@
 		try {
 			//      console.log("getListApps > ", $userStore, uf);
 
-			let apps_res = await uf.get('/system/main/apps');
+			let apps_res = await uf.get('/api/system/api/apps/0.01/prd');
 			let apps = await apps_res.json();
 			//console.log(apps);
 
@@ -196,7 +188,8 @@
 	async function getApp() {
 		if (idapp) {
 			try {
-				let apps_res = await uf.get('/system/main/app/' + idapp, {
+				let apps_res = await uf.get('/api/system/api/app/0.01/prd', {
+					idapp: idapp,
 					raw: false
 				});
 				let app_resp = await apps_res.json();
@@ -225,7 +218,7 @@
 
 	async function saveApp() {
 		try {
-			let apps_res = await uf.post('/system/main/app/0', appToStore());
+			let apps_res = await uf.post('/api/system/api/app/0.01/prd', appToStore());
 			let rapp = await apps_res.json();
 
 			if (idapp == rapp.idapp) {
@@ -470,16 +463,42 @@
 		//data = {};
 	}}
 	on:ok={() => {
+		console.log('SelectedRow >>> ', SelectedRow);
+		SelectedRow.idapp = app.idapp;
+
 		if (SelectedRow.idendpoint) {
 			// Es edición de registro, se mantiene en bind con la fila seleccionada
 			showEndpointEdit = false;
 		} else {
+			SelectedRow.endpoint = path_params_to_url({
+				app: app.app,
+				version: SelectedRow.version,
+				namespace: SelectedRow.namespace,
+				name: SelectedRow.name,
+				environment: 'dev'
+			});
+
 			// Es creación de registro
 			// Verifica que no haya otro registro igual
 			if (!checkEndpointConstraint(SelectedRow)) {
 				alert('Ya existe un Endpoint con estos parámetros.');
 			} else {
-				endpoints.unshift({ ...SelectedRow });
+				endpoints.unshift({
+					idapp: app.idapp,
+					endpoint: SelectedRow.endpoint,
+					name: SelectedRow.name,
+					namespace: SelectedRow.namespace,
+					enabled: SelectedRow.enabled,
+					version: SelectedRow.version,
+					environment: SelectedRow.environment,
+					for_user: true,
+					for_api: false,
+					method: 'NA',
+					handler: 'NA',
+					is_public: false,
+					cors: undefined,
+					code: ''
+				});
 			}
 		}
 		showEndpointEdit = false;

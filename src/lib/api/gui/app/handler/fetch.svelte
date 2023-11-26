@@ -10,6 +10,7 @@
    * @type {any}
    */
   export let code;
+  export let environment;
   /**
    * @type {EditorCode}
    */
@@ -40,6 +41,6 @@
   </div>
 
   <div class={tabList[1].isActive ? "" : "is-hidden"}>
-    <Vars />
+    <Vars bind:environment/>
   </div>
 </Tab>

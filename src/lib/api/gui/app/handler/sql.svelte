@@ -10,10 +10,12 @@
 	 * @type {any}
 	 */
 	export let code;
+	export let environment;
 	/**
 	 * @type {EditorCode}
 	 */
 	let fnEditorCode;
+
 
 	let tabList = [
 		{ label: 'Query', isActive: true },
@@ -111,6 +113,6 @@
 	</div>
 
 	<div class={tabList[2].isActive ? '' : 'is-hidden'}>
-		<Vars />
+		<Vars bind:environment/>
 	</div>
 </Tab>

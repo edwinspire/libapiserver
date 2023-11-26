@@ -21,7 +21,7 @@ export function prefixTableName(table_name) {
  * @param {string} modelName
  */
 async function hookUpsert(modelName) {
-	console.log('---------------------> hookUpsert', modelName);
+//	console.log('---------------------> hookUpsert', modelName);
 	await uF.post('', { model: modelName, date: new Date() });
 	//  console.log(await data.json());
 }
@@ -226,7 +226,7 @@ export const Role = dbsequelize.define(
 				await hookUpsert(prefixTableName('role'));
 			},
 			beforeValidate: (instance) => {
-				console.log('>>> beforeValidate >>>> ', instance);
+			//	console.log('>>> beforeValidate >>>> ', instance);
 				/*
 				instance.attrs =
 					dbsequelize.getDialect() === 'mssql' && typeof instance.attrs === 'object'
@@ -367,7 +367,7 @@ export const Application = dbsequelize.define(
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
 			beforeValidate: (instance) => {
-				console.log('>>> beforeValidate >>>> ', instance);
+				//console.log('>>> beforeValidate >>>> ', instance);
 
 				if (!instance.idapp) {
 					instance.idapp == uuidv4();
@@ -585,6 +585,11 @@ export const Endpoint = dbsequelize.define(
 				instance.rowkey = Math.floor(Math.random() * 1000);
 
 				//	console.log('>>>>>>>>>>>>>> Se lanza el beforeUpsert', instance);
+				if (!instance.idendpoint) {
+					//console.log('##################----> beforeValidate: ');
+					// @ts-ignore
+					instance.idendpoint = uuidv4();
+				}
 
 				await hookUpsert(prefixTableName('endpoint'));
 			},

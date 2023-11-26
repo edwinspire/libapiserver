@@ -6,6 +6,7 @@
 	import Vars from '../vars.svelte';
 
 	export let code;
+	export let environment;
 	let fnEditorCode;
 
 	let tabList = [{ label: 'Parameters', isActive: true }, { label: 'App Variables' }];
@@ -20,7 +21,7 @@
 
 <Tab bind:tabs={tabList}>
 	<div class={tabList[0].isActive ? '' : 'is-hidden'}>
-		<EditorCode lang="js" bind:code bind:this={fnEditorCode}>
+		<EditorCode lang="js" bind:code bind:this={fnEditorCode} >
 			<div slot="message">
 				<div class="content is-small">
 					<h3>Predefined variables</h3>
@@ -48,6 +49,6 @@
 	</div>
 
 	<div class={tabList[1].isActive ? '' : 'is-hidden'}>
-		<Vars />
+		<Vars bind:environment/>
 	</div>
 </Tab>

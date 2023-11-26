@@ -11,6 +11,7 @@
    * @type {any}
    */
   export let code;
+  export let environment;
 
   let tabList = [
     { label: "Parameters", isActive: true },
@@ -73,7 +74,7 @@
   </div>
 
   <div class={tabList[2].isActive ? "" : "is-hidden"}>
-    <Vars />
+    <Vars bind:environment/>
   </div>
 </Tab>
 
