@@ -302,7 +302,8 @@
 					<button
 						class="button is-small is-link is-outlined"
 						on:click={() => {
-
+							
+							app.vars = {};
 							app.vars.dev = fnVarsDev.getCode();
 							app.vars.qa = fnVarsQa.getCode();
 							app.vars.prd = fnVarsPrd.getCode();
