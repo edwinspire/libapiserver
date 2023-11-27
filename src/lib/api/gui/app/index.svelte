@@ -18,6 +18,7 @@
 	import cellHandler from './cellHandler.svelte';
 	import cellCode from './cellCode.svelte';
 	import { path_params_to_url } from '../../../api/server/utils_path.js';
+	import Vars from './vars.svelte';
 
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
@@ -27,6 +28,10 @@
 	let showEndpointEdit = false;
 	let SelectedRow = {};
 	$: idapp, getApp();
+
+	let fnVarsDev;
+	let fnVarsQa;
+	let fnVarsPrd;
 
 	let columns = {
 		//enabled: { label: 'Enabled App' },
@@ -161,7 +166,16 @@
 			//appDataTable = AppToTable(app);
 			app = app_resp[0];
 
-			listAppVars.set(app.vars);
+			if (app && app.vars && typeof app.vars === 'object') {
+				listAppVars.set(app.vars);
+			} else if (app && app.vars && typeof app.vars === 'string') {
+				try {
+					listAppVars.set(JSON.parse(app.vars));
+				} catch (error) {
+					console.error(error);
+				}
+			}
+
 			//console.log("appDataTable = ", appDataTable);
 			//console.log(app);
 			// @ts-ignore
@@ -213,6 +227,7 @@
 		app_save.apiserver_endpoints = endpoints;
 
 		//console.log('v >> ', app_save);
+
 		return app_save;
 	}
 
@@ -287,7 +302,13 @@
 					<button
 						class="button is-small is-link is-outlined"
 						on:click={() => {
-							//				console.log('save', app);
+
+							app.vars.dev = fnVarsDev.getCode();
+							app.vars.qa = fnVarsQa.getCode();
+							app.vars.prd = fnVarsPrd.getCode();
+
+							//	console.log(fnVarsDev.getCode());
+
 							if (confirm('Do you want to save the application data?')) {
 								saveApp();
 							}
@@ -440,6 +461,12 @@
 					bind:value={app.description}
 				/>
 			</div>
+		</div>
+
+		<div>
+			<div><Vars bind:this={fnVarsDev} environment={'dev'} editable={true} /></div>
+			<div><Vars bind:this={fnVarsQa} environment={'qa'} editable={true} /></div>
+			<div><Vars bind:this={fnVarsPrd} environment={'prd'} editable={true} /></div>
 		</div>
 
 		<Table

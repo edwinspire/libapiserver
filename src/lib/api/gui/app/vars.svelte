@@ -9,12 +9,31 @@
 	export let editable = false;
 	export let environment = '';
 	let Datavars = {};
+	let fnEditorCodes = {};
 
 	listAppVars.subscribe((value) => {
 		console.log('listAppVars ->>>>', value, JSON.stringify(value, null, 4));
 		// @ts-ignore
 		Datavars = value || {};
+		/*
+		if (Datavars) {
+			fnEditorCodes = Object.keys(Datavars[environment]).map((key) => {
+				return { key: {} };
+			});
+		}
+		*/
 	});
+
+	export function getCode() {
+		//fnEditorCode.apply();
+		//return fnEditorCode.getCode();
+		let codes = {};
+		Object.keys(fnEditorCodes).forEach((key) => {
+			codes[key] = fnEditorCodes[key].getCode();
+			//return c;
+		});
+		return codes;
+	}
 
 	onMount(() => {});
 </script>
@@ -23,10 +42,14 @@
 	{#if Datavars && Datavars[environment]}
 		{#each Object.keys(Datavars[environment]) as varKey}
 			{#if editable}
-				<div>{varKey}</div>
-				<div>
-					<EditorCode lang={'json'} code={JSON.stringify(Datavars[environment][varKey])} />
-				</div>
+				<details>
+					<summary><strong>{varKey}</strong></summary>
+					<EditorCode
+						bind:this={fnEditorCodes[varKey]}
+						lang={'json'}
+						code={JSON.stringify(Datavars[environment][varKey])}
+					/>
+				</details>
 			{:else}
 				<details>
 					<summary><strong>{varKey}</strong></summary>
