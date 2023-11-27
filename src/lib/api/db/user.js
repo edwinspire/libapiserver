@@ -124,7 +124,7 @@ export async function login(username, password) {
 				date: new Date() // Para que se genere siempre un token diferente
 			});
 
-			await user.update({ token: token, last_login: new Date() });
+			await user.update({ last_login: new Date() });
 			await user.save();
 
 			return {
@@ -132,8 +132,8 @@ export async function login(username, password) {
 				username: u.username,
 				first_name: u.first_name,
 				last_name: u.last_name,
-				role: u.role.toJSON()
-		//		token: token
+				role: u.role.toJSON(),
+				token: token
 			};
 		} else {
 			return customError(2);

@@ -135,7 +135,7 @@ export const endpoins_default = [
 		environment: 'dev',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetApps'
@@ -150,7 +150,7 @@ export const endpoins_default = [
 		environment: 'qa',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetApps'
@@ -165,7 +165,7 @@ export const endpoins_default = [
 		environment: 'prd',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetApps'
@@ -183,7 +183,7 @@ export const endpoins_default = [
 		environment: 'dev',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetAppById'
@@ -198,7 +198,7 @@ export const endpoins_default = [
 		environment: 'qa',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetAppById'
@@ -213,7 +213,7 @@ export const endpoins_default = [
 		environment: 'prd',
 		method: 'GET',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnGetAppById'
@@ -230,7 +230,7 @@ export const endpoins_default = [
 		environment: 'dev',
 		method: 'POST',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnSaveApp'
@@ -245,7 +245,7 @@ export const endpoins_default = [
 		environment: 'qa',
 		method: 'POST',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnSaveApp'
@@ -260,7 +260,7 @@ export const endpoins_default = [
 		environment: 'prd',
 		method: 'POST',
 		handler: 'FUNCTION',
-		is_public: true,
+		is_public: false,
 		for_user: true,
 		for_api: false,
 		code: 'fnSaveApp'
