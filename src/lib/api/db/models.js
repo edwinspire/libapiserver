@@ -45,7 +45,7 @@ export const PathRequest = dbsequelize.define(
 			type: DataTypes.BOOLEAN,
 			defaultValue: true
 		},
-		path: { type: DataTypes.TEXT, allowNull: false, unique: true },
+		path: { type: DataTypes.STRING, allowNull: false, unique: true },
 		idapp: { type: DataTypes.UUID, allowNull: true },
 		is_public: {
 			type: DataTypes.BOOLEAN,
@@ -132,9 +132,11 @@ export const User = dbsequelize.define(
 			type: DataTypes.UUID,
 			allowNull: false
 		},
+		/*
 		token: {
 			type: DataTypes.STRING
 		},
+		*/
 		last_login: {
 			type: DataTypes.DATE,
 			allowNull: true
@@ -156,7 +158,7 @@ export const User = dbsequelize.define(
 			},
 			beforeUpdate: (/** @type {any} */ user) => {
 				// @ts-ignore
-				user.ts = new Date();
+	//			user.ts = new Date();
 				// @ts-ignore
 				//user.password = EncryptPwd(user.password);
 				// @ts-ignore
@@ -357,7 +359,7 @@ export const Application = dbsequelize.define(
 			beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
-				// console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
+			//	console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
 				await hookUpsert(prefixTableName('application'));
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
@@ -377,6 +379,25 @@ export const Application = dbsequelize.define(
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
 						: instance.vars;
+					//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance.vars);
+			},
+			beforeBulkCreate: (instance)=>{
+
+				if(instance && Array.isArray(instance)){
+instance.forEach((ins, i)=>{
+//	console.log("++++++++>>>>>>>>>>>>>>>>>>>>>>", ins.vars);
+
+	instance[i].vars =
+	dbsequelize.getDialect() === 'mssql' && typeof instance[i].vars === 'object'
+		? JSON.stringify(instance[i].vars)
+		: instance[i].vars;
+	//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance[i].vars);
+
+
+})
+				}
+
+				
 			}
 		}
 	}
@@ -407,7 +428,7 @@ export const ApiUser = dbsequelize.define(
 			defaultValue: true
 		},
 		username: {
-			type: DataTypes.TEXT,
+			type: DataTypes.STRING,
 			allowNull: false,
 			unique: true
 		},
@@ -522,7 +543,7 @@ export const Endpoint = dbsequelize.define(
 			allowNull: false
 		},
 		version: {
-			type: DataTypes.DECIMAL,
+			type: DataTypes.DECIMAL(5,2),
 			allowNull: false,
 			defaultValue: 0.1
 		},

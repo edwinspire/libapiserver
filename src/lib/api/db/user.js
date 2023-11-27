@@ -89,7 +89,7 @@ export const defaultUser = async () => {
 
 		let super_role = await defaultRoles();
 
-		console.log(' defaultUser >>>>>> ', super_role);
+		//console.log(' defaultUser >>>>>> ', super_role);
 
 		// El usuario "admin" no existe, se realiza la inserción
 		await User.create({
@@ -132,8 +132,8 @@ export async function login(username, password) {
 				username: u.username,
 				first_name: u.first_name,
 				last_name: u.last_name,
-				role: u.role.toJSON(),
-				token: token
+				role: u.role.toJSON()
+		//		token: token
 			};
 		} else {
 			return customError(2);
