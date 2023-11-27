@@ -19,7 +19,7 @@
 	import cellCode from './cellCode.svelte';
 	import { path_params_to_url } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
-
+	
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
 
@@ -302,11 +302,11 @@
 					<button
 						class="button is-small is-link is-outlined"
 						on:click={() => {
-							
+
 							app.vars = {};
-							app.vars.dev = fnVarsDev.getCode();
-							app.vars.qa = fnVarsQa.getCode();
-							app.vars.prd = fnVarsPrd.getCode();
+							app.vars.dev = JSON.parse(fnVarsDev.getCode());
+							app.vars.qa = JSON.parse(fnVarsQa.getCode());
+							app.vars.prd = JSON.parse(fnVarsPrd.getCode());
 
 							//	console.log(fnVarsDev.getCode());
 
