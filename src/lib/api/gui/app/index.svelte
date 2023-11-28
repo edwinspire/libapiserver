@@ -226,7 +226,7 @@
 		let app_save = { ...app };
 		app_save.apiserver_endpoints = endpoints;
 
-		//console.log('v >> ', app_save);
+		console.log('v >> ', app, app_save);
 
 		return app_save;
 	}
@@ -264,7 +264,7 @@
 			<button
 				class="button is-small is-primary is-outlined"
 				on:click={() => {
-					app = { app: '' };
+					app = { app: '', idapp: null };
 					endpoints = [];
 				}}
 			>
@@ -302,14 +302,13 @@
 					<button
 						class="button is-small is-link is-outlined"
 						on:click={() => {
-							app.vars = {};
-							app.vars.dev = fnVarsDev.getCode();
-							app.vars.qa = fnVarsQa.getCode();
-							app.vars.prd = fnVarsPrd.getCode();
-
 							//	console.log(fnVarsDev.getCode());
 
 							if (confirm('Do you want to save the application data?')) {
+								app.vars = {};
+								app.vars.dev = fnVarsDev.getCode();
+								app.vars.qa = fnVarsQa.getCode();
+								app.vars.prd = fnVarsPrd.getCode();
 								saveApp();
 							}
 						}}

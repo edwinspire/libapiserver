@@ -21,7 +21,7 @@ export function prefixTableName(table_name) {
  * @param {string} modelName
  */
 async function hookUpsert(modelName) {
-//	console.log('---------------------> hookUpsert', modelName);
+	//	console.log('---------------------> hookUpsert', modelName);
 	await uF.post('', { model: modelName, date: new Date() });
 	//  console.log(await data.json());
 }
@@ -158,7 +158,7 @@ export const User = dbsequelize.define(
 			},
 			beforeUpdate: (/** @type {any} */ user) => {
 				// @ts-ignore
-	//			user.ts = new Date();
+				//			user.ts = new Date();
 				// @ts-ignore
 				//user.password = EncryptPwd(user.password);
 				// @ts-ignore
@@ -228,7 +228,7 @@ export const Role = dbsequelize.define(
 				await hookUpsert(prefixTableName('role'));
 			},
 			beforeValidate: (instance) => {
-			//	console.log('>>> beforeValidate >>>> ', instance);
+				//	console.log('>>> beforeValidate >>>> ', instance);
 				/*
 				instance.attrs =
 					dbsequelize.getDialect() === 'mssql' && typeof instance.attrs === 'object'
@@ -356,10 +356,17 @@ export const Application = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
-			beforeUpsert: async (/** @type {{ rowkey: number; }} */ instance) => {
+			beforeUpsert: async (instance) => {
 				// @ts-ignore
-				instance.rowkey = Math.floor(Math.random() * 1000);
-			//	console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
+//				instance.rowkey = Math.floor(Math.random() * 1000);
+/*
+				if (!instance.idapp || instance.idapp == null) {
+					//console.log('beforeUpsert IDAPP es nulo o no está definido');
+					instance.idapp = uuidv4();
+				}
+				*/
+
+				//console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
 				await hookUpsert(prefixTableName('application'));
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
@@ -371,33 +378,50 @@ export const Application = dbsequelize.define(
 			beforeValidate: (instance) => {
 				//console.log('>>> beforeValidate >>>> ', instance);
 
-				if (!instance.idapp) {
-					instance.idapp == uuidv4();
+				if (!instance.idapp || instance.idapp == null) {
+					console.log('IDAPP es nulo o no está definido');
+					instance.idapp = uuidv4();
 				}
 
 				instance.vars =
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
 						: instance.vars;
-					//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance.vars);
+				console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
+				
 			},
-			beforeBulkCreate: (instance)=>{
+			beforeCreate: (instance) => {
+				//console.log('>>> beforeValidate >>>> ', instance);
 
-				if(instance && Array.isArray(instance)){
-instance.forEach((ins, i)=>{
-//	console.log("++++++++>>>>>>>>>>>>>>>>>>>>>>", ins.vars);
-
-	instance[i].vars =
-	dbsequelize.getDialect() === 'mssql' && typeof instance[i].vars === 'object'
-		? JSON.stringify(instance[i].vars)
-		: instance[i].vars;
-	//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance[i].vars);
-
-
-})
+				if (!instance.idapp || instance.idapp == null) {
+					console.log('beforeCreate IDAPP es nulo o no está definido');
+					instance.idapp = uuidv4();
 				}
 
+				instance.vars =
+					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
+						? JSON.stringify(instance.vars)
+						: instance.vars;
+			//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
 				
+			},
+			beforeBulkCreate: (instance) => {
+
+				if (instance && Array.isArray(instance)) {
+					instance.forEach((ins, i) => {
+						//	console.log("++++++++>>>>>>>>>>>>>>>>>>>>>>", ins.vars);
+
+						instance[i].vars =
+							dbsequelize.getDialect() === 'mssql' && typeof instance[i].vars === 'object'
+								? JSON.stringify(instance[i].vars)
+								: instance[i].vars;
+						//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance[i].vars);
+
+
+					})
+				}
+
+
 			}
 		}
 	}
@@ -521,7 +545,7 @@ export const Endpoint = dbsequelize.define(
 			primaryKey: true,
 			allowNull: false,
 			unique: true,
-//			defaultValue: uuidv4()
+			//			defaultValue: uuidv4()
 		},
 		rowkey: {
 			type: DataTypes.SMALLINT,
@@ -530,7 +554,7 @@ export const Endpoint = dbsequelize.define(
 		enabled: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 		for_user: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 		for_api: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: true },
-		idapp: {	
+		idapp: {
 			type: DataTypes.UUID,
 			allowNull: false
 		},
@@ -543,7 +567,7 @@ export const Endpoint = dbsequelize.define(
 			allowNull: false
 		},
 		version: {
-			type: DataTypes.DECIMAL(5,2),
+			type: DataTypes.DECIMAL(5, 2),
 			allowNull: false,
 			defaultValue: 0.1
 		},
@@ -635,14 +659,14 @@ export const Endpoint = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
-			beforeCreate: (instance)=>{
+			beforeCreate: (instance) => {
 				if (!instance.idendpoint) {
 					console.log('##################----> beforeCreate: ');
 					// @ts-ignore
 					instance.idendpoint = uuidv4();
 				}
 			}
-			
+
 		}
 	}
 );
