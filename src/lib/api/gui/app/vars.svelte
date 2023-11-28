@@ -12,7 +12,7 @@
 	let fnEditorCodes = {};
 
 	listAppVars.subscribe((value) => {
-		console.log('listAppVars ->>>>', value, JSON.stringify(value, null, 4));
+		console.log('listAppVars ->>>>', value);
 		// @ts-ignore
 		Datavars = value || {};
 		/*
@@ -29,7 +29,7 @@
 		//return fnEditorCode.getCode();
 		let codes = {};
 		Object.keys(fnEditorCodes).forEach((key) => {
-			codes[key] = fnEditorCodes[key].getCode();
+			codes[key] = JSON.parse(fnEditorCodes[key].getCode());
 			//return c;
 		});
 		return codes;
