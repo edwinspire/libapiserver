@@ -38,24 +38,28 @@
 	onMount(() => {});
 </script>
 
-<div>
-	{#if Datavars && Datavars[environment]}
-		{#each Object.keys(Datavars[environment]) as varKey}
-			{#if editable}
-				<details>
-					<summary><strong>{varKey}</strong></summary>
-					<EditorCode
-						bind:this={fnEditorCodes[varKey]}
-						lang={'json'}
-						code={JSON.stringify(Datavars[environment][varKey])}
-					/>
-				</details>
-			{:else}
-				<details>
-					<summary><strong>{varKey}</strong></summary>
-					<CodeHTML bind:jsonObject={Datavars[environment][varKey]} />
-				</details>
-			{/if}
-		{/each}
-	{/if}
-</div>
+<details>
+	<summary><strong>App Vars</strong></summary>
+
+	<div>
+		{#if Datavars && Datavars[environment]}
+			{#each Object.keys(Datavars[environment]) as varKey}
+				{#if editable}
+					<details>
+						<summary><strong>{varKey}</strong></summary>
+						<EditorCode
+							bind:this={fnEditorCodes[varKey]}
+							lang={'json'}
+							code={JSON.stringify(Datavars[environment][varKey])}
+						/>
+					</details>
+				{:else}
+					<details>
+						<summary><strong>{varKey}</strong></summary>
+						<CodeHTML bind:jsonObject={Datavars[environment][varKey]} />
+					</details>
+				{/if}
+			{/each}
+		{/if}
+	</div>
+</details>
