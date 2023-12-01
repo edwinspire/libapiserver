@@ -20,11 +20,14 @@
 	import { path_params_to_url } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
 
+	import SelectEnvironment from '../widgets/Select.svelte';
+
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
 
 	let uploaded_file;
 	let endpoints = [];
+	let environment_list = [];
 	let showEndpointEdit = false;
 	let SelectedRow = {};
 	$: idapp, getApp();
@@ -127,15 +130,40 @@
 
 	function checkEndpointConstraint(endpoint_value) {
 		let check = endpoints.some((row) => {
+			console.log(endpoint_value, row);
 			return (
 				endpoint_value.namespace == row.namespace &&
 				endpoint_value.name == row.name &&
 				endpoint_value.version == row.version &&
 				endpoint_value.environment == row.environment &&
-				endpoint_value.method == row.endpoint_value
+				endpoint_value.method == row.method &&
+				endpoint_value.idendpoint != row.idendpoint
 			);
 		});
 		return !check;
+	}
+
+	async function getEnvList() {
+		// Lógica de autenticación aquí
+
+		try {
+			//      console.log("getListApps > ", $userStore, uf);
+
+			let env_list_resp = await uf.get('/api/system/system/environment/0.01/prd');
+			let env_list = await env_list_resp.json();
+			//console.log(apps);
+
+			if (env_list && Array.isArray(env_list) && env_list.length > 0) {
+				environment_list = env_list.map((item) => {
+					return { id: item.id, value: item.text };
+				});
+			} else {
+				environment_list = [];
+			}
+		} catch (error) {
+			// @ts-ignore
+			alert(error.message);
+		}
 	}
 
 	async function getListApps() {
@@ -254,6 +282,8 @@
 		// uf.addHeader();
 		// console.log($userStore);
 		await getListApps();
+		await getEnvList();
+
 		// @ts-ignore
 	});
 </script>
@@ -470,11 +500,17 @@
 
 		<Table
 			ShowNewButton="true"
+			ShowEditButton="true"
 			bind:RawDataTable={endpoints}
 			bind:columns
 			on:newrow={() => {
 				SelectedRow = { enabled: false, environment: 'dev', method: 'NA', handler: 'NA' };
 				showEndpointEdit = true;
+			}}
+			on:editrow={(e) => {
+				SelectedRow = e.detail.data;
+				showEndpointEdit = true;
+				console.log(SelectedRow);
 			}}
 		>
 			<span slot="l01"> Endpoints </span>
@@ -492,19 +528,16 @@
 		console.log('SelectedRow >>> ', SelectedRow);
 		SelectedRow.idapp = app.idapp;
 
-		if (SelectedRow.idendpoint) {
-			// Es edición de registro, se mantiene en bind con la fila seleccionada
-			showEndpointEdit = false;
-		} else {
-			SelectedRow.endpoint = path_params_to_url({
-				app: app.app,
-				version: SelectedRow.version,
-				namespace: SelectedRow.namespace,
-				name: SelectedRow.name,
-				environment: 'dev'
-			});
+		SelectedRow.endpoint = path_params_to_url({
+			app: app.app,
+			version: SelectedRow.version,
+			namespace: SelectedRow.namespace,
+			name: SelectedRow.name,
+			environment: SelectedRow.environment
+		});
 
-			// Es creación de registro
+
+// Es creación de registro
 			// Verifica que no haya otro registro igual
 			if (!checkEndpointConstraint(SelectedRow)) {
 				alert('Ya existe un Endpoint con estos parámetros.');
@@ -526,6 +559,12 @@
 					code: ''
 				});
 			}
+
+		if (SelectedRow.idendpoint) {
+			// Es edición de registro, se mantiene en bind con la fila seleccionada
+			showEndpointEdit = false;
+		} else {
+			
 		}
 		showEndpointEdit = false;
 	}}
@@ -589,6 +628,14 @@
 			<label class="label">Environment</label>
 			<div class="control">
 				<input class="input" type="text" readonly bind:value={SelectedRow.environment} />
+
+				<SelectEnvironment
+					bind:options={environment_list}
+					bind:option={SelectedRow.environment}
+					on:select={(e) => {
+						console.log(e);
+					}}
+				/>
 			</div>
 		</div>
 

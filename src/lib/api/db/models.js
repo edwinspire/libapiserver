@@ -227,7 +227,7 @@ export const Role = dbsequelize.define(
 				// @ts-ignore
 				await hookUpsert(prefixTableName('role'));
 			},
-			beforeValidate: (instance) => {
+			beforeValidate: () => {
 				//	console.log('>>> beforeValidate >>>> ', instance);
 				/*
 				instance.attrs =
@@ -356,7 +356,7 @@ export const Application = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
-			beforeUpsert: async (instance) => {
+			beforeUpsert: async () => {
 				// @ts-ignore
 //				instance.rowkey = Math.floor(Math.random() * 1000);
 /*
@@ -387,14 +387,14 @@ export const Application = dbsequelize.define(
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
 						: instance.vars;
-				console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
+			//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
 				
 			},
 			beforeCreate: (instance) => {
 				//console.log('>>> beforeValidate >>>> ', instance);
 
 				if (!instance.idapp || instance.idapp == null) {
-					console.log('beforeCreate IDAPP es nulo o no está definido');
+				//	console.log('beforeCreate IDAPP es nulo o no está definido');
 					instance.idapp = uuidv4();
 				}
 

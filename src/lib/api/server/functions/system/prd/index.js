@@ -126,7 +126,7 @@ export async function fnGetEnvironment(req, res) {
 	try {
 
 		let env = [
-			{ id: 'dev', text: `Develop` },
+			{ id: 'dev', text: `Development` },
 			{ id: 'qa', text: `Quality` },
 			{ id: 'prd', text: `Production` }
 		];
