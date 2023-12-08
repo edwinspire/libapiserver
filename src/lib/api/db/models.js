@@ -358,13 +358,13 @@ export const Application = dbsequelize.define(
 			},
 			beforeUpsert: async () => {
 				// @ts-ignore
-//				instance.rowkey = Math.floor(Math.random() * 1000);
-/*
-				if (!instance.idapp || instance.idapp == null) {
-					//console.log('beforeUpsert IDAPP es nulo o no está definido');
-					instance.idapp = uuidv4();
-				}
-				*/
+				//				instance.rowkey = Math.floor(Math.random() * 1000);
+				/*
+								if (!instance.idapp || instance.idapp == null) {
+									//console.log('beforeUpsert IDAPP es nulo o no está definido');
+									instance.idapp = uuidv4();
+								}
+								*/
 
 				//console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
 				await hookUpsert(prefixTableName('application'));
@@ -387,14 +387,13 @@ export const Application = dbsequelize.define(
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
 						: instance.vars;
-			//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
-				
+				//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
 			},
 			beforeCreate: (instance) => {
 				//console.log('>>> beforeValidate >>>> ', instance);
 
 				if (!instance.idapp || instance.idapp == null) {
-				//	console.log('beforeCreate IDAPP es nulo o no está definido');
+					//	console.log('beforeCreate IDAPP es nulo o no está definido');
 					instance.idapp = uuidv4();
 				}
 
@@ -402,11 +401,9 @@ export const Application = dbsequelize.define(
 					dbsequelize.getDialect() === 'mssql' && typeof instance.vars === 'object'
 						? JSON.stringify(instance.vars)
 						: instance.vars;
-			//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
-				
+				//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance);
 			},
 			beforeBulkCreate: (instance) => {
-
 				if (instance && Array.isArray(instance)) {
 					instance.forEach((ins, i) => {
 						//	console.log("++++++++>>>>>>>>>>>>>>>>>>>>>>", ins.vars);
@@ -416,12 +413,8 @@ export const Application = dbsequelize.define(
 								? JSON.stringify(instance[i].vars)
 								: instance[i].vars;
 						//	console.log(">>>>>>>>>>>>>>>>>>>>>>", instance[i].vars);
-
-
-					})
+					});
 				}
-
-
 			}
 		}
 	}
@@ -544,7 +537,7 @@ export const Endpoint = dbsequelize.define(
 			type: DataTypes.UUID,
 			primaryKey: true,
 			allowNull: false,
-			unique: true,
+			unique: true
 			//			defaultValue: uuidv4()
 		},
 		rowkey: {
@@ -558,18 +551,9 @@ export const Endpoint = dbsequelize.define(
 			type: DataTypes.UUID,
 			allowNull: false
 		},
-		namespace: {
-			type: DataTypes.STRING(50),
+		resource: {
+			type: DataTypes.STRING(300),
 			allowNull: false
-		},
-		name: {
-			type: DataTypes.STRING(50),
-			allowNull: false
-		},
-		version: {
-			type: DataTypes.DECIMAL(5, 2),
-			allowNull: false,
-			defaultValue: 0.1
 		},
 		environment: {
 			type: DataTypes.STRING(4),
@@ -602,6 +586,16 @@ export const Endpoint = dbsequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: ''
+		},
+		headers_test: {
+			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
+			allowNull: true,
+			defaultValue: '{}'
+		},
+		data_test: {
+			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
+			allowNull: true,
+			defaultValue: '{}'
 		}
 	},
 	{
@@ -639,13 +633,22 @@ export const Endpoint = dbsequelize.define(
 				await hookUpsert(prefixTableName('endpoint'));
 			},
 			beforeValidate: (instance) => {
-
 				instance.rowkey = Math.floor(Math.random() * 1000);
 				if (!instance.idendpoint) {
 					//console.log('##################----> beforeValidate: ');
 					// @ts-ignore
 					instance.idendpoint = uuidv4();
 				}
+
+				instance.data_test =
+					dbsequelize.getDialect() === 'mssql' && typeof instance.data_test === 'object'
+						? JSON.stringify(instance.data_test)
+						: instance.data_test;
+
+				instance.headers_test =
+					dbsequelize.getDialect() === 'mssql' && typeof instance.headers_test === 'object'
+						? JSON.stringify(instance.headers_test)
+						: instance.headers_test;
 			},
 			beforeBulkCreate: (instance) => {
 				/*
@@ -666,7 +669,6 @@ export const Endpoint = dbsequelize.define(
 					instance.idendpoint = uuidv4();
 				}
 			}
-
 		}
 	}
 );
