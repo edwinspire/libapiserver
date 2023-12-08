@@ -26,7 +26,7 @@
 
     try {
       // @ts-ignore
-      let user = await uf.post("/api/system/system/login/0.01/prd", { username, password });
+      let user = await uf.post("/api/system/prd/system/login/0.01", { username, password });
       let data = await user.json();
       console.log(data);
 

@@ -1,11 +1,12 @@
 import express from 'express';
-import { getUserByCredentials } from '../../db/user.js';
-import { customError, EncryptPwd, validateToken } from '../utils.js';
+//import { getUserByCredentials } from '../../db/user.js';
+//import { customError, EncryptPwd, validateToken } from '../utils.js';
 
-import { defaultSystemPath } from '../utils_path.js';
+//import { defaultSystemPath } from '../utils_path.js';
 
 const router = express.Router();
 
+/*
 router.post(defaultSystemPath('user/password'), validateToken, async (req, res) => {
 	try {
 		if (req.body.new_password1 == req.body.new_password2) {
@@ -35,5 +36,6 @@ router.post(defaultSystemPath('user/password'), validateToken, async (req, res) 
 		res.status(500).json(customError(0, error.message));
 	}
 });
+*/
 
 export default router;

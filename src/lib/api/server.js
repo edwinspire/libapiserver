@@ -17,15 +17,16 @@ import {
 	validateToken,
 	getUserPasswordTokenFromRequest,
 	websocketUnauthorized,
-	getIPFromRequest, getFunctionsFiles
+	getIPFromRequest,
+	getFunctionsFiles
 } from '../api/server/utils.js';
 
 import {
 	struct_path,
 	path_params,
 	mqtt_path_params,
-	path_params_to_url,
-	defaultSystemPath
+	path_params_to_url
+//	defaultSystemPath
 } from '../api/server/utils_path.js';
 
 import aedesMod from 'aedes';
@@ -245,7 +246,6 @@ export class ServerAPI extends EventEmitter {
 		 * @param {fs.PathLike} fn_path
 		 */
 		function CreateFnPath(fn_path) {
-
 			try {
 				if (!fs.existsSync(fn_path)) {
 					// Si no existe, créala recursivamente
@@ -266,9 +266,6 @@ export class ServerAPI extends EventEmitter {
 			return fn_path;
 		}
 
-
-
-
 		// Crea las rutas para las funciones personalizadas
 		CreateFnPath(`${dir_fn}/system/dev`);
 		CreateFnPath(`${dir_fn}/system/qa`);
@@ -277,7 +274,6 @@ export class ServerAPI extends EventEmitter {
 		CreateFnPath(`${dir_fn}/public/dev`);
 		CreateFnPath(`${dir_fn}/public/qa`);
 		CreateFnPath(`${dir_fn}/public/prd`);
-
 
 		getFunctionsFiles(dir_fn).forEach((data_js) => {
 			this._appendFunctionsFiles(data_js.file, data_js.data.appName, data_js.data.environment);
@@ -516,6 +512,7 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.use(systemRoutes);
 
+		/*
 		this.app.get(defaultSystemPath('functions'), validateToken, (req, res) => {
 			try {
 				//	console.log('Functions >>>>>>>');
@@ -526,6 +523,7 @@ export class ServerAPI extends EventEmitter {
 				res.status(500).json({ error: error.message });
 			}
 		});
+		*/
 
 		if (customRouter) {
 			this.app.use(customRouter);
@@ -555,96 +553,108 @@ export class ServerAPI extends EventEmitter {
 		});
 
 		// Master input
-		this.app.all(struct_path, async (req, res, next) => {
-			let { app, environment, resource } = req.params;
-			let method = req.method;
+		this.app.all(
+			struct_path,
+			async (req, res, next) => {
+				// @ts-ignore
+				let { app, environment } = req.params;
+				// @ts-ignore
+				let resource = req.params[0];
+				let method = req.method;
 
-			if (
-				(environment == 'qa' && EXPOSE_QA_API === 'true') ||
-				(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
-				(environment == 'prd' && EXPOSE_PROD_API === 'true')
-			) {
-				let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
+				console.log('<>>>>>>>> params: ', req.params, resource);
 
-				let url_app_endpoint =
-					path_params_to_url({
-						app: app,
-						namespace: namespace,
-						name: name,
-						version: ver,
-						environment: environment
-					}) + `/${method}`;
 
-				if (!this._cacheApi.has(url_app_endpoint)) {
-					await this._loadEndpointsByAPPToCache(app);
-				}
+				if (
+					(environment == 'qa' && EXPOSE_QA_API === 'true') ||
+					(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
+					(environment == 'prd' && EXPOSE_PROD_API === 'true')
+				) {
+					//let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
 
-				if (!this._cacheApi.has(url_app_endpoint)) {
-					res.status(404).json({ message: 'API not found' });
-				} else {
-					// Validar permisos
-					let ep = this._cacheApi.get(url_app_endpoint);
-					console.log(ep);
+					let url_app_endpoint =
+						path_params_to_url({
+							app: app,
+							environment: environment,
+							resource: resource
+						}) + `/${method}`;
 
-					if (!ep.params.enabled) {
-						res.status(404).json({ message: 'API unabled' });
+					if (!this._cacheApi.has(url_app_endpoint)) {
+						await this._loadEndpointsByAPPToCache(app);
+					}
+
+					if (!this._cacheApi.has(url_app_endpoint)) {
+						res.status(404).json({ message: 'API not found' });
 					} else {
-						if (ep.params.is_public) {
-							next();
+						// Validar permisos
+						let ep = this._cacheApi.get(url_app_endpoint);
+						console.log(ep);
+
+						if (!ep.params.enabled) {
+							res.status(404).json({ message: 'API unabled' });
 						} else {
-							//  API Privada, validar accesos
-							let dataUserRequest = getUserPasswordTokenFromRequest(req);
-
-							console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', url_app_endpoint, dataUserRequest, ep.params);
-
-							if (dataUserRequest && dataUserRequest.data_token) {
-								if (
-									(dataUserRequest.data_token.for == 'user' && ep.params.for_user) ||
-									(dataUserRequest.data_token.for == 'api' && ep.params.for_api)
-								) {
-									// TODO: Validar el entorno al que el usuario de la API tiene acceso
-
-									next();
-								} else {
-									res.status(403).json({ message: 'Unauthorized' });
-								}
+							if (ep.params.is_public) {
+								next();
 							} else {
-								res.status(401).json({ message: 'Unauthorized' });
+								//  API Privada, validar accesos
+								let dataUserRequest = getUserPasswordTokenFromRequest(req);
+
+								if (dataUserRequest && dataUserRequest.data_token) {
+									if (
+										(dataUserRequest.data_token.for == 'user' && ep.params.for_user) ||
+										(dataUserRequest.data_token.for == 'api' && ep.params.for_api)
+									) {
+										// TODO: Validar el entorno al que el usuario de la API tiene acceso
+
+										next();
+									} else {
+										res.status(403).json({ message: 'Unauthorized' });
+									}
+								} else {
+									res.status(401).json({ message: 'Unauthorized' });
+								}
 							}
 						}
 					}
+				} else {
+					// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
+					res
+						.status(401)
+						.json({
+							message:
+								'Environment not found' + req.path + ' - Environment: ' + environment + ' - Exposed: ' + EXPOSE_PROD_API
+						});
 				}
-			} else {
-				// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
-				res.status(401).json({ message: 'Environment not found' + req.path + ' - ' + environment + ' - ' + EXPOSE_PROD_API });
+			},
+			async (req, res) => {
+				// @ts-ignore
+				let { app,  environment } = req.params;
+				// @ts-ignore
+				let resource = req.params[0];
+
+				try {
+					
+
+					let url_app_endpoint =
+						path_params_to_url({
+							app: app,
+							environment: environment,
+							resource: resource
+						}) + `/${req.method}`;
+
+					let handlerEndpoint = this._cacheApi.get(url_app_endpoint);
+
+					//	console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
+
+					runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+				} catch (error) {
+					res.status(505).json({
+						// @ts-ignore
+						error: error.message
+					});
+				}
 			}
-		}, async (req, res) => {
-			let { app, namespace, name, version, environment } = req.params;
-
-			try {
-				let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
-
-				let url_app_endpoint =
-					path_params_to_url({
-						app: app,
-						namespace: namespace,
-						name: name,
-						version: ver,
-						environment: environment
-					}) + `/${req.method}`;
-
-				let handlerEndpoint = this._cacheApi.get(url_app_endpoint);
-
-				//	console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
-
-				runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
-			} catch (error) {
-				res.status(505).json({
-					// @ts-ignore
-					error: error.message
-				});
-			}
-		});
+		);
 
 		if (handlerExternal) {
 			this.app.use(handlerExternal);
@@ -682,7 +692,8 @@ export class ServerAPI extends EventEmitter {
 
 					if (taskModule && taskModule.default) {
 						this._appendAppFunction(
-							_app_name, environment,
+							_app_name,
+							environment,
 							file_app.replace('.js', ''),
 							taskModule.default
 						);
@@ -763,12 +774,11 @@ export class ServerAPI extends EventEmitter {
 	 */
 	appendAppFunction(appname, environment, functionName, Function) {
 		if (appname != 'system' && functionName.startsWith('fn')) {
-			this._appendAppFunction(appname,environment, functionName, Function);
+			this._appendAppFunction(appname, environment, functionName, Function);
 		} else {
 			throw `The app must not be "system" and the function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
 	}
-
 
 	/**
 	 * @param {string} environment
@@ -807,7 +817,6 @@ export class ServerAPI extends EventEmitter {
 					break;
 
 				case 'prd':
-
 					if (this._fnPRD.has(appname)) {
 						let fnList = this._fnPRD.get(appname);
 						fnList[functionName] = fn;
@@ -821,15 +830,9 @@ export class ServerAPI extends EventEmitter {
 
 					break;
 			}
-
 		} else {
 			throw `The function must start with "fn". appName: ${appname} - functionName: ${functionName}.`;
 		}
-
-
-
-
-
 	}
 
 	/**
@@ -976,10 +979,8 @@ export class ServerAPI extends EventEmitter {
 					let url_app_endpoint =
 						path_params_to_url({
 							app: appData.app,
-							namespace: appData.apiserver_endpoints[i].namespace,
-							name: appData.apiserver_endpoints[i].name,
-							version: appData.apiserver_endpoints[i].version,
-							environment: appData.apiserver_endpoints[i].environment
+							environment: appData.apiserver_endpoints[i].environment,
+							resource: appData.apiserver_endpoints[i].resource
 						}) + `/${appData.apiserver_endpoints[i].method}`;
 
 					// console.log(apiPath, url_app_endpoint);
@@ -995,8 +996,6 @@ export class ServerAPI extends EventEmitter {
 		}
 	}
 
-
-
 	/**
 	 * @param {string} app
 	 */
@@ -1008,7 +1007,6 @@ export class ServerAPI extends EventEmitter {
 	 * @param {boolean} buildDB
 	 */
 	buildDB(buildDB) {
-
 		if (buildDB) {
 			console.log('Crea la base de datos');
 
@@ -1022,22 +1020,18 @@ export class ServerAPI extends EventEmitter {
 					await demoEndpoints();
 				} catch (error) {
 					console.log(error);
-
 				}
 			})();
-
 		}
 		return true;
 	}
 
 	_addFunctions() {
-
 		if (fnSystem) {
-
 			if (fnSystem.fn_system_prd) {
 				const entries = Object.entries(fnSystem.fn_system_prd);
 				for (let [fName, fn] of entries) {
-					console.log(":::::.> fnSystem >> ", fName, fn);
+					console.log(':::::.> fnSystem >> ', fName, fn);
 					this._appendAppFunction('system', 'prd', fName, fn);
 				}
 			}
@@ -1045,7 +1039,7 @@ export class ServerAPI extends EventEmitter {
 			if (fnSystem.fn_system_qa) {
 				const entries = Object.entries(fnSystem.fn_system_qa);
 				for (let [fName, fn] of entries) {
-					console.log(":::::.> fnSystem >> ", fName, fn);
+					console.log(':::::.> fnSystem >> ', fName, fn);
 					this._appendAppFunction('system', 'qa', fName, fn);
 				}
 			}
@@ -1053,14 +1047,13 @@ export class ServerAPI extends EventEmitter {
 			if (fnSystem.fn_system_dev) {
 				const entries = Object.entries(fnSystem.fn_system_dev);
 				for (let [fName, fn] of entries) {
-					console.log(":::::.> fnSystem >> ", fName, fn);
+					console.log(':::::.> fnSystem >> ', fName, fn);
 					this._appendAppFunction('system', 'dev', fName, fn);
 				}
 			}
 		}
 
 		if (fnPublic) {
-
 			if (fnPublic.fn_public_dev) {
 				const entriesP = Object.entries(fnPublic.fn_public_dev);
 				for (let [fName, fn] of entriesP) {
@@ -1082,9 +1075,7 @@ export class ServerAPI extends EventEmitter {
 					this._appendAppFunction('public', 'dev', fName, fn);
 				}
 			}
-
 		}
-
 
 		//this._appendAppFunction('system', 'fnGetFunctions', this._functions);
 
@@ -1094,7 +1085,6 @@ export class ServerAPI extends EventEmitter {
 		});
 		*/
 	}
-
 
 	/**
 	 * @param {string} appName
@@ -1118,7 +1108,6 @@ export class ServerAPI extends EventEmitter {
 				d = this._fnPRD.get(appName);
 				p = this._fnPRD.get('public');
 				break;
-
 		}
 
 		return { ...d, ...p };
@@ -1163,9 +1152,8 @@ export class ServerAPI extends EventEmitter {
 				// @ts-ignore
 				res.status(200).json(this._getNameFunctions(req.query.appName, req.query.environment));
 			} else {
-				res.status(400).json({ 'error': 'appName and environment are required' });
+				res.status(400).json({ error: 'appName and environment are required' });
 			}
-
 		} catch (error) {
 			console.trace(error);
 			// @ts-ignore

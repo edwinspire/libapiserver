@@ -1,11 +1,11 @@
 import express from 'express';
-import { upsertAPIUser } from '../../db/api_user.js';
-import { validateToken, EncryptPwd } from '../utils.js';
-import { defaultSystemPath } from '../utils_path.js';
+//import { upsertAPIUser } from '../../db/api_user.js';
+//import { validateToken, EncryptPwd } from '../utils.js';
+//import { defaultSystemPath } from '../utils_path.js';
 
 const router = express.Router();
 
-
+/*
 router.post(defaultSystemPath('api_user'), validateToken, async (req, res) => {
 	try {
 		//console.log(req.headers);
@@ -29,5 +29,6 @@ router.post(defaultSystemPath('api_user'), validateToken, async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 });
+*/
 
 export default router;

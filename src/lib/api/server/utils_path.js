@@ -1,7 +1,7 @@
 import { match } from "path-to-regexp";
 
 //export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
-export const struct_path = '/api/:app/:environment/:resource*';
+export const struct_path = '/api/:app/:environment*';
 
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 

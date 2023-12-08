@@ -592,12 +592,12 @@ export const Endpoint = dbsequelize.define(
 		headers_test: {
 			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
 			allowNull: true,
-			defaultValue: '{}'
+			defaultValue: {}
 		},
 		data_test: {
 			type: dbsequelize.getDialect() === 'mssql' ? DataTypes.TEXT : DataTypes.JSON,
 			allowNull: true,
-			defaultValue: '{}'
+			defaultValue: {}
 		}
 	},
 	{

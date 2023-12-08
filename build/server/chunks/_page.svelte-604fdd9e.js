@@ -17,7 +17,7 @@ const Login = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   return `<div class="container svelte-osrx57"><h1 class="title is-4" data-svelte-h="svelte-1yeihy2">Iniciar sesión</h1> <form class="form svelte-osrx57"><div class="field"><label class="label" data-svelte-h="svelte-1tq2mwz">Nombre de usuario</label> <div class="control"><input class="input" type="text" placeholder="Nombre de usuario" required${add_attribute("value", username, 0)}></div></div> <div class="field"><label class="label" data-svelte-h="svelte-66z98u">Contraseña</label> <div class="control"><input class="input" type="password" placeholder="Contraseña" required${add_attribute("value", password, 0)}></div></div> <div class="field" data-svelte-h="svelte-u84jsi"><div class="control"><button class="button is-primary" type="submit">Iniciar sesión</button></div></div></form> </div>`;
 });
 
-const struct_path = "/api/:app/:namespace/:name/:version/:environment";
+const struct_path = "/api/:app/:environment*";
 match(struct_path, { decode: decodeURIComponent });
 const mqtt_struct_path = "/api/:app/:namespace/:name/:version/:environment/:username/:topic*";
 match(mqtt_struct_path, { decode: decodeURIComponent });
@@ -29,4 +29,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-9262fe74.js.map
+//# sourceMappingURL=_page.svelte-604fdd9e.js.map
