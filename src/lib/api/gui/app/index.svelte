@@ -13,11 +13,11 @@
 	} from '@edwinspire/svelte-components';
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { userStore, getListFunction, listAppVars } from '../utils.js';
+	import { userStore, getListFunction, listAppVars, url_paths } from '../utils.js';
 	import CellMethod from './cellMethod.svelte';
 	import cellHandler from './cellHandler.svelte';
 	import cellCode from './cellCode.svelte';
-	import { path_params_to_url } from '../../../api/server/utils_path.js';
+	import { path_params_to_url, validateURL } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
 
 	import SelectEnvironment from '../widgets/Select.svelte';
@@ -30,7 +30,11 @@
 	let environment_list = [];
 	let showEndpointEdit = false;
 	let SelectedRow = {};
+	let validateResource = false;
+	let availableURL = false;
+
 	$: idapp, getApp();
+	$: SelectedRow.resource, checkResource();
 
 	let fnVarsDev;
 	let fnVarsQa;
@@ -51,6 +55,7 @@
 		},
 		method: { decorator: { component: CellMethod }, label: 'Method' },
 		handler: { decorator: { component: cellHandler }, label: 'Handler' },
+		resource: { hidden: true },
 		is_public: {
 			label: 'Public',
 			decorator: {
@@ -97,6 +102,7 @@
 	 */
 	let options = [];
 
+	/*
 	let namespaceSelected = '';
 	let nameSelected = '';
 	let showDialogOneField = false;
@@ -108,18 +114,11 @@
 		inputType: 'text',
 		value: '',
 		label: '',
-		function: (/** @type {any} */ value) => {
+		function: ( value) => {
 			console.log('<Funcion>', value);
 		}
 	};
-
-	let paramDialogMethod = {
-		title: '',
-		values: { enabled: true, public: false, handler: '' },
-		function: (/** @type {any} */ value) => {
-			console.log('<Funcion >>>>>>', value);
-		}
-	};
+*/
 
 	/**
 	 * @type {any}
@@ -128,13 +127,18 @@
 
 	let uf = new uFetch();
 
+	function checkResource() {
+		validateResource = validateURL(SelectedRow.resource);
+		console.log('validateURL: ', SelectedRow.resource, validateResource);
+
+		availableURL = checkEndpointConstraint(SelectedRow);
+	}
+
 	function checkEndpointConstraint(endpoint_value) {
 		let check = endpoints.some((row) => {
 			console.log(endpoint_value, row);
 			return (
-				endpoint_value.namespace == row.namespace &&
-				endpoint_value.name == row.name &&
-				endpoint_value.version == row.version &&
+				endpoint_value.resource == row.resource &&
 				endpoint_value.environment == row.environment &&
 				endpoint_value.method == row.method &&
 				endpoint_value.idendpoint != row.idendpoint
@@ -149,7 +153,7 @@
 		try {
 			//      console.log("getListApps > ", $userStore, uf);
 
-			let env_list_resp = await uf.get('/api/system/system/environment/0.01/prd');
+			let env_list_resp = await uf.get(url_paths.listEnv);
 			let env_list = await env_list_resp.json();
 			//console.log(apps);
 
@@ -172,7 +176,7 @@
 		try {
 			//      console.log("getListApps > ", $userStore, uf);
 
-			let apps_res = await uf.get('/api/system/api/apps/0.01/prd');
+			let apps_res = await uf.get(url_paths.listApps);
 			let apps = await apps_res.json();
 			//console.log(apps);
 
@@ -212,13 +216,7 @@
 			if (app.apiserver_endpoints) {
 				endpoints = app.apiserver_endpoints.map((ax) => {
 					return {
-						endpoint: path_params_to_url({
-							app: app.app,
-							version: ax.version,
-							namespace: ax.namespace,
-							name: ax.name,
-							environment: ax.environment
-						}),
+						endpoint: `/api/${app.app}/${ax.environment}${ax.resource}`,
 						...ax
 					};
 				});
@@ -230,7 +228,7 @@
 	async function getApp() {
 		if (idapp) {
 			try {
-				let apps_res = await uf.get('/api/system/api/app/0.01/prd', {
+				let apps_res = await uf.get(url_paths.getApp, {
 					idapp: idapp,
 					raw: false
 				});
@@ -261,7 +259,7 @@
 
 	async function saveApp() {
 		try {
-			let apps_res = await uf.post('/api/system/api/app/0.01/prd', appToStore());
+			let apps_res = await uf.post(url_paths.saveApp, appToStore());
 			let rapp = await apps_res.json();
 
 			if (idapp == rapp.idapp) {
@@ -504,11 +502,17 @@
 			bind:RawDataTable={endpoints}
 			bind:columns
 			on:newrow={() => {
-				SelectedRow = { enabled: false, environment: 'dev', method: 'NA', handler: 'NA' };
+				SelectedRow = {
+					enabled: false,
+					environment: 'dev',
+					method: 'NA',
+					handler: 'NA',
+					resource: ''
+				};
 				showEndpointEdit = true;
 			}}
 			on:editrow={(e) => {
-				SelectedRow = e.detail.data;
+				SelectedRow = { ...e.detail.data };
 				showEndpointEdit = true;
 				console.log(SelectedRow);
 			}}
@@ -528,31 +532,29 @@
 		console.log('SelectedRow >>> ', SelectedRow);
 		SelectedRow.idapp = app.idapp;
 
-		SelectedRow.endpoint = path_params_to_url({
-			app: app.app,
-			version: SelectedRow.version,
-			namespace: SelectedRow.namespace,
-			name: SelectedRow.name,
-			environment: SelectedRow.environment
-		});
+		if (validateResource && availableURL) {
+			SelectedRow.endpoint = `/api/${app.app}/${SelectedRow.environment}${SelectedRow.resource}`;
 
-
-// Es creación de registro
-			// Verifica que no haya otro registro igual
-			if (!checkEndpointConstraint(SelectedRow)) {
-				alert('Ya existe un Endpoint con estos parámetros.');
+			if (SelectedRow.idendpoint) {
+				// Es edición de endpoint
+				let found = endpoints.findIndex((element) => element.idendpoint == SelectedRow.idendpoint);
+				console.log('Se ha encontrado: ', found);
+				if (found >= 0) {
+					endpoints[found] = { ...SelectedRow };
+				}
+				//found = { ...SelectedRow };
 			} else {
+				// es nuevo endpoint
 				endpoints.unshift({
 					idapp: app.idapp,
 					endpoint: SelectedRow.endpoint,
-					name: SelectedRow.name,
-					namespace: SelectedRow.namespace,
+					resource: SelectedRow.resource,
 					enabled: SelectedRow.enabled,
-					version: SelectedRow.version,
+					//version: SelectedRow.version,
 					environment: SelectedRow.environment,
 					for_user: true,
 					for_api: false,
-					method: 'NA',
+					method: SelectedRow.method,
 					handler: 'NA',
 					is_public: false,
 					cors: undefined,
@@ -560,13 +562,19 @@
 				});
 			}
 
-		if (SelectedRow.idendpoint) {
-			// Es edición de registro, se mantiene en bind con la fila seleccionada
 			showEndpointEdit = false;
 		} else {
-			
+			alert('The data has errors, please review it.');
 		}
-		showEndpointEdit = false;
+
+		/*path_params_to_url({
+			app: app.app,
+			version: SelectedRow.version,
+			namespace: SelectedRow.namespace,
+			name: SelectedRow.name,
+			environment: SelectedRow.environment
+		});
+		*/
 	}}
 >
 	<span slot="title">Endpoint Edit</span>
@@ -575,7 +583,7 @@
 		<input class="input" type="hidden" placeholder="Name" bind:value={SelectedRow.idendpoint} />
 
 		<div class="field is-horizontal">
-			<div class="field-label is-normal">
+			<div class="field-label is-small">
 				<!-- svelte-ignore a11y-label-has-associated-control -->
 				<label class="label">Enabled</label>
 			</div>
@@ -590,60 +598,84 @@
 			</div>
 		</div>
 
-		<div class="field">
-			<label class="label">Namespace</label>
-			<div class="control">
-				<input
-					class="input"
-					type="text"
-					placeholder="Namespace"
-					bind:value={SelectedRow.namespace}
-				/>
+		<div class="field is-horizontal">
+			<div class="field-label is-small">
+				<!-- svelte-ignore a11y-label-has-associated-control -->
+				<label class="label">Method</label>
+			</div>
+			<div class="field-body">
+				<div class="field">
+					<div class="control">
+						<CellMethod bind:value={SelectedRow.method} />
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<div class="field">
-			<label class="label">Name</label>
-			<div class="control">
-				<input class="input" type="text" placeholder="Name" bind:value={SelectedRow.name} />
-			</div>
-		</div>
+			<div class="field is-horizontal">
+				<div class="field-label is-small"><strong> API Resource: </strong></div>
+				<div class="field-body">
+					<div class="field is-expanded">
+						<div class="field has-addons">
+							<p class="control">
+								<a class="button is-small is-static">
+									/api/{app.app}/
+								</a>
+							</p>
+							<p class="control">
+								<SelectEnvironment
+									bind:options={environment_list}
+									bind:option={SelectedRow.environment}
+									on:select={(e) => {
+										console.log(e);
+									}}
+								/>
+							</p>
+							<p class="control is-expanded">
+								<input
+									class="input is-small"
+									type="text"
+									placeholder="Resourse"
+									bind:value={SelectedRow.resource}
+								/>
+							</p>
+						</div>
+						<p class="help">
+							{#if validateResource}
+								<div class="icon-text is-small">
+									<span class="icon has-text-success">
+										<i class="fas fa-check-square" />
+									</span>
+									<span>Url Success</span>
+								</div>
+							{:else}
+								<div class="icon-text is-small">
+									<span class="icon has-text-danger">
+										<i class="fas fa-ban" />
+									</span>
+									<span>Url Invalid</span>
+								</div>
+							{/if}
 
-		<div class="field">
-			<label class="label">Version</label>
-			<div class="control">
-				<input
-					class="input"
-					type="number"
-					step="0.01"
-					min="0.01"
-					placeholder="0.01"
-					bind:value={SelectedRow.version}
-				/>
-			</div>
-		</div>
-
-		<div class="field">
-			<!-- svelte-ignore a11y-label-has-associated-control -->
-			<label class="label">Environment</label>
-			<div class="control">
-				<input class="input" type="text" readonly bind:value={SelectedRow.environment} />
-
-				<SelectEnvironment
-					bind:options={environment_list}
-					bind:option={SelectedRow.environment}
-					on:select={(e) => {
-						console.log(e);
-					}}
-				/>
-			</div>
-		</div>
-
-		<div class="field">
-			<!-- svelte-ignore a11y-label-has-associated-control -->
-			<label class="label">Method</label>
-			<div class="control">
-				<CellMethod bind:value={SelectedRow.method} />
+							{#if validateResource && availableURL}
+								<div class="icon-text is-small">
+									<span class="icon has-text-success">
+										<i class="fas fa-check-square" />
+									</span>
+									<span>Available URL</span>
+								</div>
+							{:else if validateResource && !availableURL}
+								<div class="icon-text is-small">
+									<span class="icon has-text-danger">
+										<i class="fas fa-ban" />
+									</span>
+									<span>Url not available</span>
+								</div>
+							{/if}
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 

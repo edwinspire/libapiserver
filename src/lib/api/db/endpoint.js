@@ -75,7 +75,7 @@ export const demoEndpoints = async () => {
 			try {
 
 				o = await Endpoint.findOrCreate({
-					where: { idapp: element.idapp, resource: element.resource, method: element.method }, // Campos para la cláusula WHERE
+					where: { idapp: element.idapp, environment: element.environment, resource: element.resource, method: element.method }, // Campos para la cláusula WHERE
 					// @ts-ignore
 					defaults: { code: element.code, handler: element.handler, is_public: element.is_public, for_user: element.for_user, for_api: element.for_api }, // Campos para actualizar si se encuentra
 				});

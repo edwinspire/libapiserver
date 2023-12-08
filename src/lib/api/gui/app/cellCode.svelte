@@ -9,8 +9,8 @@
 	import SqlCode from './handler/sql.svelte';
 	import CustomFn from './handler/customFunction.svelte';
 	import { DialogModal } from '@edwinspire/svelte-components';
-	import { css_handlers, saveMethod } from '../utils.js';
-	import { userStore } from '../utils.js';
+	import { css_handlers } from '../utils.js';
+	//import { userStore } from '../utils.js';
 
 	/**
 	 * @type {FetchCode}
@@ -43,14 +43,13 @@
 	export let row = {};
 	export let props = {};
 	//let token;
-
+	//let environment = '';
 	/*
 	userStore.subscribe((value) => {
 		console.log('tokenStore ->>>>', value);
 	//	token = value.token;
 	});
 	*/
-
 
 	onMount(() => {});
 </script>
@@ -93,59 +92,6 @@
 						<i class="fa-solid fa-code" />
 					</span>
 					<span> Code </span>
-				</button>
-			{/if}
-		</p>
-
-		<p class="control">
-			{#if row.environment == 'dev'}
-				<button
-					class={css_handlers[row.handler] && css_handlers[row.handler].css
-						? ' button is-small ' + css_handlers[row.handler].css
-						: ' button is-small '}
-					on:click={() => {
-						if (confirm('Are you sure to upload the version to Quality?')) {
-							let sm = saveMethod($userStore.token, row);
-							console.log(sm);
-						}
-					}}
-				>
-					<span class="icon is-small">
-						<i class="fa-solid fa-up-right-from-square" />
-					</span>
-					<span> To Quality </span>
-				</button>
-			{:else if row.environment == 'qa'}
-				<button
-					class={css_handlers[row.handler] && css_handlers[row.handler].css
-						? ' button is-small ' + css_handlers[row.handler].css
-						: ' button is-small '}
-					on:click={() => {
-
-//console.log('>>>>>>>>> saveMethod >>>>>>', $userStore.token, row);
-
-						if (confirm('Are you sure to upload the version to Production?')) {
-							let sm = saveMethod($userStore.token, row);
-							console.log(sm);
-						}
-					}}
-				>
-					<span class="icon is-small">
-						<i class="fa-solid fa-up-right-from-square" />
-					</span>
-					<span> To Production </span>
-				</button>
-			{:else if row.environment == 'prd'}
-				<button
-					class={css_handlers[row.handler] && css_handlers[row.handler].css
-						? ' button is-small ' + css_handlers[row.handler].css
-						: ' button is-small '}
-					disabled
-				>
-					<span class="icon is-small">
-						<i class="fa-solid fa-check-double fa-fade" />
-					</span>
-					<span> On Production </span>
 				</button>
 			{/if}
 		</p>

@@ -2,7 +2,18 @@
 import uFetch from '@edwinspire/universal-fetch';
 import { writable } from 'svelte/store';
 
-const path_functions = '/system/main/functions';
+export const url_paths = {
+	getfunctions: '/api/system/prd/functions',
+	getHandler: '/api/system/prd/system/handler/0.01',
+	Methods: '/api/system/prd/system/method/0.01',
+	listEnv: '/api/system/prd/system/environment/0.01',
+	listApps: '/api/system/prd/api/apps/0.01',
+	getApp: '/api/system/prd/api/app/0.01',
+	saveApp: '/api/system/prd/api/app/0.01',
+	saveMethod: '/api/system/prd/system/method/0.01'
+};
+
+//const path_functions = '/system/main/functions';
 
 //export const tokenStore = writable('');
 export const userStore = writable({});
@@ -25,7 +36,7 @@ export const getListFunction = async (
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get(path_functions, { appName: appName, environment: 'dev' });
+		let fr = await f.get(url_paths.getfunctions, { appName: appName, environment: 'dev' });
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -39,7 +50,7 @@ export const getListFunction = async (
 	}
 	////////////////////////////////////
 	try {
-		let fr = await f.get(path_functions, { appName: appName, environment: 'qa' });
+		let fr = await f.get(url_paths.getfunctions, { appName: appName, environment: 'qa' });
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -53,7 +64,7 @@ export const getListFunction = async (
 	}
 	////////////////////////////////////
 	try {
-		let fr = await f.get(path_functions, { appName: appName, environment: 'prd' });
+		let fr = await f.get(url_paths.getfunctions, { appName: appName, environment: 'prd' });
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -71,7 +82,7 @@ export const getListHandler = async (/** @type {string} */ token) => {
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get('/api/system/system/handler/0.01/prd');
+		let fr = await f.get(url_paths.getHandler);
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -94,7 +105,7 @@ export const getListMethods = async (/** @type {string} */ token) => {
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
-		let fr = await f.get('/api/system/system/method/0.01/prd');
+		let fr = await f.get(url_paths.Methods);
 		let list = await fr.json();
 
 		if (list && Array.isArray(list)) {
@@ -113,8 +124,8 @@ export const getListMethods = async (/** @type {string} */ token) => {
 	}
 };
 
-
-export const saveMethod = async (/** @type {string} */ token, /** @type {any} */ method) => {
+/*
+export const saveMethod = async ( token,   method) => {
 	let f = new uFetch();
 	f.setBearerAuthorization(token);
 	try {
@@ -128,6 +139,8 @@ export const saveMethod = async (/** @type {string} */ token, /** @type {any} */
 		return { error }
 	}
 };
+*/
+
 
 export const css_handlers = {
 	FETCH: { css: ' is-primary is-outlined ', label: ' Fetch ', icon: ' fa-solid fa-server ' },

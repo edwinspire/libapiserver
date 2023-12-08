@@ -25,8 +25,9 @@ import {
 	struct_path,
 	path_params,
 	mqtt_path_params,
-	path_params_to_url
-//	defaultSystemPath
+	path_params_to_url,
+	key_url_from_params
+	//	defaultSystemPath
 } from '../api/server/utils_path.js';
 
 import aedesMod from 'aedes';
@@ -512,8 +513,7 @@ export class ServerAPI extends EventEmitter {
 
 		this.app.use(systemRoutes);
 
-		/*
-		this.app.get(defaultSystemPath('functions'), validateToken, (req, res) => {
+		this.app.get('/api/system/prd/functions', validateToken, (req, res) => {
 			try {
 				//	console.log('Functions >>>>>>>');
 				// @ts-ignore
@@ -523,7 +523,6 @@ export class ServerAPI extends EventEmitter {
 				res.status(500).json({ error: error.message });
 			}
 		});
-		*/
 
 		if (customRouter) {
 			this.app.use(customRouter);
@@ -564,7 +563,6 @@ export class ServerAPI extends EventEmitter {
 
 				console.log('<>>>>>>>> params: ', req.params, resource);
 
-
 				if (
 					(environment == 'qa' && EXPOSE_QA_API === 'true') ||
 					(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
@@ -572,12 +570,11 @@ export class ServerAPI extends EventEmitter {
 				) {
 					//let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
 
-					let url_app_endpoint =
-						path_params_to_url({
-							app: app,
-							environment: environment,
-							resource: resource
-						}) + `/${method}`;
+					let url_app_endpoint = key_url_from_params({
+						app: app,
+						method: method,
+						resource: `/${environment}${resource}`
+					});
 
 					if (!this._cacheApi.has(url_app_endpoint)) {
 						await this._loadEndpointsByAPPToCache(app);
@@ -588,7 +585,7 @@ export class ServerAPI extends EventEmitter {
 					} else {
 						// Validar permisos
 						let ep = this._cacheApi.get(url_app_endpoint);
-						console.log(ep);
+						//console.log(ep);
 
 						if (!ep.params.enabled) {
 							res.status(404).json({ message: 'API unabled' });
@@ -618,23 +615,24 @@ export class ServerAPI extends EventEmitter {
 					}
 				} else {
 					// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
-					res
-						.status(401)
-						.json({
-							message:
-								'Environment not found' + req.path + ' - Environment: ' + environment + ' - Exposed: ' + EXPOSE_PROD_API
-						});
+					res.status(401).json({
+						message:
+							'Environment not found' +
+							req.path +
+							' - Environment: ' +
+							environment +
+							' - Exposed: ' +
+							EXPOSE_PROD_API
+					});
 				}
 			},
 			async (req, res) => {
 				// @ts-ignore
-				let { app,  environment } = req.params;
+				let { app, environment } = req.params;
 				// @ts-ignore
 				let resource = req.params[0];
 
 				try {
-					
-
 					let url_app_endpoint =
 						path_params_to_url({
 							app: app,
@@ -976,11 +974,18 @@ export class ServerAPI extends EventEmitter {
 				const appData = appDatas[0];
 
 				for (let i = 0; i < appData.apiserver_endpoints.length; i++) {
-
 					let endpoint = appData.apiserver_endpoints[i];
-//let resources_parts = endpoint.resource.split('/');
+					//let resources_parts = endpoint.resource.split('/');
 
-					let url_app_endpoint = `/api/${appData.app}/${endpoint.resource}/${endpoint.method}`;
+					let url_app_endpoint = key_url_from_params(
+						{
+							app: appData.app,
+							method: endpoint.method,
+							resource: `/${endpoint.environment}${endpoint.resource}`
+						}
+						//{app: appData.app, resource: endpoint.resource, method: endpoint.method}
+					);
+					//`/api/${appData.app}/${endpoint.resource}/${endpoint.method}`;
 
 					/*
 						path_params_to_url({
@@ -992,10 +997,7 @@ export class ServerAPI extends EventEmitter {
 
 					// console.log(apiPath, url_app_endpoint);
 
-					this._cacheApi.set(
-						url_app_endpoint,
-						getApiHandler(appData.app, appData.apiserver_endpoints[i], appData.vars)
-					);
+					this._cacheApi.set(url_app_endpoint, getApiHandler(appData.app, endpoint, appData.vars));
 				}
 			}
 		} catch (error) {

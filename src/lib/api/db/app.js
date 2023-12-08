@@ -17,6 +17,7 @@ export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {b
 				'enabled',
 				'for_user',
 				'for_api',
+				'environment',
 				'resource',
 				'method',
 				'handler',

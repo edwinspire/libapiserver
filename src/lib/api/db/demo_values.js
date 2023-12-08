@@ -80,7 +80,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'dev/api/token/0.01',
+		resource: '/api/token/0.01',
+		environment: 'dev',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -91,7 +92,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'qa/api/token/0.01',
+		environment: 'qa',
+		resource: '/api/token/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -102,7 +104,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/api/token/0.01',
+		environment: 'prd',
+		resource: '/api/token/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -114,7 +117,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'dev/api/apps/0.01',
+		environment: 'dev',
+		resource: '/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -125,7 +129,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'qa/api/apps/0.01',
+		environment: 'qa',
+		resource: '/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -136,7 +141,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/api/apps/0.01',
+		environment: 'prd',
+		resource: '/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -148,7 +154,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'dev/api/app/0.01',
+		environment: 'dev',
+		resource: '/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -159,7 +166,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'qa/api/app/0.01',
+		environment: 'qa',
+		resource: '/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -170,7 +178,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/api/app/0.01',
+		environment: 'prd',
+		resource: '/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -182,7 +191,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'dev/api/app/0.01',
+		environment: 'dev',
+		resource: '/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -193,7 +203,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'qa/api/app/0.01',
+		environment: 'qa',
+		resource: '/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -204,7 +215,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/api/app/0.01',
+		environment: 'prd',
+		resource: '/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -216,7 +228,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/system/login/0.01',
+		environment: 'prd',
+		resource: '/system/login/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -228,7 +241,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/system/logout/0.01',
+		environment: 'prd',
+		resource: '/system/logout/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -239,7 +253,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/system/handler/0.01',
+		environment: 'prd',
+		resource: '/system/handler/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -251,7 +266,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/system/method/0.01',
+		environment: 'prd',
+		resource: '/system/method/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -263,7 +279,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		resource: 'prd/system/environment/0.01',
+		environment: 'prd',
+		resource: '/system/environment/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -275,7 +292,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_functions/0.01',
+		environment: 'dev',
+		resource: '/main/test_functions/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -285,7 +303,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_functions/0.01',
+		environment: 'dev',
+		resource: '/main/test_functions/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -295,7 +314,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_fetch/0.01',
+		environment: 'dev',
+		resource: '/main/test_fetch/0.01',
 		method: 'GET',
 		handler: 'FETCH',
 		is_public: true,
@@ -304,7 +324,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_fetch/0.01',
+		environment: 'dev',
+		resource: '/main/test_fetch/0.01',
 		method: 'WS',
 		handler: 'NA',
 		is_public: true,
@@ -314,7 +335,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_fetch/0.02',
+		environment: 'dev',
+		resource: '/main/test_fetch/0.02',
 		method: 'GET',
 		handler: 'FETCH',
 		is_public: true,
@@ -324,7 +346,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_javascript/0.01',
+		environment: 'dev',
+		resource: '/main/test_javascript/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
@@ -334,7 +357,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_javascript/0.02',
+		environment: 'dev',
+		resource: '/main/test_javascript/0.02',
 		method: 'GET',
 		handler: 'JS',
 		is_public: false,
@@ -344,7 +368,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_soap/0.01',
+		environment: 'dev',
+		resource: '/main/test_soap/0.01',
 		method: 'GET',
 		handler: 'SOAP',
 		is_public: true,
@@ -354,7 +379,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_soap/0.02',
+		environment: 'dev',
+		resource: '/main/test_soap/0.02',
 		method: 'GET',
 		handler: 'SOAP',
 		is_public: true,
@@ -364,7 +390,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_sql/0.03',
+		environment: 'dev',
+		resource: '/main/test_sql/0.03',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -373,7 +400,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_sql/0.02',
+		environment: 'dev',
+		resource: '/main/test_sql/0.02',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -382,7 +410,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_sql/0.03',
+		environment: 'dev',
+		resource: '/main/test_sql/0.03',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -391,7 +420,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_sql/0.04',
+		environment: 'dev',
+		resource: '/main/test_sql/0.04',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -400,7 +430,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_sql/0.05',
+		environment: 'dev',
+		resource: '/main/test_sql/0.05',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -410,7 +441,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_ws/0.01',
+		environment: 'dev',
+		resource: '/main/test_ws/0.01',
 		method: 'WS',
 		handler: 'NA',
 		is_public: false,
@@ -419,7 +451,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_ws/0.02',
+		environment: 'dev',
+		resource: '/main/test_ws/0.02',
 		method: 'WS',
 		handler: 'NA',
 		is_public: true,
@@ -428,7 +461,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_ws/0.03',
+		environment: 'dev',
+		resource: '/main/test_ws/0.03',
 		method: 'WS',
 		handler: 'NA',
 		is_public: false,
@@ -438,7 +472,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_mqtt/0.01',
+		environment: 'dev',
+		resource: '/main/test_mqtt/0.01',
 		method: 'MQTT',
 		handler: 'NA',
 		is_public: true,
@@ -448,7 +483,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_javascript/array_objects/0.01',
+		environment: 'dev',
+		resource: '/main/test_javascript/array_objects/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
@@ -457,7 +493,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_javascript/fetch/0.01',
+		environment: 'dev',
+		resource: '/main/test_javascript/fetch/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
@@ -466,7 +503,8 @@ export const endpoins_default = [
 	{
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		resource: 'dev/main/test_javascript/two_fetch_ByBlocks/0.01',
+		environment: 'dev',
+		resource: '/main/test_javascript/two_fetch_ByBlocks/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
