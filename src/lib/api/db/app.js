@@ -8,7 +8,7 @@ import { app_default } from './demo_values.js';
 export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {boolean} */ raw) => {
 	return Application.findAll({
 		where: where,
-		attributes: ['idapp', 'app',  'enabled', 'vars', 'description', 'rowkey'],
+		attributes: ['idapp', 'app', 'enabled', 'vars', 'description', 'rowkey'],
 		include: {
 			model: Endpoint,
 			//required: true, // INNER JOIN
@@ -120,9 +120,6 @@ export const upsertApp = async (
 	}
 };
 
-
-
-
 /**
  * @param {any} app_name
  * @param {{ enabled: any; environment: any; method: any; }} endpointData
@@ -144,9 +141,7 @@ export function getApiHandler(app_name, endpointData, appVars) {
 				};
 			} else {
 				// @ts-ignore
-				returnHandler.authentication = async (
-					/** @type {string} */ jw_token
-				) => {
+				returnHandler.authentication = async (/** @type {string} */ jw_token) => {
 					return checkAPIToken(app_name, endpointData, jw_token);
 				};
 			}

@@ -1,6 +1,8 @@
 import { match } from "path-to-regexp";
 
-export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
+//export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
+export const struct_path = '/api/:app/:environment/:resource*';
+
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 
 const mqtt_struct_path = '/api/:app/:namespace/:name/:version/:environment/:username/:topic*';
@@ -16,12 +18,14 @@ export const mqtt_path_params = (/** @type {string} */ url) => {
 	return fn_mqtt_match_url(reqUrl.pathname);
 }
 
-export const path_params_to_url = (/** @type {{ app: any; namespace: any; name: any; version: any; environment: any; }} */ params) => {
-	return `/api/${params.app}/${params.namespace}/${params.name}/${params.version}/${params.environment}`;
+//export const path_params_to_url = (/** @type {{ app: any; namespace: any; name: any; version: any; environment: any; }} */ params) => {
+//	return `/api/${params.app}/${params.namespace}/${params.name}/${params.version}/${params.environment}`;
+//}
+
+
+export const path_params_to_url = (/** @type {{ app: string; environment: string; resource: string; }} */ params) => {
+	return `/api/${params.app}/${params.environment}/${params.resource}}`;
 }
 
-export const defaultSystemPath = (/** @type {string} */ name) => {
-	return '/system/main/' + name;
-};
 
 

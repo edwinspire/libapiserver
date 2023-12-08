@@ -551,14 +551,16 @@ export const Endpoint = dbsequelize.define(
 			type: DataTypes.UUID,
 			allowNull: false
 		},
-		resource: {
-			type: DataTypes.STRING(300),
-			allowNull: false
-		},
+		/*
 		environment: {
 			type: DataTypes.STRING(4),
 			allowNull: false,
 			defaultValue: 'dev'
+		},
+		*/
+		resource: {
+			type: DataTypes.STRING(300),
+			allowNull: false
 		},
 		method: {
 			type: DataTypes.STRING(10),
@@ -604,7 +606,7 @@ export const Endpoint = dbsequelize.define(
 		indexes: [
 			{
 				unique: true,
-				fields: ['idapp', 'resource', 'method']
+				fields: ['idapp',  'resource', 'method']
 			}
 		],
 		hooks: {

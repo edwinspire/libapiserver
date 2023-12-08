@@ -65,8 +65,7 @@ export const varsDemo = {
 			}
 		}
 	}
-
-}
+};
 export const app_default = [
 	{ idapp: 'cfcd208495d565ef66e7dff9f98764da', app: 'system', description: 'App System' },
 	{
@@ -79,13 +78,9 @@ export const app_default = [
 
 export const endpoins_default = [
 	{
-		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'token',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/api/token/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -94,13 +89,9 @@ export const endpoins_default = [
 		code: 'fnToken'
 	},
 	{
-		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'token',
-		version: 0.01,
-		environment: 'qa',
+		resource: 'qa/api/token/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -109,13 +100,9 @@ export const endpoins_default = [
 		code: 'fnToken'
 	},
 	{
-		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'token',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/api/token/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -124,15 +111,10 @@ export const endpoins_default = [
 		code: 'fnToken'
 	},
 
-
 	{
-		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'apps',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -141,13 +123,9 @@ export const endpoins_default = [
 		code: 'fnGetApps'
 	},
 	{
-		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'apps',
-		version: 0.01,
-		environment: 'qa',
+		resource: 'qa/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -156,13 +134,9 @@ export const endpoins_default = [
 		code: 'fnGetApps'
 	},
 	{
-		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'apps',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/api/apps/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -171,16 +145,10 @@ export const endpoins_default = [
 		code: 'fnGetApps'
 	},
 
-
-
 	{
-		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -189,13 +157,9 @@ export const endpoins_default = [
 		code: 'fnGetAppById'
 	},
 	{
-		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'qa',
+		resource: 'qa/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -204,13 +168,9 @@ export const endpoins_default = [
 		code: 'fnGetAppById'
 	},
 	{
-		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/api/app/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -219,15 +179,10 @@ export const endpoins_default = [
 		code: 'fnGetAppById'
 	},
 
-
 	{
-		// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -236,13 +191,9 @@ export const endpoins_default = [
 		code: 'fnSaveApp'
 	},
 	{
-		//// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'qa',
+		resource: 'qa/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -251,13 +202,9 @@ export const endpoins_default = [
 		code: 'fnSaveApp'
 	},
 	{
-		//	// idendpoint: '0cc175b9c0f1b6a831c399e269772661',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'api',
-		name: 'app',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/api/app/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -266,47 +213,10 @@ export const endpoins_default = [
 		code: 'fnSaveApp'
 	},
 
-
-
-
 	{
-		// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'login',
-		version: 0.01,
-		environment: 'dev',
-		method: 'POST',
-		handler: 'FUNCTION',
-		is_public: true,
-		for_user: true,
-		for_api: true,
-		code: 'fnLogin'
-	},
-	{
-		//// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'login',
-		version: 0.01,
-		environment: 'qa',
-		method: 'POST',
-		handler: 'FUNCTION',
-		is_public: true,
-		for_user: true,
-		for_api: true,
-		code: 'fnLogin'
-	},
-	{
-		//// idendpoint: '92eb5ffee6ae2fec3ad71c777531578f',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'login',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/system/login/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -315,18 +225,10 @@ export const endpoins_default = [
 		code: 'fnLogin'
 	},
 
-
-
-
-
 	{
-		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'logout',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'prd/system/logout/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -335,76 +237,9 @@ export const endpoins_default = [
 		code: 'fnLogout'
 	},
 	{
-		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'logout',
-		version: 0.01,
-		environment: 'qa',
-		method: 'POST',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnLogout'
-	},
-	{
-		// idendpoint: '4a8a08f09d37b73795649038408b5f33',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'logout',
-		version: 0.01,
-		environment: 'prd',
-		method: 'POST',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnLogout'
-	},
-
-
-
-	{
-		// idendpoint: '8277e0910d750195b448797616e091ad',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'handler',
-		version: 0.01,
-		environment: 'dev',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetHandler'
-	},
-	{
-		// idendpoint: '8277e0910d750195b448797616e091ad',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'handler',
-		version: 0.01,
-		environment: 'qa',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetHandler'
-	},
-	{
-		// idendpoint: '8277e0910d750195b448797616e091ad',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'handler',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/system/handler/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -413,49 +248,10 @@ export const endpoins_default = [
 		code: 'fnGetHandler'
 	},
 
-
-
-
-
-
 	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'method',
-		version: 0.01,
-		environment: 'dev',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetMethod'
-	},
-	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'method',
-		version: 0.01,
-		environment: 'qa',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetMethod'
-	},
-	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'method',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/system/method/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -464,47 +260,10 @@ export const endpoins_default = [
 		code: 'fnGetMethod'
 	},
 
-
-
-
 	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'environment',
-		version: 0.01,
-		environment: 'dev',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetEnvironment'
-	},
-	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'environment',
-		version: 0.01,
-		environment: 'qa',
-		method: 'GET',
-		handler: 'FUNCTION',
-		is_public: false,
-		for_user: true,
-		for_api: false,
-		code: 'fnGetEnvironment'
-	},
-	{
-		// idendpoint: 'e1671797c52e15f763380b45e841ec32',
-		enabled: true,
-		idapp: 'cfcd208495d565ef66e7dff9f98764da',
-		namespace: 'system',
-		name: 'environment',
-		version: 0.01,
-		environment: 'prd',
+		resource: 'prd/system/environment/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: false,
@@ -513,16 +272,10 @@ export const endpoins_default = [
 		code: 'fnGetEnvironment'
 	},
 
-
-
 	{
-		// idendpoint: 'c4ca4238a0b923820dcc509a6f75849b',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_functions',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_functions/0.01',
 		method: 'GET',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -530,13 +283,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'c81e728d9d4c2f636f067f89cc14862c',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_functions',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_functions/0.01',
 		method: 'POST',
 		handler: 'FUNCTION',
 		is_public: true,
@@ -544,26 +293,18 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'eccbc87e4b5ce2fe28308fd9f2a7baf3',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_fetch',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_fetch/0.01',
 		method: 'GET',
 		handler: 'FETCH',
 		is_public: true,
 		code: 'https://api.github.com/users/edwinspire'
 	},
 	{
-		// idendpoint: 'a87ff679a2f3e71d9181a67b7542122c',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_fetch',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_fetch/0.01',
 		method: 'WS',
 		handler: 'NA',
 		is_public: true,
@@ -571,13 +312,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'e4da3b7fbbce2345d7772b0674a318d5',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_fetch',
-		version: 0.02,
-		environment: 'dev',
+		resource: 'dev/main/test_fetch/0.02',
 		method: 'GET',
 		handler: 'FETCH',
 		is_public: true,
@@ -585,13 +322,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: '1679091c5a880faf6fb5e6087eb1b2dc',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_javascript',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_javascript/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
@@ -599,13 +332,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: '8f14e45fceea167a5a36dedd4bea2543',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_javascript',
-		version: 0.02,
-		environment: 'dev',
+		resource: 'dev/main/test_javascript/0.02',
 		method: 'GET',
 		handler: 'JS',
 		is_public: false,
@@ -613,13 +342,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'c9f0f895fb98ab9159f51fd0297e236d',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_soap',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_soap/0.01',
 		method: 'GET',
 		handler: 'SOAP',
 		is_public: true,
@@ -627,13 +352,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: '45c48cce2e2d7fbdea1afc51c7c6ad26',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_soap',
-		version: 0.02,
-		environment: 'dev',
+		resource: 'dev/main/test_soap/0.02',
 		method: 'GET',
 		handler: 'SOAP',
 		is_public: true,
@@ -641,65 +362,45 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'd3d9446802a44259755d38e6d163e820',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_sql',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_sql/0.03',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
 		code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},  "query": "SELECT 1097 AS test_sql;"\n}'
 	},
 	{
-		// idendpoint: '6512bd43d9caa6e02c990b0a82652dca',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_sql',
-		version: 0.02,
-		environment: 'dev',
+		resource: 'dev/main/test_sql/0.02',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
 		code: '{"config": {"database": "memory",\n  "username": "",\n  "password": "",\n  "options": {\n    "host": "localhost",\n    "dialect": "sqlite"\n  }},\n  "query": "SELECT $name as nombre;"\n}'
 	},
 	{
-		// idendpoint: 'c20ad4d76fe97759aa27a0c99bff6710',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_sql',
-		version: 0.03,
-		environment: 'dev',
+		resource: 'dev/main/test_sql/0.03',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
 		code: '{"config": { "database": "omsv2",\n  "username": "postgres",\n  "password": "pg4321",\n  "options": {\n    "host": "132.128.241.18",\n    "port": 5454,\n    "dialect": "postgres"\n  }}, "query": "SELECT NOW();"\n}'
 	},
 	{
-		// idendpoint: 'c51ce410c124a10e0db5e4b97fc2af39',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_sql',
-		version: 0.04,
-		environment: 'dev',
+		resource: 'dev/main/test_sql/0.04',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
 		code: '{"config": { "database": "msdb",\n  "username": "sa",\n  "password": "sqlkarma",\n  "options": {\n    "host": "192.168.138.30",\n    "dialect": "mssql",\n    "encrypt": false\n  }}, "query": "SELECT\\n    job_id AS [Job ID],\\n    name AS [Job Name],\\n    enabled AS [Is Enabled]\\nFROM\\n    msdb.dbo.sysjobs;"\n}'
 	},
 	{
-		// idendpoint: 'aab3238922bcc25a6f606eb525ffdc56',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_sql',
-		version: 0.05,
-		environment: 'dev',
+		resource: 'dev/main/test_sql/0.05',
 		method: 'GET',
 		handler: 'SQL',
 		is_public: true,
@@ -707,39 +408,27 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: 'e99a18c428cb38d5f260853678922e03',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_ws',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_ws/0.01',
 		method: 'WS',
 		handler: 'NA',
 		is_public: false,
 		code: '{"userAuthentication":false,"tokenAuthentication":false,"broadcast":true}'
 	},
 	{
-		// idendpoint: '8faeeae40f850ca05bc5eb46b79cc6c5',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_ws',
-		version: 0.02,
-		environment: 'dev',
+		resource: 'dev/main/test_ws/0.02',
 		method: 'WS',
 		handler: 'NA',
 		is_public: true,
 		code: '{"userAuthentication":true,"tokenAuthentication":false,"broadcast":false}'
 	},
 	{
-		// idendpoint: '073db68a5c49d16a1807c8e7f2f9bbd1',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_ws',
-		version: 0.03,
-		environment: 'dev',
+		resource: 'dev/main/test_ws/0.03',
 		method: 'WS',
 		handler: 'NA',
 		is_public: false,
@@ -747,13 +436,9 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: '76c15b66d0762c3f01c35fa5a57c225d',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_mqtt',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_mqtt/0.01',
 		method: 'MQTT',
 		handler: 'NA',
 		is_public: true,
@@ -761,39 +446,27 @@ export const endpoins_default = [
 	},
 
 	{
-		// idendpoint: '1a448ae839a065f04e34abf75b240da1',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_javascript_return_array_objects',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_javascript/array_objects/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
 		code: '$_RETURN_DATA_ = [];\n\nwhile ($_RETURN_DATA_.length < 30) {\n  const objeto = { value1: Math.floor(Math.random() * 1000), value2: Math.floor(Math.random() * 1000) };\n  $_RETURN_DATA_.push(objeto);\n}\n'
 	},
 	{
-		// idendpoint: '80a5e5a2f7906a267e10a6ef40a1ebeb',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_javascript_with_fetch',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_javascript/fetch/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,
 		code: "let uf = new $_UFETCH_();\nlet r1 = await uf.get('http://localhost:3000/api/demo/main/test_javascript_return_array_objects/v0.01/dev');\n\n$_RETURN_DATA_ = await r1.json();\n"
 	},
 	{
-		// idendpoint: 'c3fcd3d76192e4007dfb496cca67e13b',
 		enabled: true,
 		idapp: 'c4ca4238a0b923820dcc509a6f75849b',
-		namespace: 'main',
-		name: 'test_javascript_two_fetch_ByBlocks',
-		version: 0.01,
-		environment: 'dev',
+		resource: 'dev/main/test_javascript/two_fetch_ByBlocks/0.01',
 		method: 'GET',
 		handler: 'JS',
 		is_public: true,

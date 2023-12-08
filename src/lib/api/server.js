@@ -556,7 +556,7 @@ export class ServerAPI extends EventEmitter {
 
 		// Master input
 		this.app.all(struct_path, async (req, res, next) => {
-			let { app, namespace, name, version, environment } = req.params;
+			let { app, environment, resource } = req.params;
 			let method = req.method;
 
 			if (
