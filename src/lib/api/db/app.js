@@ -17,16 +17,15 @@ export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {b
 				'enabled',
 				'for_user',
 				'for_api',
-				'namespace',
-				'name',
-				'version',
-				'environment',
+				'resource',
 				'method',
 				'handler',
 				'is_public',
 				'cors',
 				'code',
 				'description',
+				'headers_test',
+				'data_test',
 				'rowkey'
 			]
 		},
@@ -112,9 +111,9 @@ export const upsertApp = async (
 
 		//console.log('XXXX>>> [app, create] ', app, create);
 
-		let data = app.dataValues;
+		//let data = app.dataValues;
 
-		return data;
+		return app;
 	} catch (error) {
 		console.error('Error performing UPSERT on app:', error);
 		throw error;

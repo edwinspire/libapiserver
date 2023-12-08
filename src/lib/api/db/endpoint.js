@@ -70,12 +70,12 @@ export const getEndpointByApp = async (
 export const demoEndpoints = async () => {
 	try {
 
-		await PromiseSequence.ByBlocks(async (/** @type {{ idapp: any; namespace: any; name: any; version: any; environment: any; method: any; }} */ element) => {
+		await PromiseSequence.ByBlocks(async (/** @type {{ idapp: any; resource: any; name: any; version: any; environment: any; method: any; }} */ element) => {
 			let o;
 			try {
 
 				o = await Endpoint.findOrCreate({
-					where: { idapp: element.idapp, namespace: element.namespace, name: element.name, version: element.version, environment: element.environment, method: element.method }, // Campos para la cláusula WHERE
+					where: { idapp: element.idapp, resource: element.resource, method: element.method }, // Campos para la cláusula WHERE
 					// @ts-ignore
 					defaults: { code: element.code, handler: element.handler, is_public: element.is_public, for_user: element.for_user, for_api: element.for_api }, // Campos para actualizar si se encuentra
 				});

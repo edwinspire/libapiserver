@@ -610,7 +610,7 @@ export const Endpoint = dbsequelize.define(
 		indexes: [
 			{
 				unique: true,
-				fields: ['idapp', 'namespace', 'name', 'version', 'environment', 'method']
+				fields: ['idapp', 'resource', 'method']
 			}
 		],
 		hooks: {
