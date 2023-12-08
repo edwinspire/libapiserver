@@ -24,7 +24,7 @@ export const mqtt_path_params = (/** @type {string} */ url) => {
 
 
 export const path_params_to_url = (/** @type {{ app: string; environment: string; resource: string; }} */ params) => {
-	return `/api/${params.app}/${params.environment}/${params.resource}}`;
+	return `/api/${params.app}/${params.environment}${params.resource}`;
 }
 
 

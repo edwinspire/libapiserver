@@ -976,12 +976,19 @@ export class ServerAPI extends EventEmitter {
 				const appData = appDatas[0];
 
 				for (let i = 0; i < appData.apiserver_endpoints.length; i++) {
-					let url_app_endpoint =
+
+					let endpoint = appData.apiserver_endpoints[i];
+//let resources_parts = endpoint.resource.split('/');
+
+					let url_app_endpoint = `/api/${appData.app}/${endpoint.resource}/${endpoint.method}`;
+
+					/*
 						path_params_to_url({
 							app: appData.app,
-							environment: appData.apiserver_endpoints[i].environment,
-							resource: appData.apiserver_endpoints[i].resource
-						}) + `/${appData.apiserver_endpoints[i].method}`;
+							environment: resources_parts[0],
+							resource: endpoint.resource
+						}) + `/${endpoint.method}`;
+						*/
 
 					// console.log(apiPath, url_app_endpoint);
 
