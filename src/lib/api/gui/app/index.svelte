@@ -525,31 +525,31 @@
 		</Level>
 
 		<Tab bind:tabs bind:active={active_tab}>
-			{#if active_tab == 'description'}
-				<div>
-					<textarea
-						class="textarea is-small"
-						placeholder="Description"
-						bind:value={app.description}
-					/>
-				</div>
-			{:else if active_tab == 'vars'}
-				<div class="columns">
-					<div class="column">
-						<div>
-							Development: <Vars bind:this={fnVarsDev} environment={'dev'} editable={true} />
-						</div>
-					</div>
-					<div class="column">
-						<div>Quality: <Vars bind:this={fnVarsQa} environment={'qa'} editable={true} /></div>
-					</div>
-					<div class="column">
-						<div>
-							Production: <Vars bind:this={fnVarsPrd} environment={'prd'} editable={true} />
-						</div>
+			<div style="display: {active_tab == 'description' ? 'block' : 'none'};">
+				<textarea
+					class="textarea is-small"
+					placeholder="Description"
+					bind:value={app.description}
+				/>
+			</div>
+
+			<div class="columns" style="display: {active_tab == 'vars' ? 'block' : 'none'};">
+				<div class="column">
+					<div>
+						Development: <Vars bind:this={fnVarsDev} environment={'dev'} editable={true} />
 					</div>
 				</div>
-			{:else}
+				<div class="column">
+					<div>Quality: <Vars bind:this={fnVarsQa} environment={'qa'} editable={true} /></div>
+				</div>
+				<div class="column">
+					<div>
+						Production: <Vars bind:this={fnVarsPrd} environment={'prd'} editable={true} />
+					</div>
+				</div>
+			</div>
+
+			<div style="display: {active_tab == 'endpoints' ? 'block' : 'none'};">
 				<Table
 					ShowNewButton="true"
 					ShowEditButton="true"
@@ -573,7 +573,7 @@
 				>
 					<span slot="l01"> Endpoints </span>
 				</Table>
-			{/if}
+			</div>
 		</Tab>
 	</div>
 {/if}
