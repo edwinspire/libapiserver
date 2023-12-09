@@ -8,7 +8,8 @@
 		Table,
 		ColumnTypes,
 		DialogModal,
-		Level
+		Level,
+		Tab
 		// @ts-ignore
 	} from '@edwinspire/svelte-components';
 	import { onMount } from 'svelte';
@@ -97,6 +98,13 @@
 		rowkey: { hidden: true },
 		version: { hidden: true }
 	};
+
+	let tabs = [
+		{ label: 'Endpoints', classIcon: 'fas fa-picture', slot: 'picture', isActive: true },
+		{ label: 'Description', classIcon: 'fas fa-picture', slot: 'music', isActive: false },
+		{ label: 'Application variables', classIcon: 'fas fa-film', slot: 'film', isActive: false }
+	];
+
 	/**
 	 * @type {{ name: any; value: any; }[]}
 	 */
@@ -136,7 +144,7 @@
 
 	function checkEndpointConstraint(endpoint_value) {
 		let check = endpoints.some((row) => {
-		//	console.log(endpoint_value, row);
+			//	console.log(endpoint_value, row);
 			return (
 				endpoint_value.resource == row.resource &&
 				endpoint_value.environment == row.environment &&
@@ -324,7 +332,42 @@
 {#if $userStore && $userStore.role && $userStore.role.enabled && $userStore.role.read_app}
 	<div>
 		<Level>
-			<span slot="l01"> <strong> Application: </strong><span> {app.app} </span></span>
+			<span slot="l01">
+				<div class="field has-addons">
+					<p class="control">
+						<!-- svelte-ignore a11y-missing-attribute -->
+						<a class="button is-static is-small"> Application </a>
+					</p>
+					<p class="control">
+						<input
+							class="input is-small"
+							type="text"
+							placeholder="Application name"
+							bind:value={app.app}
+						/>
+					</p>
+				</div>
+			</span>
+			<span slot="l02">
+				<div class="field has-addons">
+					<p class="control">
+						<!-- svelte-ignore a11y-missing-attribute -->
+						<a class="button is-static is-small"> Enabled </a>
+					</p>
+					<p class="control">
+						<input
+							type="button"
+							bind:value={app.enabled}
+							class={app.enabled
+								? 'button is-success is-selected is-small'
+								: 'button is-danger is-small'}
+							on:click={() => {
+								app.enabled = !app.enabled;
+							}}
+						/>
+					</p>
+				</div>
+			</span>
 			<span slot="r01">
 				{#if $userStore && $userStore.role && $userStore.role.enabled && ($userStore.role.create_app || $userStore.role.update_app)}
 					<button
@@ -461,22 +504,12 @@
 			</span>
 		</Level>
 
-		<div class="field">
-			<!-- svelte-ignore a11y-label-has-associated-control -->
-			<label class="label is-small">App</label>
-			<div class="control">
-				<input class="input is-small" type="text" placeholder="Text input" bind:value={app.app} />
-			</div>
-		</div>
+		<Tab bind:tabs >
 
-		<div class="field">
-			<div class="control">
-				<label class="checkbox is-small">
-					<input type="checkbox" bind:checked={app.enabled} />
-					Enabled
-				</label>
-			</div>
-		</div>
+			<div>jjjjjjjj</div>
+
+
+		</Tab>
 
 		<div class="field">
 			<!-- svelte-ignore a11y-label-has-associated-control -->
@@ -536,7 +569,7 @@
 		if (validateResource && availableURL) {
 			SelectedRow.endpoint = `/api/${app.app}/${SelectedRow.environment}${SelectedRow.resource}`;
 
-console.log('SelectedRow: ', SelectedRow);
+			console.log('SelectedRow: ', SelectedRow);
 
 			if (SelectedRow.idendpoint) {
 				// Es edición de endpoint
