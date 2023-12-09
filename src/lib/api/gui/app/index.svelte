@@ -93,7 +93,7 @@
 		vars: { hidden: true },
 		idendpoint: { hidden: true },
 		cors: { hidden: true },
-		header_test: { hidden: true },
+		headers_test: { hidden: true },
 		data_test: { hidden: true },
 		latest_updater: { hidden: true },
 		environment: { hidden: true },
