@@ -129,7 +129,7 @@
 
 	function checkResource() {
 		validateResource = validateURL(SelectedRow.resource);
-		console.log('validateURL: ', SelectedRow.resource, validateResource);
+//		console.log('validateURL: ', SelectedRow.resource, validateResource);
 
 		availableURL = checkEndpointConstraint(SelectedRow);
 	}
@@ -529,7 +529,7 @@
 		//data = {};
 	}}
 	on:ok={() => {
-		console.log('SelectedRow >>> ', SelectedRow);
+		//console.log('SelectedRow >>> ', SelectedRow);
 		SelectedRow.idapp = app.idapp;
 
 		if (validateResource && availableURL) {
@@ -538,7 +538,7 @@
 			if (SelectedRow.idendpoint) {
 				// Es edición de endpoint
 				let found = endpoints.findIndex((element) => element.idendpoint == SelectedRow.idendpoint);
-				console.log('Se ha encontrado: ', found);
+		//		console.log('Se ha encontrado: ', found);
 				if (found >= 0) {
 					endpoints[found] = { ...SelectedRow };
 				}
@@ -558,7 +558,8 @@
 					handler: 'NA',
 					is_public: false,
 					cors: undefined,
-					code: ''
+					code: '',
+					description: SelectedRow.description
 				});
 			}
 
