@@ -41,6 +41,8 @@
 	let fnVarsQa;
 	let fnVarsPrd;
 
+	let active_tab = '';
+
 	let columns = {
 		//enabled: { label: 'Enabled App' },
 		endpoint: { label: 'Endpoint' },
@@ -90,7 +92,10 @@
 		description: { hidden: true },
 		vars: { hidden: true },
 		idendpoint: { hidden: true },
-
+		cors: { hidden: true },
+		header_test: { hidden: true },
+		data_test: { hidden: true },
+		latest_updater: { hidden: true },
 		environment: { hidden: true },
 
 		name: { hidden: true },
@@ -100,9 +105,24 @@
 	};
 
 	let tabs = [
-		{ label: 'Endpoints', classIcon: 'fas fa-picture', slot: 'picture', isActive: true },
-		{ label: 'Description', classIcon: 'fas fa-picture', slot: 'music', isActive: false },
-		{ label: 'Application variables', classIcon: 'fas fa-film', slot: 'film', isActive: false }
+		{
+			label: 'Endpoints',
+			classIcon: 'fa-solid fa-rectangle-list',
+			slot: 'endpoints',
+			isActive: true
+		},
+		{
+			label: 'Description',
+			classIcon: 'fa-solid fa-file-lines',
+			slot: 'description',
+			isActive: false
+		},
+		{
+			label: 'Application variables',
+			classIcon: 'fa-solid fa-box-archive',
+			slot: 'vars',
+			isActive: false
+		}
 	];
 
 	/**
@@ -504,54 +524,57 @@
 			</span>
 		</Level>
 
-		<Tab bind:tabs >
-
-			<div>jjjjjjjj</div>
-
-
+		<Tab bind:tabs bind:active={active_tab}>
+			{#if active_tab == 'description'}
+				<div>
+					<textarea
+						class="textarea is-small"
+						placeholder="Description"
+						bind:value={app.description}
+					/>
+				</div>
+			{:else if active_tab == 'vars'}
+				<div class="columns">
+					<div class="column">
+						<div>
+							Development: <Vars bind:this={fnVarsDev} environment={'dev'} editable={true} />
+						</div>
+					</div>
+					<div class="column">
+						<div>Quality: <Vars bind:this={fnVarsQa} environment={'qa'} editable={true} /></div>
+					</div>
+					<div class="column">
+						<div>
+							Production: <Vars bind:this={fnVarsPrd} environment={'prd'} editable={true} />
+						</div>
+					</div>
+				</div>
+			{:else}
+				<Table
+					ShowNewButton="true"
+					ShowEditButton="true"
+					bind:RawDataTable={endpoints}
+					bind:columns
+					on:newrow={() => {
+						SelectedRow = {
+							enabled: false,
+							environment: 'dev',
+							method: 'NA',
+							handler: 'NA',
+							resource: ''
+						};
+						showEndpointEdit = true;
+					}}
+					on:editrow={(e) => {
+						SelectedRow = { ...e.detail.data };
+						showEndpointEdit = true;
+						console.log(SelectedRow);
+					}}
+				>
+					<span slot="l01"> Endpoints </span>
+				</Table>
+			{/if}
 		</Tab>
-
-		<div class="field">
-			<!-- svelte-ignore a11y-label-has-associated-control -->
-			<label class="label is-small">Description</label>
-			<div class="control">
-				<textarea
-					class="textarea is-small"
-					placeholder="Description"
-					bind:value={app.description}
-				/>
-			</div>
-		</div>
-
-		<div>
-			<div><Vars bind:this={fnVarsDev} environment={'dev'} editable={true} /></div>
-			<div><Vars bind:this={fnVarsQa} environment={'qa'} editable={true} /></div>
-			<div><Vars bind:this={fnVarsPrd} environment={'prd'} editable={true} /></div>
-		</div>
-
-		<Table
-			ShowNewButton="true"
-			ShowEditButton="true"
-			bind:RawDataTable={endpoints}
-			bind:columns
-			on:newrow={() => {
-				SelectedRow = {
-					enabled: false,
-					environment: 'dev',
-					method: 'NA',
-					handler: 'NA',
-					resource: ''
-				};
-				showEndpointEdit = true;
-			}}
-			on:editrow={(e) => {
-				SelectedRow = { ...e.detail.data };
-				showEndpointEdit = true;
-				console.log(SelectedRow);
-			}}
-		>
-			<span slot="l01"> Endpoints </span>
-		</Table>
 	</div>
 {/if}
 
