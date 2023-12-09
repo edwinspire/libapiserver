@@ -129,14 +129,14 @@
 
 	function checkResource() {
 		validateResource = validateURL(SelectedRow.resource);
-//		console.log('validateURL: ', SelectedRow.resource, validateResource);
+		//		console.log('validateURL: ', SelectedRow.resource, validateResource);
 
 		availableURL = checkEndpointConstraint(SelectedRow);
 	}
 
 	function checkEndpointConstraint(endpoint_value) {
 		let check = endpoints.some((row) => {
-			console.log(endpoint_value, row);
+		//	console.log(endpoint_value, row);
 			return (
 				endpoint_value.resource == row.resource &&
 				endpoint_value.environment == row.environment &&
@@ -220,7 +220,7 @@
 						...ax
 					};
 				});
-				console.log(endpoints);
+				//console.log(endpoints);
 			}
 		}
 	}
@@ -233,7 +233,7 @@
 					raw: false
 				});
 				let app_resp = await apps_res.json();
-				console.log(app_resp);
+				//console.log(app_resp);
 				showAppData(app_resp);
 			} catch (error) {
 				// @ts-ignore
@@ -531,14 +531,17 @@
 	on:ok={() => {
 		//console.log('SelectedRow >>> ', SelectedRow);
 		SelectedRow.idapp = app.idapp;
+		SelectedRow.latest_updater = $userStore.iduser;
 
 		if (validateResource && availableURL) {
 			SelectedRow.endpoint = `/api/${app.app}/${SelectedRow.environment}${SelectedRow.resource}`;
 
+console.log('SelectedRow: ', SelectedRow);
+
 			if (SelectedRow.idendpoint) {
 				// Es edición de endpoint
 				let found = endpoints.findIndex((element) => element.idendpoint == SelectedRow.idendpoint);
-		//		console.log('Se ha encontrado: ', found);
+				//		console.log('Se ha encontrado: ', found);
 				if (found >= 0) {
 					endpoints[found] = { ...SelectedRow };
 				}
@@ -559,7 +562,8 @@
 					is_public: false,
 					cors: undefined,
 					code: '',
-					description: SelectedRow.description
+					description: SelectedRow.description,
+					latest_updater: $userStore.iduser
 				});
 			}
 

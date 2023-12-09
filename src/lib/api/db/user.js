@@ -121,6 +121,7 @@ export async function login(username, password) {
 				for: 'user',
 				username: u.username,
 				role: u.role.toJSON(),
+				//iduser: u.iduser,
 				date: new Date() // Para que se genere siempre un token diferente
 			});
 
@@ -133,7 +134,8 @@ export async function login(username, password) {
 				first_name: u.first_name,
 				last_name: u.last_name,
 				role: u.role.toJSON(),
-				token: token
+				token: token,
+				iduser: u.iduser
 			};
 		} else {
 			return customError(2);

@@ -27,7 +27,8 @@ export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {b
 				'description',
 				'headers_test',
 				'data_test',
-				'rowkey'
+				'rowkey',
+				'latest_updater'
 			]
 		},
 		raw: raw,
