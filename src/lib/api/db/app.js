@@ -124,15 +124,17 @@ export const upsertApp = async (
 
 /**
  * @param {any} app_name
- * @param {{ enabled: any; environment: any; method: any; }} endpointData
- * @param {any | undefined} [appVars]
+ * @param {{enabled: any;environment: any;method: any;}} endpointData
+ * @param {any} appVarsEnv
  */
-export function getApiHandler(app_name, endpointData, appVars) {
+export function getApiHandler(app_name, endpointData, appVarsEnv) {
 	let returnHandler = {};
 	returnHandler.params = endpointData;
 
 	try {
-		appVars = typeof appVars !== 'object' ? JSON.parse(appVars) : appVars;
+		appVarsEnv = typeof appVarsEnv !== 'object' ? JSON.parse(appVarsEnv) : appVarsEnv;
+
+		let appVars = appVarsEnv[endpointData.environment];
 
 		if (endpointData.enabled) {
 			// @ts-ignore
@@ -151,8 +153,14 @@ export function getApiHandler(app_name, endpointData, appVars) {
 			// @ts-ignore
 			returnHandler.params.code = returnHandler.params.code || '';
 
+
+
+
 			if (appVars && typeof appVars === 'object') {
 				const props = Object.keys(appVars);
+
+
+
 				for (let i = 0; i < props.length; i++) {
 					const prop = props[i];
 
