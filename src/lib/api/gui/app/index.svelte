@@ -223,6 +223,9 @@
 
 	function showAppData(app_resp) {
 		if (app_resp && app_resp.length > 0) {
+
+			active_tab = 'endpoints';
+
 			//appDataTable = AppToTable(app);
 			app = app_resp[0];
 
