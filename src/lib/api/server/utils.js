@@ -12,11 +12,23 @@ const errors = {
 	2: { code: 2, message: 'Invalid credentials' }
 };
 
+
 /**
- * @param {{ headers: { [x: string]: any; }; connection: { remoteAddress: any; }; }} req
+ * @param {import("express-serve-static-core").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>} req
  */
 export function getIPFromRequest(req) {
-	return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+	const ip =
+		// @ts-ignore
+		req.ip ||
+		req.headers['x-forwarded-for'] ||
+		req.connection.remoteAddress ||
+		// @ts-ignore
+		req.socket.remoteAddress ||
+		// @ts-ignore
+		(req.connection.socket ? req.connection.socket.remoteAddress : null);
+
+	// Puedes manipular la IP según tus necesidades
+	return ip;
 }
 
 /**
@@ -241,7 +253,7 @@ function getPathParts(path_file) {
 	const part = path_file.split('/');
 	const last_parts = part.slice(-3);
 	//return last_parts;
-	return { appName: last_parts[0], environment: last_parts[1], file: last_parts[2] }
+	return { appName: last_parts[0], environment: last_parts[1], file: last_parts[2] };
 }
 
 /**
@@ -277,6 +289,6 @@ export const getFunctionsFiles = (fn_path) => {
 	searchFiles(fn_path);
 
 	return jsFiles.map((f) => {
-		return { file: f, data: getPathParts(f) }
+		return { file: f, data: getPathParts(f) };
 	});
-}
+};

@@ -26,7 +26,8 @@ import {
 	path_params,
 	mqtt_path_params,
 	path_params_to_url,
-	key_url_from_params
+	key_url_from_params,
+	internal_url_hooks
 	//	defaultSystemPath
 } from '../api/server/utils_path.js';
 
@@ -92,14 +93,14 @@ export class ServerAPI extends EventEmitter {
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
 		this._cacheRoles = new Map();
-		this._cacheEndpoints = new Map();
+		//this._cacheEndpoints = new Map();
 		//		this._cacheAPIKey = new Map();
 		this._fnDEV = new Map();
 		this._fnQA = new Map();
 		this._fnPRD = new Map();
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
-		this._path_api_hooks = PATH_API_HOOKS || '/system/api/hooks';
+		this._path_api_hooks = PATH_API_HOOKS || internal_url_hooks;
 		this._path_ws_hooks = PATH_WS_HOOKS || '/system/ws/hooks';
 		this.buildDB(buildDB);
 
@@ -530,15 +531,17 @@ export class ServerAPI extends EventEmitter {
 
 		// Controlar para que este path sea solo accesible de forma local
 		this.app.post(this._path_api_hooks, async (req, res) => {
-			let clientIP = req.ip;
-			if (clientIP === '127.0.0.1' || clientIP === '::1') {
+			
+			let clientIP = getIPFromRequest(req);
+			if (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === '::ffff:127.0.0.1') {
 				if (req.body && req.body.model) {
 					res.status(200).json(req.body);
 					let path = this._path_ws_hooks + '/' + req.body.model;
 
 					console.log('WS HOOKS >>>>> ', path);
 
-					if (req.body.model == prefixTableName('application')) {
+					if (req.body.model == prefixTableName('application') && req.body.action && req.body.action === 'afterUpsert') {
+						// TODO: Buscar la forma de identificar la aplicación modificada y borrar de caché solo la que se modificó
 						this._cacheApi.clear();
 					}
 

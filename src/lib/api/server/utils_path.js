@@ -3,6 +3,8 @@ import { match } from 'path-to-regexp';
 //export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
 export const struct_path = '/api/:app/:environment*';
 
+export const internal_url_hooks = "/api/system/prd/hooks";
+
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 
 const mqtt_struct_path = '/api/:app/:namespace/:name/:version/:environment/:username/:topic*';

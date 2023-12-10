@@ -4,10 +4,11 @@ import dbsequelize from './sequelize.js';
 import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
 import { v4 as uuidv4 } from 'uuid';
+import { internal_url_hooks } from '../server/utils_path.js';
 
 const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
-const urlHooks = 'http://localhost:' + PORT + (PATH_API_HOOKS || '/system/api/hooks');
+const urlHooks = 'http://localhost:' + PORT + (PATH_API_HOOKS || internal_url_hooks);
 const uF = new uFetch(urlHooks);
 
 /**
@@ -19,10 +20,11 @@ export function prefixTableName(table_name) {
 
 /**
  * @param {string} modelName
+ * @param {string} action
  */
-async function hookUpsert(modelName) {
+async function hookUpsert(modelName, action) {
 	//	console.log('---------------------> hookUpsert', modelName);
-	await uF.post('', { model: modelName, date: new Date() });
+	await uF.post('', { model: modelName, date: new Date(), action: action });
 	//  console.log(await data.json());
 }
 
@@ -345,12 +347,13 @@ export const Application = dbsequelize.define(
 		timestamps: true,
 		indexes: [],
 		hooks: {
+			
 			afterUpsert: async (/** @type {any} */ instance) => {
 				// @ts-ignore
 				instance.rowkey = 999;
 				// @ts-ignore
 				// console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-				await hookUpsert(prefixTableName('application'));
+				await hookUpsert(prefixTableName('application'), 'afterUpsert');
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -372,7 +375,7 @@ export const Application = dbsequelize.define(
 				}
 
 				//console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
-				await hookUpsert(prefixTableName('application'));
+				//await hookUpsert(prefixTableName('application'), 'beforeUpsert');
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
 				// Acciones a realizar antes de guardar el modelo
