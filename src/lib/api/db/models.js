@@ -356,7 +356,7 @@ export const Application = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 			},
-			beforeUpsert: async () => {
+			beforeUpsert: async (instance) => {
 				// @ts-ignore
 				//				instance.rowkey = Math.floor(Math.random() * 1000);
 				/*
@@ -365,6 +365,11 @@ export const Application = dbsequelize.define(
 									instance.idapp = uuidv4();
 								}
 								*/
+
+				if (!instance.idapp || instance.idapp == null) {
+					console.log('IDAPP es nulo o no está definido');
+					instance.idapp = uuidv4();
+				}
 
 				//console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
 				await hookUpsert(prefixTableName('application'));
