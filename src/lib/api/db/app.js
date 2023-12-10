@@ -132,7 +132,7 @@ export function getApiHandler(app_name, endpointData, appVarsEnv) {
 	returnHandler.params = endpointData;
 
 	try {
-		appVarsEnv = typeof appVarsEnv !== 'object' ? JSON.parse(appVarsEnv) : appVarsEnv;
+		appVarsEnv = typeof appVarsEnv !== 'object' ? JSON.parse(appVarsEnv) : appVarsEnv ?? {};
 
 		let appVars = appVarsEnv[endpointData.environment];
 
@@ -153,13 +153,8 @@ export function getApiHandler(app_name, endpointData, appVarsEnv) {
 			// @ts-ignore
 			returnHandler.params.code = returnHandler.params.code || '';
 
-
-
-
 			if (appVars && typeof appVars === 'object') {
 				const props = Object.keys(appVars);
-
-
 
 				for (let i = 0; i < props.length; i++) {
 					const prop = props[i];
