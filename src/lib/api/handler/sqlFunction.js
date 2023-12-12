@@ -81,7 +81,7 @@ export const sqlFunction = async (
 					// @ts-ignore
 					response.status(200).json(result_query);
 				} else {
-					response.status(500).json({ error: 'Params configuration is not complete' });
+					response.status(400).json({ error: 'Params configuration is not complete' });
 				}
 			} else {
 				response.status(400).json({ error: 'Database is required.' });
@@ -90,6 +90,7 @@ export const sqlFunction = async (
 			response.status(400).json({ error: 'Not data' });
 		}
 	} catch (error) {
+    console.log(error);
 		// @ts-ignore
 		response.status(500).json({ error: error.message });
 	}
