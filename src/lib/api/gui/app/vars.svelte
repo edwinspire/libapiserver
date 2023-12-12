@@ -29,12 +29,11 @@
 		//return fnEditorCode.getCode();
 		let codes = {};
 		Object.keys(fnEditorCodes).forEach((key) => {
-			
-try {
-	codes[key] = JSON.parse(fnEditorCodes[key].getCode());	
-} catch (error) {
-	console.error(error, key, fnEditorCodes[key].getCode());
-}
+			try {
+				codes[key] = JSON.parse(fnEditorCodes[key].getCode());
+			} catch (error) {
+				console.warn(error, key, fnEditorCodes);
+			}
 
 			//return c;
 		});
