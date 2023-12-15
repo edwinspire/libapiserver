@@ -68,6 +68,6 @@ let result_fn = await f({ $_REQUEST_: $_REQUEST_, $_UFETCH_: $_UFETCH_, $_SECUEN
       .json(result_fn);
   } catch (error) {
     // @ts-ignore
-    response.status(500).json({ error: error.message });
+    response.status(500).json(error);
   }
 };
