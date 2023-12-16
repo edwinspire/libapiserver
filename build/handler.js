@@ -893,58 +893,22 @@ setCookie.exports.parse = parse;
 setCookie.exports.parseString = parseString;
 var splitCookiesString_1 = setCookie.exports.splitCookiesString = splitCookiesString;
 
-class HttpError {
+/**
+ * An error that was thrown from within the SvelteKit runtime that is not fatal and doesn't result in a 500, such as a 404.
+ * `SvelteKitError` goes through `handleError`.
+ */
+class SvelteKitError extends Error {
 	/**
 	 * @param {number} status
-	 * @param {{message: string} extends App.Error ? (App.Error | string | undefined) : App.Error} body
+	 * @param {string} text
+	 * @param {string} message
 	 */
-	constructor(status, body) {
+	constructor(status, text, message) {
+		super(message);
 		this.status = status;
-		if (typeof body === 'string') {
-			this.body = { message: body };
-		} else if (body) {
-			this.body = body;
-		} else {
-			this.body = { message: `Error: ${status}` };
-		}
-	}
-
-	toString() {
-		return JSON.stringify(this.body);
+		this.text = text;
 	}
 }
-
-/**
- * @overload
- * @param {number} status
- * @param {App.Error} body
- * @return {HttpError}
- */
-
-/**
- * @overload
- * @param {number} status
- * @param {{ message: string } extends App.Error ? App.Error | string | undefined : never} [body]
- * @return {HttpError}
- */
-
-/**
- * Creates an `HttpError` object with an HTTP status code and an optional message.
- * This object, if thrown during request handling, will cause SvelteKit to
- * return an error response without invoking `handleError`.
- * Make sure you're not catching the thrown error, which would prevent SvelteKit from handling it.
- * @param {number} status The [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses). Must be in the range 400-599.
- * @param {{ message: string } extends App.Error ? App.Error | string | undefined : never} body An object that conforms to the App.Error type. If a string is passed, it will be used as the message property.
- */
-function error(status, body) {
-	if ((isNaN(status) || status < 400 || status > 599)) {
-		throw new Error(`HTTP error status codes must be between 400 and 599 — ${status} is invalid`);
-	}
-
-	return new HttpError(status, body);
-}
-
-new TextEncoder();
 
 /**
  * @param {import('http').IncomingMessage} req
@@ -967,19 +931,6 @@ function get_raw_body(req, body_size_limit) {
 		return null;
 	}
 
-	let length = content_length;
-
-	if (body_size_limit) {
-		if (!length) {
-			length = body_size_limit;
-		} else if (length > body_size_limit) {
-			throw error(
-				413,
-				`Received content-length of ${length}, but only accept up to ${body_size_limit} bytes.`
-			);
-		}
-	}
-
 	if (req.destroyed) {
 		const readable = new ReadableStream();
 		readable.cancel();
@@ -991,6 +942,17 @@ function get_raw_body(req, body_size_limit) {
 
 	return new ReadableStream({
 		start(controller) {
+			if (body_size_limit !== undefined && content_length > body_size_limit) {
+				const error = new SvelteKitError(
+					413,
+					'Payload Too Large',
+					`Content-length of ${content_length} exceeds limit of ${body_size_limit} bytes.`
+				);
+
+				controller.error(error);
+				return;
+			}
+
 			req.on('error', (error) => {
 				cancelled = true;
 				controller.error(error);
@@ -1005,16 +967,15 @@ function get_raw_body(req, body_size_limit) {
 				if (cancelled) return;
 
 				size += chunk.length;
-				if (size > length) {
+				if (size > content_length) {
 					cancelled = true;
-					controller.error(
-						error(
-							413,
-							`request body size exceeded ${
-								content_length ? "'content-length'" : 'BODY_SIZE_LIMIT'
-							} of ${length}`
-						)
-					);
+
+					const constraint = content_length ? 'content-length' : 'BODY_SIZE_LIMIT';
+					const message = `request body size exceeded ${constraint} of ${content_length}`;
+
+					const error = new SvelteKitError(413, 'Payload Too Large', message);
+					controller.error(error);
+
 					return;
 				}
 
@@ -1069,7 +1030,7 @@ async function setResponse(res, response) {
 					? splitCookiesString_1(
 							// This is absurd but necessary, TODO: investigate why
 							/** @type {string}*/ (response.headers.get(key))
-					  )
+						)
 					: value
 			);
 		} catch (error) {
@@ -1201,20 +1162,11 @@ function serve_prerendered() {
 
 /** @type {import('polka').Middleware} */
 const ssr = async (req, res) => {
-	/** @type {Request | undefined} */
-	let request;
-
-	try {
-		request = await getRequest({
-			base: origin || get_origin(req.headers),
-			request: req,
-			bodySizeLimit: body_size_limit
-		});
-	} catch (err) {
-		res.statusCode = err.status || 400;
-		res.end('Invalid request body');
-		return;
-	}
+	const request = await getRequest({
+		base: origin || get_origin(req.headers),
+		request: req,
+		bodySizeLimit: body_size_limit
+	});
 
 	setResponse(
 		res,

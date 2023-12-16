@@ -4,14 +4,27 @@ import fs from 'fs';
 import path from 'path';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
-
-const { JWT_KEY } = process.env;
+import uFetch from "@edwinspire/universal-fetch";
+import {internal_url_hooks} from "./utils_path.js";
+const { PORT, PATH_API_HOOKS, JWT_KEY } = process.env;
 
 const errors = {
 	1: { code: 1, message: 'You must enter the same password twice' },
 	2: { code: 2, message: 'Invalid credentials' }
 };
 
+
+
+/**
+ * @param {any} data
+ */
+export async function emitHook(data) {
+	//	console.log('---------------------> hookUpsert', modelName);
+	const urlHooks = 'http://localhost:' + PORT + (PATH_API_HOOKS || internal_url_hooks);
+const uF = new uFetch(urlHooks);
+	await uF.POST({data:data});
+	//console.log(await data.json());
+}
 
 /**
  * @param {import("express-serve-static-core").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>} req

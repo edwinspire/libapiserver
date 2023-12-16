@@ -89,6 +89,6 @@ const SOAPGenericClient = async (
   } catch (error) {
     console.trace(error);
     // @ts-ignore
-    return { error: error.message };
+    return error;
   }
 };

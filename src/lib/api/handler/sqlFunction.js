@@ -90,8 +90,8 @@ export const sqlFunction = async (
 			response.status(400).json({ error: 'Not data' });
 		}
 	} catch (error) {
-    console.log(error);
+		//console.log(error);
 		// @ts-ignore
-		response.status(500).json({ error: error.message });
+		response.status(500).json(error);
 	}
 };

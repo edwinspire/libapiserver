@@ -1,15 +1,14 @@
 import { DataTypes } from 'sequelize';
 import dbsequelize from './sequelize.js';
 // @ts-ignore
-import uFetch from '@edwinspire/universal-fetch';
+//import uFetch from '@edwinspire/universal-fetch';
 //import {EncryptPwd} from "../server/utils.js"
 import { v4 as uuidv4 } from 'uuid';
-import { internal_url_hooks } from '../server/utils_path.js';
+//import { internal_url_hooks } from '../server/utils_path.js';
+import { emitHook } from '../server/utils.js';
 
-const { PORT, PATH_API_HOOKS, TABLE_NAME_PREFIX_API } = process.env;
 
-const urlHooks = 'http://localhost:' + PORT + (PATH_API_HOOKS || internal_url_hooks);
-const uF = new uFetch(urlHooks);
+const {   TABLE_NAME_PREFIX_API } = process.env;
 
 /**
  * @param {string} table_name
@@ -18,15 +17,6 @@ export function prefixTableName(table_name) {
 	return (TABLE_NAME_PREFIX_API || 'apiserver_') + table_name;
 }
 
-/**
- * @param {string} modelName
- * @param {string} action
- */
-async function hookUpsert(modelName, action) {
-	//	console.log('---------------------> hookUpsert', modelName);
-	await uF.post('', { model: modelName, date: new Date(), action: action });
-	//  console.log(await data.json());
-}
 
 // Definir el modelo de la tabla 'User'
 export const PathRequest = dbsequelize.define(
@@ -76,7 +66,7 @@ export const PathRequest = dbsequelize.define(
 		hooks: {
 			afterUpsert: async () => {
 				// @ts-ignore
-				await hookUpsert(prefixTableName('path_request'));
+				await emitHook({model: prefixTableName('path_request'), action: 'afterUpsert'});
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -156,7 +146,8 @@ export const User = dbsequelize.define(
 		hooks: {
 			afterUpsert: async () => {
 				// @ts-ignore
-				await hookUpsert(prefixTableName('user'));
+				
+				await emitHook({model: prefixTableName('user'), action: 'afterUpsert'});
 			},
 			beforeUpdate: (/** @type {any} */ user) => {
 				// @ts-ignore
@@ -227,7 +218,7 @@ export const Role = dbsequelize.define(
 		hooks: {
 			afterUpsert: async () => {
 				// @ts-ignore
-				await hookUpsert(prefixTableName('role'));
+				await emitHook({model: prefixTableName('role'), action: 'afterUpsert'});
 			},
 			beforeValidate: () => {
 				//	console.log('>>> beforeValidate >>>> ', instance);
@@ -269,7 +260,7 @@ export const Method = dbsequelize.define(
 		hooks: {
 			afterUpsert: async () => {
 				// @ts-ignore
-				await hookUpsert(prefixTableName('method'));
+				await emitHook({model: prefixTableName('method'), action: 'afterUpsert'});
 			}
 		}
 	}
@@ -306,7 +297,7 @@ export const Handler = dbsequelize.define(
 		hooks: {
 			afterUpsert: async () => {
 				// @ts-ignore
-				await hookUpsert(prefixTableName('handler'));
+				await emitHook({model: prefixTableName('handler'), action: 'afterUpsert'});
 			}
 		}
 	}
@@ -353,7 +344,7 @@ export const Application = dbsequelize.define(
 				instance.rowkey = 999;
 				// @ts-ignore
 				// console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-				await hookUpsert(prefixTableName('application'), 'afterUpsert');
+				await emitHook({model: prefixTableName('application'), action: 'afterUpsert'});
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -507,7 +498,7 @@ export const ApiUser = dbsequelize.define(
 				instance.rowkey = 999;
 				// @ts-ignore
 				//   console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-				await hookUpsert(prefixTableName('api_user'));
+				await emitHook({model: prefixTableName('api_user'), action: 'afterUpsert'});
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -517,7 +508,7 @@ export const ApiUser = dbsequelize.define(
 				// @ts-ignore
 				instance.rowkey = Math.floor(Math.random() * 1000);
 				//   console.log(">>>>>>>>>>>>>> Se lanza el beforeUpsert", instance);
-				await hookUpsert(prefixTableName('api_user'));
+				await emitHook({model: prefixTableName('api_user'), action: 'beforeUpsert'});
 			},
 			beforeSave: (/** @type {{ rowkey: number; }} */ instance) => {
 				// Acciones a realizar antes de guardar el modelo
@@ -627,7 +618,7 @@ export const Endpoint = dbsequelize.define(
 				instance.rowkey = 999;
 				// @ts-ignore
 				//   console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", instance);
-				await hookUpsert(prefixTableName('endpoint'));
+				await emitHook({model: prefixTableName('endpoint'), action: 'afterUpsert'});
 			},
 			beforeUpdate: (/** @type {any} */ instance) => {
 				// @ts-ignore
@@ -644,7 +635,7 @@ export const Endpoint = dbsequelize.define(
 					instance.idendpoint = uuidv4();
 				}
 
-				await hookUpsert(prefixTableName('endpoint'));
+				await emitHook({model: prefixTableName('endpoint'), action: 'beforeUpsert'});
 			},
 			beforeValidate: (instance) => {
 				instance.rowkey = Math.floor(Math.random() * 1000);
