@@ -361,7 +361,7 @@ export const Application = dbsequelize.define(
 								*/
 
 				if (!instance.idapp || instance.idapp == null) {
-					console.log('IDAPP es nulo o no está definido');
+					//console.log('IDAPP es nulo o no está definido');
 					instance.idapp = uuidv4();
 				}
 
@@ -669,7 +669,7 @@ export const Endpoint = dbsequelize.define(
 			},
 			beforeCreate: (instance) => {
 				if (!instance.idendpoint) {
-					console.log('##################----> beforeCreate: ');
+					//console.log('##################----> beforeCreate: ');
 					// @ts-ignore
 					instance.idendpoint = uuidv4();
 				}

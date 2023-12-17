@@ -3,7 +3,8 @@ import { match } from 'path-to-regexp';
 //export const struct_path = '/api/:app/:namespace/:name/:version/:environment';
 export const struct_path = '/api/:app/:environment*';
 
-export const internal_url_hooks = "/api/system/prd/hooks";
+export const internal_url_hooks = "/websocket/internat/prd/hooks";
+export const websocket_hooks_resource = "/websocket/hooks";
 
 const fn_match_url = match(struct_path, { decode: decodeURIComponent });
 
@@ -54,3 +55,22 @@ export function validateURL(string_url) {
 		return false;
 	}
 }
+
+/**
+ * @param {string} url
+ */
+export function getPartUrl(url) {
+	const partes = url.split('/').filter(part => part !== ''); // Elimina elementos vacíos
+  
+	if (partes.length >= 4 && partes[0] === 'api') {
+	  return {
+		url: url,
+//		api: partes[0],
+		app: partes[1],
+		env: partes[2],
+		resource: '/' + partes.slice(3).join('/')
+	  };
+	} else {
+	  return { error: 'URL no válida' };
+	}
+  }

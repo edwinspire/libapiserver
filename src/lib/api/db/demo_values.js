@@ -1,3 +1,5 @@
+import { websocket_hooks_resource } from "../server/utils_path.js";
+
 export const varsDemo = {
 	dev: {
 		$_VAR_DEMO_1: 10,
@@ -66,6 +68,7 @@ export const varsDemo = {
 		}
 	}
 };
+
 export const app_default = [
 	{ idapp: 'cfcd208495d565ef66e7dff9f98764da', app: 'system', description: 'App System' },
 	{
@@ -77,6 +80,18 @@ export const app_default = [
 ];
 
 export const endpoins_default = [
+	{
+		enabled: true,
+		idapp: 'cfcd208495d565ef66e7dff9f98764da',
+		resource: websocket_hooks_resource || '/websocket/hooks',
+		environment: 'prd',
+		method: 'WS',
+		handler: 'NA',
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		code: ''
+	},
 	{
 		enabled: true,
 		idapp: 'cfcd208495d565ef66e7dff9f98764da',

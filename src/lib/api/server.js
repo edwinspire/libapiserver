@@ -27,7 +27,9 @@ import {
 	mqtt_path_params,
 	path_params_to_url,
 	key_url_from_params,
-	internal_url_hooks
+	internal_url_hooks,
+	websocket_hooks_resource,
+	getPartUrl
 	//	defaultSystemPath
 } from '../api/server/utils_path.js';
 
@@ -45,6 +47,7 @@ import fs from 'fs';
 import path from 'path';
 
 import dns from 'dns';
+
 //import { url } from 'node:inspector';
 dns.setDefaultResultOrder('ipv4first');
 
@@ -101,7 +104,7 @@ export class ServerAPI extends EventEmitter {
 		this._path_ws_api_response_time =
 			PATH_API_RESPONSE_TIME || '/system/api/endpoint/response/time';
 		this._path_api_hooks = PATH_API_HOOKS || internal_url_hooks;
-		this._path_ws_hooks = PATH_WS_HOOKS || '/system/ws/hooks';
+		this._path_ws_hooks = PATH_WS_HOOKS || `/api/system${websocket_hooks_resource}`;
 		this.buildDB(buildDB);
 
 		// @ts-ignore
@@ -324,17 +327,33 @@ export class ServerAPI extends EventEmitter {
 				});
 			} else {
 				try {
+
+					let url_parts = getPartUrl(request.url);
+
+					/*
+					let { app, environment } = request.params;
+					// @ts-ignore
+					let resource = request.params[0];
+					let method = 'WS';
+
+					
+
 					// @ts-ignore
 					let data_url = path_params(request.url);
-
+*/
 					//					console.log('===>>>>>>> ', data_url);
 
-					if (data_url) {
+					if (url_parts.app) {
 						let dataUser = getUserPasswordTokenFromRequest(request);
-						console.log('--------------->-<>>>>> dataUser', dataUser);
+						//						console.log('--------------->-<>>>>> dataUser', dataUser);
+
+						let h = await this._getHandlerMiddleware(url_parts.app, url_parts.env, url_parts.resource, 'WS', dataUser);
+
+
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
-						let h = await this._getApiHandler(
+						/*
+						let h = await this.getApiHandler(
 							// @ts-ignore
 							data_url.params.app,
 							// @ts-ignore
@@ -347,9 +366,14 @@ export class ServerAPI extends EventEmitter {
 							data_url.params.environment,
 							'WS'
 						);
+						*/
 						//						console.log(h);
-						if (h.status == 200) {
-							if (!h.params.public) {
+						if (h.status == 200 || url_parts.url == this._path_ws_hooks) {
+
+							/*
+							TODO: Aplicar autenticación
+
+							if (!h.handler.params.public) {
 								// @ts-ignore
 								//request.APIServer = {authorization: dataUser};
 								console.log('------------------------------------------> dataUser', dataUser);
@@ -367,7 +391,10 @@ export class ServerAPI extends EventEmitter {
 										return;
 									}
 								}
+								
 							}
+							*/
+
 						} else {
 							socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
 							socket.destroy();
@@ -381,8 +408,8 @@ export class ServerAPI extends EventEmitter {
 							ws.APIServer = {
 								uuid: uuidv4(),
 								// @ts-ignore
-								path: data_url.path,
-								broadcast: h.params.broadcast,
+								path: url_parts.url,
+								broadcast: true,
 								authorization: dataUser
 							};
 
@@ -531,21 +558,27 @@ export class ServerAPI extends EventEmitter {
 
 		// Controlar para que este path sea solo accesible de forma local
 		this.app.post(this._path_api_hooks, async (req, res) => {
-			
+
 			let clientIP = getIPFromRequest(req);
 			if (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === '::ffff:127.0.0.1') {
-				if (req.body && req.body.model) {
+
+				// TODO: Manejar un web hook por cada aplicación
+				if (req.body) {
+
 					res.status(200).json(req.body);
-					let path = this._path_ws_hooks + '/' + req.body.model;
 
-					console.log('WS HOOKS >>>>> ', path);
+					if (req.body.model) {
+						let path = this._path_ws_hooks + '/' + req.body.model;
 
-					if (req.body.model == prefixTableName('application') && req.body.action && req.body.action === 'afterUpsert') {
-						// TODO: Buscar la forma de identificar la aplicación modificada y borrar de caché solo la que se modificó
-						this._cacheApi.clear();
+						console.log('\n\nWS HOOKS >>>>> ', path);
+
+						if (req.body.model == prefixTableName('application') && req.body.action && req.body.action === 'afterUpsert') {
+							// TODO: Buscar la forma de identificar la aplicación modificada y borrar de caché solo la que se modificó
+							this._cacheApi.clear();
+						}
 					}
 
-					this.broadcastByPath(path, req.body);
+					this.broadcastByPath(this._path_ws_hooks, req.body);
 				} else {
 					res.status(404).json(req.body);
 				}
@@ -566,68 +599,14 @@ export class ServerAPI extends EventEmitter {
 
 				console.log('<>>>>>>>> params: ', req.params, resource);
 
-				if (
-					(environment == 'qa' && EXPOSE_QA_API === 'true') ||
-					(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
-					(environment == 'prd' && EXPOSE_PROD_API === 'true')
-				) {
-					//let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
+				let h = await this._getHandlerMiddleware(app, environment, resource, method, getUserPasswordTokenFromRequest(req));
 
-					let url_app_endpoint = key_url_from_params({
-						app: app,
-						method: method,
-						resource: `/${environment}${resource}`
-					});
-
-					if (!this._cacheApi.has(url_app_endpoint)) {
-						await this._loadEndpointsByAPPToCache(app);
-					}
-
-					if (!this._cacheApi.has(url_app_endpoint)) {
-						res.status(404).json({ message: 'API not found' });
-					} else {
-						// Validar permisos
-						let ep = this._cacheApi.get(url_app_endpoint);
-						//console.log(ep);
-
-						if (!ep.params.enabled) {
-							res.status(404).json({ message: 'API unabled' });
-						} else {
-							if (ep.params.is_public) {
-								next();
-							} else {
-								//  API Privada, validar accesos
-								let dataUserRequest = getUserPasswordTokenFromRequest(req);
-
-								if (dataUserRequest && dataUserRequest.data_token) {
-									if (
-										(dataUserRequest.data_token.for == 'user' && ep.params.for_user) ||
-										(dataUserRequest.data_token.for == 'api' && ep.params.for_api)
-									) {
-										// TODO: Validar el entorno al que el usuario de la API tiene acceso
-
-										next();
-									} else {
-										res.status(403).json({ message: 'Unauthorized' });
-									}
-								} else {
-									res.status(401).json({ message: 'Unauthorized' });
-								}
-							}
-						}
-					}
+				if (h.status == 200) {
+					next();
 				} else {
-					// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
-					res.status(401).json({
-						message:
-							'Environment not found' +
-							req.path +
-							' - Environment: ' +
-							environment +
-							' - Exposed: ' +
-							EXPOSE_PROD_API
-					});
+					res.status(h.status).json({ message: h.message });
 				}
+
 			},
 			async (req, res) => {
 				// @ts-ignore
@@ -841,19 +820,30 @@ export class ServerAPI extends EventEmitter {
 	 * @param {any} payload
 	 */
 	broadcastByPath(path, payload) {
+		/*
 		let cli = this._ws_paths.find((p) => {
 			return p.path == path;
 		});
 
 		if (cli && cli.WebSocket) {
 			cli.WebSocket.clients.forEach(function each(
-				/** @type {{ readyState: number; send: (arg0: string) => void; }} */ client
+				 client
 			) {
 				if (client.readyState === WebSocket.OPEN) {
 					client.send(JSON.stringify(payload));
 				}
 			});
 		}
+		*/
+		this._wsServer.clients.forEach(function each(
+			client
+		) {
+			// @ts-ignore
+			if (client.APIServer && client.APIServer.path == path && client.readyState === WebSocket.OPEN) {
+				client.send(JSON.stringify(payload));
+			}
+		});
+
 	}
 
 	/**
@@ -905,6 +895,7 @@ export class ServerAPI extends EventEmitter {
 				// const apiPath = `/${app}/${namespace}/${name}/${version}/${environment}/${method}`;
 				const apiPath = `${path_params_to_url({
 					app,
+					// @ts-ignore
 					namespace,
 					name,
 					version: ver,
@@ -924,6 +915,7 @@ export class ServerAPI extends EventEmitter {
 							let url_app_endpoint =
 								path_params_to_url({
 									app: appData.app,
+									// @ts-ignore
 									namespace: appData.apiserver_endpoints[i].namespace,
 									name: appData.apiserver_endpoints[i].name,
 									version: appData.apiserver_endpoints[i].version,
@@ -1171,6 +1163,96 @@ export class ServerAPI extends EventEmitter {
 			// @ts-ignore
 			res.status(500).json({ error: error.message });
 		}
+	}
+
+
+
+	/**
+	 * @param {string} app
+	 * @param {string} environment
+	 * @param {string} resource
+	 * @param {string} method
+	 * @param {{ data_token: { for: string; }; }} dataUser
+	 */
+	async _getHandlerMiddleware(app, environment, resource, method, dataUser) {
+
+		let result = { status: 400, message: '', handler: undefined };
+
+		if (
+			(environment == 'qa' && EXPOSE_QA_API === 'true') ||
+			(environment == 'dev' && EXPOSE_DEV_API === 'true') ||
+			(environment == 'prd' && EXPOSE_PROD_API === 'true')
+		) {
+			//let ver = Number(version.replace(/[^0-9.]/g, '')) * 1;
+
+			let url_app_endpoint = key_url_from_params({
+				app: app,
+				method: method,
+				resource: `/${environment}${resource}`
+			});
+
+			if (!this._cacheApi.has(url_app_endpoint)) {
+				await this._loadEndpointsByAPPToCache(app);
+			}
+
+			if (!this._cacheApi.has(url_app_endpoint)) {
+				result = { message: 'API not found', status: 404, handler: undefined };
+			} else {
+				// Validar permisos
+				result.handler = this._cacheApi.get(url_app_endpoint);
+
+				//console.log(ep);
+
+				// @ts-ignore
+				if (!result.handler.params.enabled) {
+					result.message = 'API unabled';
+					result.status = 404;
+				} else {
+					// @ts-ignore
+					if (result.handler.params.is_public) {
+
+						result.message = 'Ok';
+						result.status = 200;
+
+					} else {
+						//  API Privada, validar accesos
+						//let dataUserRequest = getUserPasswordTokenFromRequest(req);
+
+						if (dataUser && dataUser.data_token) {
+							if (
+								// @ts-ignore
+								(dataUser.data_token.for == 'user' && result.handler.params.for_user) ||
+								// @ts-ignore
+								(dataUser.data_token.for == 'api' && result.handler.params.for_api)
+							) {
+								// TODO: Validar el entorno al que el usuario de la API tiene acceso
+
+								result.message = 'Ok';
+								result.status = 200;
+							} else {
+
+								result.message = 'Unauthorized';
+								result.status = 403;
+							}
+						} else {
+							result.message = 'Unauthorized';
+							result.status = 401;
+						}
+					}
+				}
+			}
+		} else {
+			// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
+			result = {
+				message:
+					'Environment not found: ' +
+					environment +
+					' - Exposed: ' +
+					EXPOSE_PROD_API, status: 401, handler: undefined
+			};
+
+		}
+		return result;
 	}
 
 	listen() {
