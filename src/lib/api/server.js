@@ -500,6 +500,7 @@ export class ServerAPI extends EventEmitter {
 		);
 
 		this.app.use(express.json()); // Agrega esta línea
+		this.app.use(express.static('static'))
 
 		// Middleware para capturar los request
 		this.app.use((req, res, next) => {
