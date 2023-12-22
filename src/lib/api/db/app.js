@@ -29,7 +29,11 @@ export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {b
 				'data_test',
 				'rowkey',
 				'latest_updater'
-			]
+			], order: [
+				['environment', 'ASC'],
+				['resource', 'ASC'],
+				['method', 'ASC']
+			],
 		},
 		raw: raw,
 		nest: false

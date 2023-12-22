@@ -18,6 +18,7 @@
 	import CellMethod from './cellMethod.svelte';
 	import cellHandler from './cellHandler.svelte';
 	import cellCode from './cellCode.svelte';
+	import cellPath from './cellPath.svelte';
 	import { path_params_to_url, validateURL } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
 
@@ -45,7 +46,7 @@
 
 	let columns = {
 		//enabled: { label: 'Enabled App' },
-		endpoint: { label: 'Endpoint' },
+		endpoint: { label: 'Endpoint', decorator: { component: cellPath } },
 		enabled: {
 			label: 'Enabled Endpoint',
 			decorator: {
@@ -223,8 +224,7 @@
 
 	function showAppData(app_resp) {
 		if (app_resp && app_resp.length > 0) {
-
-			active_tab = active_tab==''?'endpoints':active_tab;
+			active_tab = active_tab == '' ? 'endpoints' : active_tab;
 
 			//appDataTable = AppToTable(app);
 			app = app_resp[0];
