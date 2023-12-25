@@ -1,6 +1,6 @@
 // @ts-ignore
 
-export const customFunction = (
+export const customFunction = async (
 	/** @type {{ method?: any; headers: any; body: any; query: any; }} */ $_REQUEST_,
 	/** @type {{ status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: any; }): void; new (): any; }; }; }} */ response,
 	/** @type {{ handler?: string; code: any; jsFn?: any }} */ method,
@@ -14,12 +14,16 @@ export const customFunction = (
 				$_DATA = $_REQUEST_.query;
 			}
 
-			appFunctions[method.code]($_REQUEST_, response, $_DATA);
+			let fnresult = await appFunctions[method.code]($_REQUEST_, response, $_DATA);
+			// @ts-ignore
+			response.locals.lastResponse = fnresult.data;
+			// @ts-ignore
+			response.status(fnresult.status).json(fnresult.data);
 		} else {
 			response.status(404).json({ error: `Function ${method.code} not found.` });
 		}
 	} catch (error) {
-		console.trace(error, appFunctions, method);
+		console.trace(error);
 		// @ts-ignore
 		response.status(500).json(error);
 	}

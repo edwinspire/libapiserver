@@ -9,7 +9,6 @@ export const fetchFunction = async (
 	/** @type {{ handler?: string; code: any; }} */ method
 ) => {
 	//console.log(uFetch);
-
 	try {
 		let req_headers = { ...$_REQUEST_.headers };
 		delete req_headers['content-length'];

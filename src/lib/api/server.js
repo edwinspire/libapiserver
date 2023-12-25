@@ -18,7 +18,7 @@ import {
 	getUserPasswordTokenFromRequest,
 	websocketUnauthorized,
 	getIPFromRequest,
-	getFunctionsFiles
+	getFunctionsFiles, md5
 } from '../api/server/utils.js';
 
 import {
@@ -95,6 +95,7 @@ export class ServerAPI extends EventEmitter {
 		this._ws_paths = [];
 		//this._cacheFn = {};
 		this._cacheApi = new Map();
+		this._cacheRequest = new Map();
 		this._cacheRoles = new Map();
 		//this._cacheEndpoints = new Map();
 		//		this._cacheAPIKey = new Map();
@@ -524,11 +525,12 @@ export class ServerAPI extends EventEmitter {
 
 			// Emit time
 			res.on('finish', () => {
+				console.log(res.locals);
 				const endTime = new Date().getTime();
 				const duration = endTime - startTime + 5;
 
 				// console.log(`Tiempo de respuesta: ${duration} ms`);
-
+				// TODO: No está funcionando
 				this.broadcastByPath(this._path_ws_api_response_time, {
 					path: req.path,
 					time: duration,
@@ -616,6 +618,7 @@ export class ServerAPI extends EventEmitter {
 				let resource = req.params[0];
 
 				try {
+
 					let url_app_endpoint =
 						path_params_to_url({
 							app: app,
@@ -627,7 +630,38 @@ export class ServerAPI extends EventEmitter {
 
 					//	console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
 
-					runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+
+					if (handlerEndpoint.params && handlerEndpoint.params.cache_time && handlerEndpoint.params.cache_time > 0) {
+						console.log('----- CACHE ------');
+
+						let hash_request = md5({ body: req.body, query: req.query, url: req.url });
+
+						if (this._cacheRequest.has(hash_request)) {
+
+							let data_cache = this._cacheRequest.get(hash_request);
+							res.status(200).json(data_cache.body);
+
+						} else {
+						/*
+							const originalSend = res.send;
+							res.send = (body) => {
+								this._cacheRequest.set(hash_request, { body: body, expiration_date: Date.now() + (handlerEndpoint.params.cache_time * 1000) });
+
+								// Llamar al método original
+								originalSend.apply(res, arguments);
+							};
+							*/
+							runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+						}
+
+
+					} else {
+						runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+					}
+
+					//runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+
+
 				} catch (error) {
 					res.status(505).json({
 						// @ts-ignore
@@ -1017,7 +1051,7 @@ export class ServerAPI extends EventEmitter {
 
 			(async () => {
 				try {
-					await dbRestAPI.sync({ alter: false });
+					await dbRestAPI.sync({ alter: true });
 					await defaultUser();
 					await defaultMethods();
 					await defaultHandlers();

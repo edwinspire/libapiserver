@@ -1,11 +1,11 @@
-const { createHmac } = await import('node:crypto');
-
+//const { createHmac } = await import('node:crypto');
+import { createHmac, createHash } from "crypto";
 import fs from 'fs';
 import path from 'path';
 import { Buffer } from 'node:buffer';
 import jwt from 'jsonwebtoken';
 import uFetch from "@edwinspire/universal-fetch";
-import {internal_url_hooks} from "./utils_path.js";
+import { internal_url_hooks } from "./utils_path.js";
 const { PORT, PATH_API_HOOKS, JWT_KEY } = process.env;
 
 const errors = {
@@ -21,8 +21,8 @@ const errors = {
 export async function emitHook(data) {
 	//	console.log('---------------------> hookUpsert', modelName);
 	const urlHooks = 'http://localhost:' + PORT + (PATH_API_HOOKS || internal_url_hooks);
-const uF = new uFetch(urlHooks);
-	await uF.POST({data:data});
+	const uF = new uFetch(urlHooks);
+	await uF.POST({ data: data });
 	//console.log(await data.json());
 }
 
@@ -305,3 +305,9 @@ export const getFunctionsFiles = (fn_path) => {
 		return { file: f, data: getPathParts(f) };
 	});
 };
+
+export const md5 = (/** @type {any} */ data) => {
+	const hash = createHash('md5');
+	hash.update(typeof data !== 'string' ? JSON.stringify(data) : data);
+	return hash.digest('hex');
+}

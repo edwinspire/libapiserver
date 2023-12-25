@@ -601,7 +601,12 @@ export const Endpoint = dbsequelize.define(
 		latest_updater: {
 			type: DataTypes.BIGINT,
 			allowNull: true
-		}
+		},
+		cache_time: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
 	},
 	{
 		freezeTableName: true,
