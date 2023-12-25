@@ -29,6 +29,8 @@ export const fetchFunction = async (
 		let resp = await FData[$_REQUEST_.method.toUpperCase()](init);
 
 		let r = await resp.json();
+		// @ts-ignore
+		response.locals.lastResponse = r;
 		response.status(resp.status).json(r);
 	} catch (error) {
 		// @ts-ignore

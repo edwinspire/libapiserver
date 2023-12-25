@@ -77,7 +77,8 @@ export const sqlFunction = async (
 					//let data;
 
 					// data = result_query;
-
+					// @ts-ignore
+					response.locals.lastResponse = result_query;
 					// @ts-ignore
 					response.status(200).json(result_query);
 				} else {

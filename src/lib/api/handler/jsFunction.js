@@ -62,7 +62,8 @@ export const jsFunction = async (
 let result_fn = await f({ $_REQUEST_: $_REQUEST_, $_UFETCH_: $_UFETCH_, $_SECUENTIAL_PROMISES_: $_SECUENTIAL_PROMISES_ })();
 
 //console.log('result_fn: ====> ', result_fn);
-
+		// @ts-ignore
+		response.locals.lastResponse = result_fn;
     response
       .status(200)
       .json(result_fn);
