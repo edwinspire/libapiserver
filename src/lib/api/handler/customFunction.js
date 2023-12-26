@@ -18,7 +18,10 @@ export const customFunction = async (
 
 			if (fnresult) {
 				// @ts-ignore
-				response.locals.lastResponse = fnresult.data;
+				if (response.locals.lastResponse && response.locals.lastResponse.hash_request) {
+					// @ts-ignore
+					response.locals.lastResponse.data = fnresult.data;
+				}
 				// @ts-ignore
 				response.status(fnresult.status).json(fnresult.data);
 			} else {

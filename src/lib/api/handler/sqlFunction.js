@@ -78,7 +78,11 @@ export const sqlFunction = async (
 
 					// data = result_query;
 					// @ts-ignore
-					response.locals.lastResponse = result_query;
+					if (response.locals.lastResponse && response.locals.lastResponse.hash_request) {
+						// @ts-ignore
+						response.locals.lastResponse.data = result_query;
+					  }
+					//response.locals.lastResponse = result_query;
 					// @ts-ignore
 					response.status(200).json(result_query);
 				} else {

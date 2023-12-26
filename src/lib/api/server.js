@@ -18,7 +18,8 @@ import {
 	getUserPasswordTokenFromRequest,
 	websocketUnauthorized,
 	getIPFromRequest,
-	getFunctionsFiles, md5
+	getFunctionsFiles,
+	md5
 } from '../api/server/utils.js';
 
 import {
@@ -328,7 +329,6 @@ export class ServerAPI extends EventEmitter {
 				});
 			} else {
 				try {
-
 					let url_parts = getPartUrl(request.url);
 
 					/*
@@ -348,8 +348,13 @@ export class ServerAPI extends EventEmitter {
 						let dataUser = getUserPasswordTokenFromRequest(request);
 						//						console.log('--------------->-<>>>>> dataUser', dataUser);
 
-						let h = await this._getHandlerMiddleware(url_parts.app, url_parts.env, url_parts.resource, 'WS', dataUser);
-
+						let h = await this._getHandlerMiddleware(
+							url_parts.app,
+							url_parts.env,
+							url_parts.resource,
+							'WS',
+							dataUser
+						);
 
 						// app, namespace, name, version, environment, method
 						// @ts-ignore
@@ -370,7 +375,6 @@ export class ServerAPI extends EventEmitter {
 						*/
 						//						console.log(h);
 						if (h.status == 200 || url_parts.url == this._path_ws_hooks) {
-
 							/*
 							TODO: Aplicar autenticación
 
@@ -395,7 +399,6 @@ export class ServerAPI extends EventEmitter {
 								
 							}
 							*/
-
 						} else {
 							socket.write(`HTTP/1.1 ${h.status} Invalid\r\n\r\n`);
 							socket.destroy();
@@ -501,7 +504,7 @@ export class ServerAPI extends EventEmitter {
 		);
 
 		this.app.use(express.json()); // Agrega esta línea
-		this.app.use(express.static('static'))
+		this.app.use(express.static('static'));
 
 		// Middleware para capturar los request
 		this.app.use((req, res, next) => {
@@ -528,6 +531,15 @@ export class ServerAPI extends EventEmitter {
 				console.log(res.locals);
 				const endTime = new Date().getTime();
 				const duration = endTime - startTime + 5;
+
+				if (
+					res.locals.lastResponse &&
+					res.locals.lastResponse.hash_request &&
+					res.locals.lastResponse.data &&
+					!this._cacheRequest.has(res.locals.lastResponse.hash_request)
+				) {
+					this._cacheRequest.set(res.locals.lastResponse.hash_request, res.locals.lastResponse);
+				}
 
 				// console.log(`Tiempo de respuesta: ${duration} ms`);
 				// TODO: No está funcionando
@@ -561,13 +573,10 @@ export class ServerAPI extends EventEmitter {
 
 		// Controlar para que este path sea solo accesible de forma local
 		this.app.post(this._path_api_hooks, async (req, res) => {
-
 			let clientIP = getIPFromRequest(req);
 			if (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === '::ffff:127.0.0.1') {
-
 				// TODO: Manejar un web hook por cada aplicación
 				if (req.body) {
-
 					res.status(200).json(req.body);
 
 					if (req.body.model) {
@@ -575,7 +584,11 @@ export class ServerAPI extends EventEmitter {
 
 						console.log('\n\nWS HOOKS >>>>> ', path);
 
-						if (req.body.model == prefixTableName('application') && req.body.action && req.body.action === 'afterUpsert') {
+						if (
+							req.body.model == prefixTableName('application') &&
+							req.body.action &&
+							req.body.action === 'afterUpsert'
+						) {
 							// TODO: Buscar la forma de identificar la aplicación modificada y borrar de caché solo la que se modificó
 							this._cacheApi.clear();
 						}
@@ -602,14 +615,19 @@ export class ServerAPI extends EventEmitter {
 
 				console.log('<>>>>>>>> params: ', req.params, resource);
 
-				let h = await this._getHandlerMiddleware(app, environment, resource, method, getUserPasswordTokenFromRequest(req));
+				let h = await this._getHandlerMiddleware(
+					app,
+					environment,
+					resource,
+					method,
+					getUserPasswordTokenFromRequest(req)
+				);
 
 				if (h.status == 200) {
 					next();
 				} else {
 					res.status(h.status).json({ message: h.message });
 				}
-
 			},
 			async (req, res) => {
 				// @ts-ignore
@@ -618,7 +636,6 @@ export class ServerAPI extends EventEmitter {
 				let resource = req.params[0];
 
 				try {
-
 					let url_app_endpoint =
 						path_params_to_url({
 							app: app,
@@ -630,38 +647,41 @@ export class ServerAPI extends EventEmitter {
 
 					//	console.log(':::::>>>>>>>>> handlerEndpoint: ', handlerEndpoint);
 
-
-					if (handlerEndpoint.params && handlerEndpoint.params.cache_time && handlerEndpoint.params.cache_time > 0) {
+					if (
+						handlerEndpoint.params &&
+						handlerEndpoint.params.cache_time &&
+						handlerEndpoint.params.cache_time > 0
+					) {
 						console.log('----- CACHE ------');
 
 						let hash_request = md5({ body: req.body, query: req.query, url: req.url });
-
+						let data_cache = undefined;
+						let now = Date.now();
+						// Eliminamos de la cache si ya ha expirado
 						if (this._cacheRequest.has(hash_request)) {
-
-							let data_cache = this._cacheRequest.get(hash_request);
-							res.status(200).json(data_cache.body);
-
-						} else {
-						/*
-							const originalSend = res.send;
-							res.send = (body) => {
-								this._cacheRequest.set(hash_request, { body: body, expiration_date: Date.now() + (handlerEndpoint.params.cache_time * 1000) });
-
-								// Llamar al método original
-								originalSend.apply(res, arguments);
-							};
-							*/
-							runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+							data_cache = this._cacheRequest.get(hash_request);
+							if (data_cache && data_cache.expiration_date && data_cache.expiration_date < now) {
+								this._cacheRequest.delete(hash_request);
+								data_cache = undefined;
+							}
 						}
 
+						if (data_cache) {
+							res.status(200).json(data_cache.data);
+						} else {
+							res.locals.lastResponse = {
+								hash_request: hash_request,
+								expiration_date: Date.now() + handlerEndpoint.params.cache_time * 1000,
+								data: undefined
+							};
 
+							runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
+						}
 					} else {
 						runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
 					}
 
 					//runHandler(req, res, handlerEndpoint.params, this._getFunctions(app, environment));
-
-
 				} catch (error) {
 					res.status(505).json({
 						// @ts-ignore
@@ -870,15 +890,16 @@ export class ServerAPI extends EventEmitter {
 			});
 		}
 		*/
-		this._wsServer.clients.forEach(function each(
-			client
-		) {
+		this._wsServer.clients.forEach(function each(client) {
 			// @ts-ignore
-			if (client.APIServer && client.APIServer.path == path && client.readyState === WebSocket.OPEN) {
+			if (
+				client.APIServer &&
+				client.APIServer.path == path &&
+				client.readyState === WebSocket.OPEN
+			) {
 				client.send(JSON.stringify(payload));
 			}
 		});
-
 	}
 
 	/**
@@ -1200,8 +1221,6 @@ export class ServerAPI extends EventEmitter {
 		}
 	}
 
-
-
 	/**
 	 * @param {string} app
 	 * @param {string} environment
@@ -1210,7 +1229,6 @@ export class ServerAPI extends EventEmitter {
 	 * @param {{ data_token: { for: string; }; }} dataUser
 	 */
 	async _getHandlerMiddleware(app, environment, resource, method, dataUser) {
-
 		let result = { status: 400, message: '', handler: undefined };
 
 		if (
@@ -1245,10 +1263,8 @@ export class ServerAPI extends EventEmitter {
 				} else {
 					// @ts-ignore
 					if (result.handler.params.is_public) {
-
 						result.message = 'Ok';
 						result.status = 200;
-
 					} else {
 						//  API Privada, validar accesos
 						//let dataUserRequest = getUserPasswordTokenFromRequest(req);
@@ -1265,7 +1281,6 @@ export class ServerAPI extends EventEmitter {
 								result.message = 'Ok';
 								result.status = 200;
 							} else {
-
 								result.message = 'Unauthorized';
 								result.status = 403;
 							}
@@ -1279,13 +1294,10 @@ export class ServerAPI extends EventEmitter {
 		} else {
 			// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
 			result = {
-				message:
-					'Environment not found: ' +
-					environment +
-					' - Exposed: ' +
-					EXPOSE_PROD_API, status: 401, handler: undefined
+				message: 'Environment not found: ' + environment + ' - Exposed: ' + EXPOSE_PROD_API,
+				status: 401,
+				handler: undefined
 			};
-
 		}
 		return result;
 	}

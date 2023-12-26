@@ -35,31 +35,3 @@ export function runHandler(request, response, method, appFunctions) {
   }
 }
 
-/**
- * @param {string} handler
- * @param {string} code
- */
-/*
-export function getFnHandler(handler, code) {
-  let f;
-  switch (handler) {
-    case "JS":
-      f = createFunction(code);
-      break;
-    case "FETCH":
-      // @ts-ignore
-      f = fetchFunction;
-      break;
-    case "SOAP":
-      f = soapFunction;
-      break;
-    case "SQL":
-      f = sqlFunction;
-      break;
-    case "FUNCTION":
-      f = customFunction;
-      break;
-  }
-  return f;
-}
-*/

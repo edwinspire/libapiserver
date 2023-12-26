@@ -30,7 +30,11 @@ export const fetchFunction = async (
 
 		let r = await resp.json();
 		// @ts-ignore
-		response.locals.lastResponse = r;
+		if (response.locals.lastResponse && response.locals.lastResponse.hash_request) {
+			// @ts-ignore
+			response.locals.lastResponse.data = r;
+		}
+		
 		response.status(resp.status).json(r);
 	} catch (error) {
 		// @ts-ignore
