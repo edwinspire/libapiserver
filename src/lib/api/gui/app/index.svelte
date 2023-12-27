@@ -19,6 +19,7 @@
 	import cellHandler from './cellHandler.svelte';
 	import cellCode from './cellCode.svelte';
 	import cellPath from './cellPath.svelte';
+	import cellCacheTime from './cellCacheTime.svelte';
 	import { path_params_to_url, validateURL } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
 
@@ -57,6 +58,7 @@
 				}
 			}
 		},
+		cache_time: { label: 'Cache Time', decorator: { component: cellCacheTime } },
 		method: { decorator: { component: CellMethod }, label: 'Method' },
 		handler: { decorator: { component: cellHandler }, label: 'Handler' },
 		resource: { hidden: true },

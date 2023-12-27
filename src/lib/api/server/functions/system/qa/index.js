@@ -142,6 +142,7 @@ export async function fnGetHandler(req, res) {
 		r.status = 500;
 		//res.status(500).json({ error: error.message });
 	}
+	return r;
 }
 
 /**
@@ -270,7 +271,7 @@ export async function fnSaveApp(req, res) {
 			);
 
 			let result_endpoints = await Promise.allSettled(promises_upsert);
-						console.log('result_endpoints ==>>>', result_endpoints);
+			console.log('result_endpoints ==>>>', result_endpoints);
 			//TODO: mejorar el retorno del upsert de lo endpoints
 		}
 

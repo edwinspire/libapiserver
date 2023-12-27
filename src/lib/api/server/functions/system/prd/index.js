@@ -142,7 +142,7 @@ export async function fnGetHandler(req, res) {
 		r.status = 500;
 		//res.status(500).json({ error: error.message });
 	}
-	return r;
+	return r
 }
 
 /**
