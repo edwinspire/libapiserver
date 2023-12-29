@@ -285,7 +285,7 @@
 		let app_save = { ...app };
 		app_save.apiserver_endpoints = endpoints;
 
-		console.log('v >> ', app, app_save);
+		//console.log('v >> ', app, app_save);
 
 		return app_save;
 	}

@@ -503,7 +503,9 @@ export class ServerAPI extends EventEmitter {
 			}
 		);
 
-		this.app.use(express.json()); // Agrega esta línea
+		this.app.use(express.json({limit: '150mb'}));
+		this.app.use(express.urlencoded({limit: '150mb'}));
+		
 		this.app.use(express.static('static'));
 
 		// Middleware para capturar los request
