@@ -25,6 +25,8 @@
 	 */
 	let functionsPrd = [];
 
+	let selection = '';
+
 	/**
 	 * @type {any}
 	 */
@@ -33,10 +35,18 @@
 	 * @type {any}
 	 */
 	export let code;
+	/**
+	 * @type {{ endpoint: any; }}
+	 */
+	export let row;
 
 	export function getCode() {
 		//fnEditorCode.apply();
-		return code;
+		return selection;
+	}
+
+	export function reset() {
+		selection = code;
 	}
 
 	listFunctionStoreDev.subscribe((value) => {
@@ -54,8 +64,14 @@
 		functionsPrd = value;
 	});
 
+	function setCode() {
+		selection = code;
+	}
+
+	$: code, setCode();
+
 	onMount(() => {
-		console.log(code);
+		//		console.log(code);
 		switch (environment) {
 			case 'dev':
 				functions = functionsDev;
@@ -71,6 +87,17 @@
 </script>
 
 <div>
+	<div>
+		<h3 class="subtitle is-5">
+			<div class="icon-text">
+				<span class="icon has-text-info">
+					<i class="fa-solid fa-link"></i>
+				</span>
+				<span>{row.endpoint}</span>
+			</div>
+		</h3>
+	</div>
+
 	<div class="content is-small">Use the selected function to return a response.</div>
 
 	<div class="field is-horizontal">
@@ -80,7 +107,7 @@
 		</div>
 		<div class="field-body">
 			<div class="field is-narrow">
-				<SelectFns bind:options={functions} bind:option={code} />
+				<SelectFns bind:options={functions} bind:option={selection} />
 			</div>
 		</div>
 	</div>

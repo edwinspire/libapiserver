@@ -11,17 +11,21 @@
 	 */
 	export let code;
 	export let environment;
+	export let row;
 	/**
 	 * @type {EditorCode}
 	 */
 	let fnEditorCode;
-
 
 	let tabList = [
 		{ label: 'Query', isActive: true },
 		{ label: 'Connection Parameters' },
 		{ label: 'App Variables' }
 	];
+
+	export function reset() {
+		fnEditorCode.reset();
+	}
 
 	/**
 	 * @type {EditorCode}
@@ -53,7 +57,8 @@
 		//fnEditorCode.apply();
 		let p = fnEditorCode.getCode();
 		let query = fnEditorCode2.getCode();
-		let conf = {};		let outcode = {};
+		let conf = {};
+		let outcode = {};
 
 		try {
 			conf = JSON.parse(p);
@@ -82,18 +87,29 @@
 
 <Tab bind:tabs={tabList}>
 	<div class={tabList[0].isActive ? '' : 'is-hidden'}>
-		<EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}
-			><div slot="message">
-				<div class="content is-small">
-					Query to be executed. The parameters must have a name like <span
-						style="font-style: oblique">$nameparameter</span
-					>
-					which bind to the values ​​you send in the request.
-					<div>
-						For more information you can consult the <a
-							href="https://sequelize.org/docs/v6/core-concepts/raw-queries/#bind-parameter"
-							>sequelize</a
-						> documentation.
+		<EditorCode2 lang="sql" bind:code={query_code} bind:this={fnEditorCode2}>
+			<div slot="message">
+				<h3 class="subtitle is-5">
+					<div class="icon-text">
+						<span class="icon has-text-info">
+							<i class="fa-solid fa-link"></i>
+						</span>
+						<span>{row.endpoint}</span>
+					</div>
+				</h3>
+
+				<div>
+					<div class="content is-small">
+						Query to be executed. The parameters must have a name like <span
+							style="font-style: oblique">$nameparameter</span
+						>
+						which bind to the values ​​you send in the request.
+						<div>
+							For more information you can consult the <a
+								href="https://sequelize.org/docs/v6/core-concepts/raw-queries/#bind-parameter"
+								>sequelize</a
+							> documentation.
+						</div>
 					</div>
 				</div>
 			</div></EditorCode2
@@ -113,6 +129,6 @@
 	</div>
 
 	<div class={tabList[2].isActive ? '' : 'is-hidden'}>
-		<Vars bind:environment/>
+		<Vars bind:environment />
 	</div>
 </Tab>
