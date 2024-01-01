@@ -19,3 +19,6 @@ The main ones are:
 - Execution of custom Javascript Functions
 - Three development areas (Development, Quality, Production)
 - The configuration can be saved in any of the supported databases.
+
+# 2024
+This year the project will become popular and will be strengthened in an amazing way. The path has begun...
