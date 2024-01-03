@@ -3,7 +3,7 @@ dotenv.config()
 import { Sequelize } from 'sequelize'
 
 // @ts-ignore
-const dbsequelize = new Sequelize(process.env.DATABASE_URL_APIREST, {
+const dbsequelize = new Sequelize(process.env.DATABASE_URL_APIREST || "sqlite://apirest.sqlite3/", {
   pool: {
     max: 10,
     min: 0,
