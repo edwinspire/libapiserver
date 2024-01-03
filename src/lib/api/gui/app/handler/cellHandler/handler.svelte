@@ -1,7 +1,9 @@
 <script>
-	import SelectHandler from '../widgets/Select.svelte';
-	import { listHandlerStore, css_handlers } from '../utils.js';
+	'use strict';
+	import { BasicSelect } from '@edwinspire/svelte-components';
+	import { listHandlerStore, css_handlers } from '../../../utils.js';
 	import { onMount } from 'svelte';
+	import Code from './code.svelte';
 
 	/**
 	 * @type {any[]}
@@ -13,11 +15,11 @@
 	 */
 	export let value;
 	export let row = {};
-	export let props = {};
 	//let methodSelected = '';
 	let css_h = ' is-small ';
 
-	listHandlerStore.subscribe((value) => {
+	// @ts-ignore
+	listHandlerStore.subscribe((/** @type {any[]} */ value) => {
 		//console.log('listMethodStore ->>>>', value);
 		// @ts-ignore
 		handlers = value;
@@ -31,7 +33,7 @@
 			// @ts-ignore
 			value_handler && css_handlers[value_handler] && css_handlers[value_handler].css
 				? // @ts-ignore
-				  ' is-small ' + css_handlers[value_handler].css
+					' is-small ' + css_handlers[value_handler].css
 				: ' is-small ';
 	}
 
@@ -40,18 +42,20 @@
 	});
 </script>
 
-<td>
-	{#if row && row.method && row.method != 'WS' && row.method != 'MQTT'}
-		<SelectHandler
+<div class="field has-addons">
+	<div class="control">
+		<BasicSelect
 			bind:options={handlers}
 			bind:option={value}
 			bind:css_class={css_h}
-			on:select={(e) => {
+			on:select={(/** @type {{ detail: { value: string; }; }} */ e) => {
 				setCSS(e.detail.value);
 				console.log('Row', row);
 			}}
 		/>
-	{:else}
-		<span />
-	{/if}
-</td>
+	</div>
+
+	<div class="control">
+		<Code bind:value={row.code} bind:row></Code>
+	</div>
+</div>

@@ -1,5 +1,5 @@
 <script>
-	// @ts-nocheck
+	
 
 	// @ts-ignore
 	import uFetch from '@edwinspire/universal-fetch';
@@ -16,11 +16,12 @@
 	import { createEventDispatcher } from 'svelte';
 	import { userStore, getListFunction, listAppVars, url_paths } from '../utils.js';
 	import CellMethod from './cellMethod.svelte';
-	import cellHandler from './cellHandler.svelte';
+	//	import cellHandler from './cellHandler.svelte';
+	import cellHandler from './handler/cellHandler/index.svelte';
 	import cellCode from './cellCode.svelte';
 	import cellPath from './cellPath.svelte';
 	import cellCacheTime from './cellCacheTime.svelte';
-	import { path_params_to_url, validateURL } from '../../../api/server/utils_path.js';
+	import { validateURL } from '../../../api/server/utils_path.js';
 	import Vars from './vars.svelte';
 
 	import SelectEnvironment from '../widgets/Select.svelte';
@@ -72,7 +73,8 @@
 				}
 			}
 		},
-		code: { label: 'Code', decorator: { component: cellCode } },
+		//code: { label: 'Code', decorator: { component: cellCode } },
+		code: { label: 'Code', hidden: true},
 		description: { label: 'Description' },
 		for_user: {
 			decorator: {

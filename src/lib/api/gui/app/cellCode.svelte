@@ -1,6 +1,5 @@
 <script>
 	// @ts-nocheck
-
 	'use strict';
 	import { onMount } from 'svelte';
 	import FetchCode from './handler/fetch.svelte';
@@ -41,15 +40,7 @@
 	 */
 	export let value;
 	export let row = {};
-	export let props = {};
-	//let token;
-	//let environment = '';
-	/*
-	userStore.subscribe((value) => {
-		console.log('tokenStore ->>>>', value);
-	//	token = value.token;
-	});
-	*/
+	
 
 	onMount(() => {});
 </script>
