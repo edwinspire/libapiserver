@@ -67,7 +67,7 @@ export const getEndpointByApp = async (
 	}
 };
 
-export const demoEndpoints = async () => {
+export const defaultEndpoints = async () => {
 	try {
 
 		await PromiseSequence.ByBlocks(async (/** @type {{ idapp: any; resource: any; name: any; version: any; environment: any; method: any; }} */ element) => {

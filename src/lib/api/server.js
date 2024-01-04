@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 import { EventEmitter } from 'node:events';
 import { defaultApps, getAppByName, getAppWithEndpoints } from './db/app.js';
-import { demoEndpoints } from './db/endpoint.js';
+import { defaultEndpoints } from './db/endpoint.js';
 import { defaultUser, login } from './db/user.js';
 import { getRoleById } from './db/role.js';
 import { createPathRequest } from './db/path_request.js';
@@ -1079,7 +1079,7 @@ export class ServerAPI extends EventEmitter {
 					await defaultMethods();
 					await defaultHandlers();
 					await defaultApps();
-					await demoEndpoints();
+					await defaultEndpoints();
 				} catch (error) {
 					console.log(error);
 				}
