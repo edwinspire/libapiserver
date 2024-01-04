@@ -1,5 +1,5 @@
 import { Endpoint } from './models.js';
-import { endpoins_default } from './demo_values.js';
+import { endpoins_default } from './default_values.js';
 import PromiseSequence from "@edwinspire/sequential-promises";
 
 export const upsertEndpoint = async (

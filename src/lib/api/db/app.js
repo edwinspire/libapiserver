@@ -3,7 +3,7 @@ import { Application, Endpoint } from './models.js';
 import { checkAPIToken } from '../server/utils.js';
 import { createFunction } from '../handler/jsFunction.js';
 //import { login } from './user.js';
-import { app_default } from './demo_values.js';
+import { app_default } from './default_values.js';
 
 export const getAppWithEndpoints = async (/** @type {any} */ where, /** @type {boolean} */ raw) => {
 	return Application.findAll({
@@ -144,7 +144,7 @@ export function getApiHandler(app_name, endpointData, appVarsEnv) {
 		if (endpointData.enabled) {
 			// @ts-ignore
 			if (returnHandler.params.is_public) {
-				returnHandler.authentication = async (/** @type {string} */ jw_token) => {
+				returnHandler.authentication = async () => {
 					//console.log('authentication, public: ', jw_token);
 					return true;
 				};
