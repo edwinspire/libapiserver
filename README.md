@@ -16,6 +16,8 @@ At the moment we have the following handlers available:
 - Functions (Javascript code created directly in the backend)
 - Fetch (Makes calls to other REST services)  
 
+![Main](docs/img/main.png)
+
 # Server features
 
 The server has some features that will allow you to implement a REST server quickly from a Web interface.
@@ -38,7 +40,7 @@ The main ones are:
 
 # Documentation
 
-The documentation can be found at the following address jjjjj.
+The documentation can be found at the following [Documentation File](https://github.com/edwinspire/libapiserver/blob/main/docs/README.md).
 
 Or if you want the project ready to use you can visit the following project that uses this library as a base: https://github.com/edwinspire/OpenFusionAPI
 
