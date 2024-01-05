@@ -1,6 +1,4 @@
 <script>
-	
-
 	// @ts-ignore
 	import uFetch from '@edwinspire/universal-fetch';
 	import {
@@ -18,7 +16,7 @@
 	import CellMethod from './cellMethod.svelte';
 	//	import cellHandler from './cellHandler.svelte';
 	import cellHandler from './handler/cellHandler/index.svelte';
-	import cellCode from './cellCode.svelte';
+	//import cellCode from './cellCode.svelte';
 	import cellPath from './cellPath.svelte';
 	import cellCacheTime from './cellCacheTime.svelte';
 	import { validateURL } from '../../../api/server/utils_path.js';
@@ -29,8 +27,17 @@
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
 
+	/**
+	 * @type {any}
+	 */
 	let uploaded_file;
+	/**
+	 * @type {{}[]}
+	 */
 	let endpoints = [];
+	/**
+	 * @type {{ id: any; value: any; }[]}
+	 */
 	let environment_list = [];
 	let showEndpointEdit = false;
 	let SelectedRow = {};
@@ -38,10 +45,20 @@
 	let availableURL = false;
 
 	$: idapp, getApp();
+	// @ts-ignore
 	$: SelectedRow.resource, checkResource();
 
+	/**
+	 * @type {Vars}
+	 */
 	let fnVarsDev;
+	/**
+	 * @type {Vars}
+	 */
 	let fnVarsQa;
+	/**
+	 * @type {Vars}
+	 */
 	let fnVarsPrd;
 
 	let active_tab = '';
@@ -74,8 +91,7 @@
 			}
 		},
 		//code: { label: 'Code', decorator: { component: cellCode } },
-		code: { label: 'Code', hidden: true},
-		description: { label: 'Description' },
+		code: { label: 'Code', hidden: true },
 		for_user: {
 			decorator: {
 				component: ColumnTypes.BooleanIcon,
@@ -101,12 +117,7 @@
 		headers_test: { hidden: true },
 		data_test: { hidden: true },
 		latest_updater: { hidden: true },
-		environment: { hidden: true },
-
-		name: { hidden: true },
-		namespace: { hidden: true },
-		rowkey: { hidden: true },
-		version: { hidden: true }
+		environment: { hidden: true }
 	};
 
 	let tabs = [
@@ -161,19 +172,27 @@
 	let uf = new uFetch();
 
 	function checkResource() {
+		// @ts-ignore
 		validateResource = validateURL(SelectedRow.resource);
 		//		console.log('validateURL: ', SelectedRow.resource, validateResource);
 
 		availableURL = checkEndpointConstraint(SelectedRow);
 	}
 
+	/**
+	 * @param {{ resource?: any; environment?: any; method?: any; idendpoint?: any; }} endpoint_value
+	 */
 	function checkEndpointConstraint(endpoint_value) {
 		let check = endpoints.some((row) => {
 			//	console.log(endpoint_value, row);
 			return (
+				// @ts-ignore
 				endpoint_value.resource == row.resource &&
+				// @ts-ignore
 				endpoint_value.environment == row.environment &&
+				// @ts-ignore
 				endpoint_value.method == row.method &&
+				// @ts-ignore
 				endpoint_value.idendpoint != row.idendpoint
 			);
 		});
@@ -226,6 +245,9 @@
 		}
 	}
 
+	/**
+	 * @param {string | any[]} app_resp
+	 */
 	function showAppData(app_resp) {
 		if (app_resp && app_resp.length > 0) {
 			active_tab = active_tab == '' ? 'endpoints' : active_tab;
@@ -243,18 +265,18 @@
 				}
 			}
 
-			//console.log("appDataTable = ", appDataTable);
-			//console.log(app);
 			// @ts-ignore
 			getListFunction($userStore.token, app.app, app.environment);
 
 			if (app.apiserver_endpoints) {
-				endpoints = app.apiserver_endpoints.map((ax) => {
-					return {
-						endpoint: `/api/${app.app}/${ax.environment}${ax.resource}`,
-						...ax
-					};
-				});
+				endpoints = app.apiserver_endpoints.map(
+					(/** @type {{ environment: any; resource: any; }} */ ax) => {
+						return {
+							endpoint: `/api/${app.app}/${ax.environment}${ax.resource}`,
+							...ax
+						};
+					}
+				);
 				//console.log(endpoints);
 			}
 		}
@@ -634,15 +656,6 @@
 		} else {
 			alert('The data has errors, please review it.');
 		}
-
-		/*path_params_to_url({
-			app: app.app,
-			version: SelectedRow.version,
-			namespace: SelectedRow.namespace,
-			name: SelectedRow.name,
-			environment: SelectedRow.environment
-		});
-		*/
 	}}
 >
 	<span slot="title">Endpoint Edit</span>
@@ -687,6 +700,7 @@
 					<div class="field is-expanded">
 						<div class="field has-addons">
 							<p class="control">
+								<!-- svelte-ignore a11y-missing-attribute -->
 								<a class="button is-small is-static">
 									/api/{app.app}/
 								</a>

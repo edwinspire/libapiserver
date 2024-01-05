@@ -1,23 +1,21 @@
 {
-	"name": "@edwinspire/libapiserver",
-	"version": "0.1.1",
-	"description": "",
-	"main": "./src/lib/api/server.js",
+	"name": "prueba-esqueleto",
+	"version": "0.0.1",
+	"private": true,
 	"scripts": {
-		"package": "svelte-kit package",
-		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-		"build_test": "vite build && node test/server.js",
-		"test": "node test/server.js",
-		"dev": "vite build && node test/server.js",
-		"dev_vite": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"package": "svelte-kit package",
+		"build_test": "vite build && node test/server.js",
+		"test": "node test/server.js",
+		"dev": "vite build && node test/server.js",
+		"dev_vite": "vite dev"
 	},
 	"devDependencies": {
-
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
@@ -31,13 +29,8 @@
 		"svelte-check": "^3.6.0",
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3",
-
-		
-
-		"@fontsource/fira-mono": "^4.5.10",
-		"@neoconfetti/svelte": "^1.0.0",
 		"@sveltejs/adapter-node": "^2.0.0",
-		"@types/cookie": "^0.5.1"
+		"@edwinspire/svelte-components": "github:edwinspire/svelte-components"
 	},
 	"type": "module",
 	"dependencies": {
@@ -46,7 +39,6 @@
 		"@codemirror/lang-sql": "^6.5.0",
 		"@codemirror/lint": "^6.2.2",
 		"@edwinspire/sequential-promises": "github:edwinspire/sequential-promises#v0.01",
-		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
 		"@edwinspire/universal-fetch": "github:edwinspire/universal-fetch#v0.0.2",
 		"aedes": "^0.49.0",
 		"bulma": "^0.9.4",
