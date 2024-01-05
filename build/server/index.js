@@ -181,7 +181,7 @@ const options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "fn18vq"
+  version_hash: "mb12f2"
 };
 function get_hooks() {
   return {};
@@ -1975,7 +1975,7 @@ const replacements = {
   "\u2029": "\\u2029"
 };
 const pattern = new RegExp(`[${Object.keys(replacements).join("")}]`, "g");
-function serialize_data(fetched, filter, prerendering = false) {
+function serialize_data(fetched, filter, prerendering2 = false) {
   const headers2 = {};
   let cache_control = null;
   let age = null;
@@ -2016,7 +2016,7 @@ function serialize_data(fetched, filter, prerendering = false) {
     }
     attrs.push(`data-hash="${hash(...values)}"`);
   }
-  if (!prerendering && fetched.method === "GET" && cache_control && !varyAny) {
+  if (!prerendering2 && fetched.method === "GET" && cache_control && !varyAny) {
     const match = /s-maxage=(\d+)/g.exec(cache_control) ?? /max-age=(\d+)/g.exec(cache_control);
     if (match) {
       const ttl = +match[1] - +(age ?? "0");
@@ -2814,7 +2814,7 @@ async function respond_with_error({
       state,
       page_config: {
         ssr,
-        csr: get_option([default_layout], "csr") ?? true
+        csr
       },
       status,
       error: await handle_error_and_jsonify(event, options2, error),
@@ -3080,7 +3080,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
         status = action_result.status;
       }
     }
-    const should_prerender_data = nodes.some((node) => node?.server);
+    const should_prerender_data = nodes.some((node) => node?.server?.load);
     const data_pathname = add_data_suffix(event.url.pathname);
     const should_prerender = get_option(nodes, "prerender") ?? false;
     if (should_prerender) {
@@ -3095,7 +3095,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
     }
     state.prerender_default = should_prerender;
     const fetched = [];
-    if (get_option(nodes, "ssr") === false && !state.prerendering) {
+    if (get_option(nodes, "ssr") === false && !(state.prerendering && should_prerender_data)) {
       return await render_response({
         branch: [],
         fetched,
@@ -3253,6 +3253,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
         body: data
       });
     }
+    const ssr = get_option(nodes, "ssr") ?? true;
     return await render_response({
       event,
       options: options2,
@@ -3261,11 +3262,11 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
       resolve_opts,
       page_config: {
         csr: get_option(nodes, "csr") ?? true,
-        ssr: get_option(nodes, "ssr") ?? true
+        ssr
       },
       status,
       error: null,
-      branch: compact(branch),
+      branch: ssr === false ? [] : compact(branch),
       action_result,
       fetched
     });
@@ -3963,7 +3964,9 @@ class Server {
     };
     filter_private_env(env, prefixes);
     const public_env2 = filter_public_env(env, prefixes);
-    set_public_env(public_env2);
+    set_public_env(
+      public_env2
+    );
     set_safe_public_env(public_env2);
     if (!this.#options.hooks) {
       try {

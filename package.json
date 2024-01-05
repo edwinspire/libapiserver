@@ -15,7 +15,9 @@
 		"dev_vite": "vite dev"
 	},
 	"devDependencies": {
+		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
 		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-node": "^2.0.2",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "8.56.0",
@@ -27,9 +29,7 @@
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"typescript": "^5.0.0",
-		"vite": "^5.0.3",
-		"@sveltejs/adapter-node": "^2.0.2",
-		"@edwinspire/svelte-components": "github:edwinspire/svelte-components"
+		"vite": "^5.0.3"
 	},
 	"type": "module",
 	"dependencies": {
@@ -55,7 +55,7 @@
 		"pg": "^8.11.3",
 		"pg-hstore": "^2.3.4",
 		"sequelize": "^6.31.1",
-		"soap": "^1.0.0",
+		"soap": "^0.45.0",
 		"sqlite3": "^5.1.6",
 		"tedious": "^16.6.0",
 		"uuid": "^9.0.0",
