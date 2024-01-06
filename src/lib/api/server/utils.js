@@ -13,6 +13,7 @@ const errors = {
 	2: { code: 2, message: 'Invalid credentials' }
 };
 
+const jwtKey = JWT_KEY||'oy8632rcv"$/8';
 
 
 /**
@@ -168,7 +169,7 @@ export function customError(code, message) {
  * @param {import("crypto").BinaryLike} pwd
  */
 export function EncryptPwd(pwd) {
-	return createHmac('sha256', JWT_KEY || '9999999999')
+	return createHmac('sha256', jwtKey)
 		.update(pwd)
 		.digest('hex');
 }
@@ -179,14 +180,14 @@ export function EncryptPwd(pwd) {
 export function GenToken(data, exp = Math.floor(Date.now() / 1000) + 60 * 60) {
 	console.log('GenToken > ', data);
 	// Genera un Token
-	return jwt.sign({ data: data, exp: exp }, JWT_KEY || '9999999999');
+	return jwt.sign({ data: data, exp: exp }, jwtKey);
 }
 
 /**
  * @param {any} token
  */
 export function tokenVerify(token) {
-	return jwt.verify(token, JWT_KEY || '9999999999');
+	return jwt.verify(token,  jwtKey);
 }
 
 /**

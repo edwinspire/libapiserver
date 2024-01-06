@@ -12,7 +12,7 @@ const dbsequelize = new Sequelize(db_conn, {
     acquire: 30000,
     idle: 10000,
   },
-}) 
+})
 
 export default dbsequelize;
 
@@ -20,9 +20,9 @@ export default dbsequelize;
 
   try {
     await dbsequelize.authenticate()
-    console.log('Connection has been established successfully.')
+    console.log('Connection has been established successfully to ' + db_conn)
   } catch (error) {
-    console.error('Unable to connect to the database: '+db_conn, error)
+    console.error('Unable to connect to the database: ' + db_conn, error)
   }
 
 })();
