@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config()
 import { Sequelize } from 'sequelize'
 
-const db_conn = process.env.DATABASE_URL_APIREST || "sqlite://apirest.sqlite3/";
+const db_conn = process.env.DATABASE_URL_APIREST || "sqlite::memory:";
 
 // @ts-ignore
 const dbsequelize = new Sequelize(db_conn, {
