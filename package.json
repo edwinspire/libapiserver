@@ -15,7 +15,6 @@
 		"dev_vite": "vite dev"
 	},
 	"devDependencies": {
-		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^2.0.2",
 		"@sveltejs/kit": "^2.0.0",
@@ -33,6 +32,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@edwinspire/svelte-components": "github:edwinspire/svelte-components",
 		"@codemirror/lang-javascript": "^6.1.9",
 		"@codemirror/lang-json": "^6.0.1",
 		"@codemirror/lang-sql": "^6.5.0",
