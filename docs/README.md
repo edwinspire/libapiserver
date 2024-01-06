@@ -1,6 +1,6 @@
 # API Server
 
-Integrated HTTP, Websocket and MQTT server, to quickly create rest services.
+Integrated HTTP, Websocket and MQTT server, to quickly create API services.
 It uses ExpressJS for the Backend and Svelte for the Frontend as a base.
 
 # Server features
