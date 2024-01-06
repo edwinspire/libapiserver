@@ -4,7 +4,7 @@ export const varsDemo = {
 	dev: {
 		$_VAR_DEMO_1: 10,
 		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
-		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_FETCH: 'https://fakestoreapi.com/carts',
 		$_VAR_SQLITE: {
 			database: 'memory',
 			username: '',
@@ -26,7 +26,7 @@ export const varsDemo = {
 	qa: {
 		$_VAR_DEMO_1: 10,
 		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
-		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_FETCH: 'https://fakestoreapi.com/carts',
 		$_VAR_SQLITE: {
 			database: 'memory',
 			username: '',
@@ -48,7 +48,7 @@ export const varsDemo = {
 	prd: {
 		$_VAR_DEMO_1: 10,
 		$_VAR_DEMO_2: { host: 'google.com', var1: { a: 10, b: { casti: 3 } } },
-		$_VAR_FETCH: 'https://api.github.com/users/auth0',
+		$_VAR_FETCH: 'https://fakestoreapi.com/carts',
 		$_VAR_SQLITE: {
 			database: 'memory',
 			username: '',
