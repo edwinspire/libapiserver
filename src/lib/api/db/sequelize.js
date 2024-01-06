@@ -20,9 +20,9 @@ export default dbsequelize;
 
   try {
     await dbsequelize.authenticate()
-    console.log('Connection has been established successfully to ' + db_conn)
+    console.log('***** Connection has been established successfully to ' + db_conn)
   } catch (error) {
-    console.error('Unable to connect to the database: ' + db_conn, error)
+    console.error('**** Unable to connect to the database: ' + db_conn, error)
   }
 
 })();
