@@ -90,6 +90,10 @@ export class ServerAPI extends EventEmitter {
 	constructor(buildDB = false, handlerExternal = undefined, customRouter = undefined) {
 		super();
 
+		if (!(EXPOSE_QA_API || EXPOSE_DEV_API || EXPOSE_PROD_API)) {
+			throw 'One of the following environment variables must be set: EXPOSE_QA_API or EXPOSE_DEV_API or EXPOSE_PROD_API';
+		}
+
 		/**
 		 * @type {any[]}
 		 */
@@ -503,9 +507,9 @@ export class ServerAPI extends EventEmitter {
 			}
 		);
 
-		this.app.use(express.json({limit: '150mb'}));
-		this.app.use(express.urlencoded({limit: '150mb'}));
-		
+		this.app.use(express.json({ limit: '150mb' }));
+		this.app.use(express.urlencoded({ limit: '150mb' }));
+
 		this.app.use(express.static('static'));
 
 		// Middleware para capturar los request
@@ -703,7 +707,7 @@ export class ServerAPI extends EventEmitter {
 		if (EXPRESSJS_SERVER_TIMEOUT && Number(EXPRESSJS_SERVER_TIMEOUT) > 1000) {
 			rto = Number(EXPRESSJS_SERVER_TIMEOUT);
 		}
-		console.log('EXPRESSJS_SERVER_TIMEOUT: ' + EXPRESSJS_SERVER_TIMEOUT);
+		console.log('EXPRESSJS_SERVER_TIMEOUT: ' + rto);
 		this._httpServer.setTimeout(rto); // Para 5 minutos
 	}
 
@@ -1294,9 +1298,8 @@ export class ServerAPI extends EventEmitter {
 				}
 			}
 		} else {
-			// TODO: Registrar las llamadas a endpoints no existentes para detectar posibles ataques
 			result = {
-				message: 'Environment not found: ' + environment + ' - Exposed: ' + EXPOSE_PROD_API,
+				message: 'Environment ' + environment + ' not found - Exposed: ' + EXPOSE_PROD_API,
 				status: 401,
 				handler: undefined
 			};
@@ -1307,9 +1310,9 @@ export class ServerAPI extends EventEmitter {
 	listen() {
 		//let g = this._getNameFunctions('system');
 		//console.log(g);
-
-		this._httpServer.listen(PORT, () => {
-			console.log('App listening on port ' + PORT);
+		let port = PORT || 3000;
+		this._httpServer.listen(port, () => {
+			console.log('App listening on port ' + port);
 		});
 	}
 }
