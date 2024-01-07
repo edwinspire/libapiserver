@@ -27,6 +27,26 @@
 	const dispatch = createEventDispatcher();
 	export let idapp = 0;
 
+	const default_row = {
+		idendpoint: undefined,
+		enabled: true,
+		is_public: true,
+		for_user: true,
+		for_api: true,
+		environment: 'dev',
+		resource: '',
+		method: 'GET',
+		handler: 'NA',
+		cors: null,
+		code: undefined,
+		description: '',
+		headers_test: {},
+		data_test: {},
+		rowkey: 0,
+		latest_updater: null,
+		cache_time: 0
+	};
+
 	/**
 	 * @type {any}
 	 */
@@ -585,13 +605,18 @@
 					bind:RawDataTable={endpoints}
 					bind:columns
 					on:newrow={() => {
+						/*
 						SelectedRow = {
 							enabled: false,
 							environment: 'dev',
 							method: 'NA',
 							handler: 'NA',
-							resource: ''
+							resource: '',
+							cache_time: 0
 						};
+						*/
+						SelectedRow = default_row;
+
 						showEndpointEdit = true;
 					}}
 					on:editrow={(e) => {
@@ -635,20 +660,25 @@
 				// es nuevo endpoint
 				endpoints.unshift({
 					idapp: app.idapp,
+					idendpoint: undefined,
 					endpoint: SelectedRow.endpoint,
 					resource: SelectedRow.resource,
 					enabled: SelectedRow.enabled,
-					//version: SelectedRow.version,
-					environment: SelectedRow.environment,
+					is_public: true,
 					for_user: true,
-					for_api: false,
+					for_api: true,
+					environment: SelectedRow.environment,
+					resource: '',
 					method: SelectedRow.method,
 					handler: 'NA',
-					is_public: false,
-					cors: undefined,
+					cors: null,
 					code: '',
 					description: SelectedRow.description,
-					latest_updater: $userStore.iduser
+					headers_test: {},
+					data_test: {},
+					rowkey: 0,
+					latest_updater: $userStore.iduser,
+					cache_time: 0
 				});
 			}
 

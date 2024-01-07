@@ -28,7 +28,7 @@
 declare module '$env/static/private' {
 	export const PORT: string;
 	export const BUILD_DB_ON_START: string;
-	export const DATABASE_URL_APIREST: string;
+	export const DATABASE_URI_API: string;
 	export const JWT_KEY: string;
 	export const EXPOSE_DEV_API: string;
 	export const EXPOSE_QA_API: string;
@@ -146,7 +146,7 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		PORT: string;
 		BUILD_DB_ON_START: string;
-		DATABASE_URL_APIREST: string;
+		DATABASE_URI_API: string;
 		JWT_KEY: string;
 		EXPOSE_DEV_API: string;
 		EXPOSE_QA_API: string;
