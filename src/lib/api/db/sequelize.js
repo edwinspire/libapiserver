@@ -4,6 +4,7 @@ import { Sequelize } from 'sequelize'
 
 const db_conn = process.env.DATABASE_URI_API || "sqlite::memory:";
 
+
 // @ts-ignore
 const dbsequelize = new Sequelize(db_conn, {
   pool: {
