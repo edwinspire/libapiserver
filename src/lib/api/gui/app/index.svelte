@@ -615,7 +615,7 @@
 							cache_time: 0
 						};
 						*/
-						SelectedRow = default_row;
+						SelectedRow = {...default_row};
 
 						showEndpointEdit = true;
 					}}
