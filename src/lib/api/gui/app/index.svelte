@@ -668,7 +668,7 @@
 					for_user: true,
 					for_api: true,
 					environment: SelectedRow.environment,
-					resource: '',
+					resource: SelectedRow.resource,
 					method: SelectedRow.method,
 					handler: 'NA',
 					cors: null,
